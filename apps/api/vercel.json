@@ -1,8 +1,4 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": null,
-  "installCommand": "cd ../.. && npm install",
-  "buildCommand": "cd ../.. && npm run build -w @do/shared && npm run generate -w @do/api && npm run build -w @do/api && npm run build:vercel -w @do/api",
   "rewrites": [
     { "source": "/(.*)", "destination": "/api" }
   ]

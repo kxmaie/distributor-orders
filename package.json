@@ -1,9 +1,6 @@
 {
   "name": "turk-pen",
   "private": true,
-  "engines": {
-    "node": "24.x"
-  },
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -16,8 +13,7 @@
     "api:seed": "npm run seed -w @do/api",
     "api:test": "npm run test -w @do/api",
     "web:dev": "npm run dev -w @do/web",
-    "web:build": "npm run build -w @do/web",
-    "build:shared": "npm run build -w @do/shared"
+    "web:build": "npm run build -w @do/web"
   },
   "devDependencies": {
     "vite-plugin-pwa": "^1.3.0"
