@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root, [data-theme="dark"] {
+  /* Turk-pen brand: navy #182946 + teal #079697 (from the logo) */
+  --bg: 11 18 32; --surface: 17 28 48; --surface-2: 24 39 66; --line: 255 255 255;
+  --primary: 7 150 151; --primary-fg: 6 16 30; --accent: 110 214 210;
+  --ink: 234 238 245; --muted: 148 160 178; --danger: 255 92 92; --success: 61 214 140;
+  color-scheme: dark;
+}
+[data-theme="light"] {
+  --bg: 244 247 249; --surface: 255 255 255; --surface-2: 232 239 243; --line: 24 41 70;
+  --primary: 5 122 123; --primary-fg: 255 255 255; --accent: 24 41 70;
+  --ink: 24 41 70; --muted: 83 94 108; --danger: 214 51 51; --success: 22 163 98;
+  color-scheme: light;
+}
+
+html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+button, a, [role="button"], input, select, textarea { touch-action: manipulation; } /* no 300ms tap delay / double-tap zoom on controls */
+body { @apply bg-bg text-ink font-sans antialiased; }
+/* Latin glyphs (UPVC, order numbers, SKUs) come from Montserrat to echo the Turk-pen wordmark; Arabic falls through to Cairo. */
+h1, h2, h3, .font-display { font-family: Montserrat, Cairo, "IBM Plex Sans Arabic", system-ui, sans-serif; }
+:focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 2px; }
+
+@layer components {
+  /* No backdrop-filter here: dozens of blurred cards in a scrolling grid is the #1 cause of dropped frames on phones. Blur is kept only on the sticky header. */
+  .card { @apply rounded-xl2 border border-line/10 bg-surface shadow-soft; }
+  .btn { @apply inline-flex min-h-11 select-none items-center justify-center gap-2 rounded-xl px-5 font-semibold transition duration-150 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 aria-busy:cursor-progress; }
+  .btn-primary { @apply btn bg-primary text-primary-fg hover:shadow-glow; }
+  .btn-ghost { @apply btn border border-line/15 bg-transparent text-ink hover:bg-line/5; }
+  .btn-danger { @apply btn border border-danger/40 bg-danger/10 text-danger hover:bg-danger/20; }
+  .input { @apply min-h-11 w-full rounded-xl border border-line/15 bg-surface2/70 px-4 text-ink placeholder:text-muted focus:border-primary focus:outline-none; }
+  .label { @apply block space-y-1 text-sm text-muted; }
+  .table-wrap { @apply overflow-x-auto rounded-xl2 border border-line/10; }
+  .data { @apply w-full min-w-[40rem] text-sm; }
+  .data th { @apply bg-surface2/80 px-3 py-3 text-start text-xs font-semibold text-muted; }
+  .data td { @apply border-t border-line/10 px-3 py-3 align-middle; }
+  .chip { @apply inline-flex min-h-9 items-center rounded-full border border-line/15 px-4 text-sm text-muted transition hover:text-ink; }
+  .chip-active { @apply border-primary bg-primary/15 text-primary; }
+  .skeleton { position: relative; overflow: hidden; @apply rounded-xl bg-line/10; }
+  .skeleton::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgb(var(--line) / .08), transparent); animation: shimmer 1.4s infinite; }
+}
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+@keyframes drift-a { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(40px,30px,0) scale(1.15); } }
+@keyframes drift-b { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(-50px,-20px,0) scale(1.1); } }
+.blob-a { animation: drift-a 14s ease-in-out infinite; }
+.blob-b { animation: drift-b 18s ease-in-out infinite; }
+.blob-a, .blob-b { will-change: transform; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  /* Decorative motion off; the loading spinner (animate-spin) stays because it is functional feedback. */
+  *, ::before, ::after { transition-duration: .01ms !important; transition-delay: 0s !important; }
+  .blob-a, .blob-b, .skeleton::after { animation: none; }
+}
+/* Pause the infinite background drift when the tab/app is hidden. */
+@media (update: slow) { .blob-a, .blob-b { animation: none; } }
+
+/* Paper is always white: print with the light palette even when the app is in dark mode. */
+@media print {
+  html[data-theme] {
+    --bg: 255 255 255; --surface: 255 255 255; --surface-2: 244 246 248; --line: 24 41 70;
+    --primary: 5 122 123; --primary-fg: 255 255 255; --accent: 24 41 70;
+    --ink: 24 41 70; --muted: 83 94 108; --danger: 214 51 51; --success: 22 163 98;
+    color-scheme: light;
+  }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .card { box-shadow: none; }
+}
