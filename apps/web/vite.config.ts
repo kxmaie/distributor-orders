@@ -1,6 +1,10 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // /api is proxied to the Fastify server => same origin, so the httpOnly refresh cookie just works.
 export default defineConfig({
@@ -73,6 +77,13 @@ export default defineConfig({
       devOptions: { enabled: false },
     }),
   ],
+  // Build the web app straight from the shared TypeScript source (the compiled CJS index.js
+  // has no named exports visible to Rollup).
+  resolve: {
+    alias: {
+      "@do/shared": path.resolve(__dirname, "../../packages/shared/src/index.ts"),
+    },
+  },
   build: {
     rollupOptions: {
       output: {
