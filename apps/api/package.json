@@ -12,7 +12,8 @@
     "seed": "tsx prisma/seed.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "build:vercel": "esbuild src/vercel.ts --bundle --platform=node --target=node20 --format=cjs --outfile=api/index.js --external:@prisma/client --external:.prisma/client"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -34,6 +35,7 @@
   "devDependencies": {
     "@types/node": "^20.14.0",
     "@vercel/node": "^27.0.0",
+    "esbuild": "^0.28.2",
     "prisma": "^5.22.0",
     "tsx": "^4.19.0",
     "typescript": "^5.5.4",
