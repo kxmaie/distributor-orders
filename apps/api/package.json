@@ -13,8 +13,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate",
-    "build:vercel": "esbuild src/vercel.ts --bundle --platform=node --target=node20 --format=cjs --outfile=api/index.js --external:@prisma/client --external:.prisma/client"
-  },
+    "build:vercel": "esbuild src/vercel.ts --bundle --platform=node --target=node20 --format=cjs --outfile=api/index.js --external:@prisma/client --external:.prisma/client --external:argon2"  },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
