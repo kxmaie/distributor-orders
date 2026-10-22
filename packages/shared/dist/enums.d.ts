@@ -1,0 +1,14 @@
+export declare const ORDER_STATUSES: readonly ["new", "confirmed", "in_production", "ready", "delivered", "cancelled"];
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+export declare const UNITS: readonly ["piece", "meter", "sqm"];
+export type Unit = (typeof UNITS)[number];
+export declare const MOVEMENT_TYPES: readonly ["receipt", "adjustment", "reserve", "release", "ship"];
+export type MovementType = (typeof MOVEMENT_TYPES)[number];
+export declare const RESERVATION_STATUSES: readonly ["active", "released", "fulfilled"];
+export type ReservationStatus = (typeof RESERVATION_STATUSES)[number];
+export declare const PASSWORD_REQUEST_STATUSES: readonly ["pending", "resolved", "rejected"];
+export type PasswordRequestStatus = (typeof PASSWORD_REQUEST_STATUSES)[number];
+export declare const NOTIF_CHANNELS: readonly ["whatsapp", "in_app"];
+export type NotifChannel = (typeof NOTIF_CHANNELS)[number];
+export declare const QUEUE_STATUSES: readonly ["pending", "sent", "failed"];
+export type QueueStatus = (typeof QUEUE_STATUSES)[number];
