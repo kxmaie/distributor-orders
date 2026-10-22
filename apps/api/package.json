@@ -11,9 +11,12 @@
     "migrate:deploy": "prisma migrate deploy",
     "seed": "tsx prisma/seed.ts",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "prisma generate"
   },
-  "prisma": { "seed": "tsx prisma/seed.ts" },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "dependencies": {
     "@do/shared": "*",
     "@fastify/cookie": "^9.4.0",
@@ -30,6 +33,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
+    "@vercel/node": "^27.0.0",
     "prisma": "^5.22.0",
     "tsx": "^4.19.0",
     "typescript": "^5.5.4",

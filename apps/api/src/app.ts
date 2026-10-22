@@ -70,7 +70,8 @@ export async function buildApp() {
   await app.register(eventsRoutes, { prefix: "/api/v1" });
 
   // Start the background notification worker after the app is built
-  if (config.NODE_ENV !== "test") startWorker();
+  // (skipped on Vercel: serverless functions can't run background jobs)
+  if (config.NODE_ENV !== "test" && !process.env.VERCEL) startWorker();
 
   return app;
 }
