@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
-import { LoginBody, PasswordRequestBody, RegisterBody, RoleSchema } from "@do/shared";
+import { LoginBody, PasswordRequestBody, RegisterBody, RoleSchema, WhatsAppConsentBody } from "@do/shared";
 import { ACCESS_TTL, REFRESH_COOKIE, REFRESH_TTL_DAYS, isProd } from "../../config";
 import * as svc from "./service";
 
@@ -62,6 +62,10 @@ const authRoutes: FastifyPluginAsync = async (app) => {
   });
 
   app.get("/me", { preHandler: app.authenticate }, async (req) => svc.getMe(BigInt(req.user.sub)));
+  app.patch("/whatsapp-consent", { preHandler: app.authenticate }, async (req) => {
+    const body = WhatsAppConsentBody.parse(req.body);
+    return svc.setWhatsAppConsent(BigInt(req.user.sub), body.enabled, req.ip);
+  });
 };
 
 export default authRoutes;

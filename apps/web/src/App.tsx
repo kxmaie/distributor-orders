@@ -16,6 +16,7 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import OrderDetails from "./pages/OrderDetails";
 import Orders from "./pages/Orders";
+import Account from "./pages/Account";
 import ProductDetails from "./pages/ProductDetails";
 import Profile from "./pages/Profile";
 import { useAuth } from "./store/auth";
@@ -32,6 +33,7 @@ const AdminUsers = lazy(() => import("./pages/admin/Users"));
 const AdminDiscounts = lazy(() => import("./pages/admin/Discounts"));
 const AdminPasswordRequests = lazy(() => import("./pages/admin/PasswordRequests"));
 const AdminReports = lazy(() => import("./pages/admin/Reports"));
+const AdminAccounts = lazy(() => import("./pages/admin/Accounts"));
 
 function Boot({ children }: { children: ReactElement }) {
   const status = useAuth((s) => s.status);
@@ -86,6 +88,7 @@ export default function App() {
                 <Route path="orders" element={<Orders />} />
                 <Route path="orders/:id" element={<OrderDetails />} />
                 <Route path="profile" element={<Profile />} />
+                <Route path="account" element={<Account />} />
               </Route>
               <Route path="/admin" element={<RequireAuth><RequireAdmin><AdminLayout /></RequireAdmin></RequireAuth>}>
                 <Route index element={<AdminDashboard />} />
@@ -100,6 +103,7 @@ export default function App() {
                 <Route path="discounts" element={<AdminDiscounts />} />
                 <Route path="password-requests" element={<AdminPasswordRequests />} />
                 <Route path="reports" element={<AdminReports />} />
+                <Route path="accounts" element={<AdminAccounts />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>

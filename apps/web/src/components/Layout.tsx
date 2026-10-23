@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ClipboardList, Home, LayoutGrid, Moon, ShoppingCart, Sun, User } from "lucide-react";
+import { ClipboardList, Home, LayoutGrid, Moon, ShoppingCart, Sun, User, Wallet } from "lucide-react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../store/auth";
 import { cartCount, useCart } from "../store/cart";
@@ -12,6 +12,7 @@ const NAV = [
   { to: "/", label: "الرئيسية", icon: Home, end: true },
   { to: "/catalog", label: "المنتجات", icon: LayoutGrid, end: false },
   { to: "/orders", label: "طلباتي", icon: ClipboardList, end: false },
+  { to: "/account", label: "حسابي", icon: Wallet, end: false },
   { to: "/profile", label: "ملفي", icon: User, end: false },
 ];
 
@@ -63,7 +64,7 @@ export default function Layout() {
       </main>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line/10 bg-bg/95 md:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
-        <ul className="mx-auto grid max-w-md grid-cols-4">
+        <ul className="mx-auto grid max-w-md grid-cols-5">
           {NAV.map((n) => (
             <li key={n.to}>
               <NavLink to={n.to} end={n.end} className={({ isActive }) => `flex min-h-16 flex-col items-center justify-center gap-1 text-xs ${isActive ? "text-primary" : "text-muted"}`}>

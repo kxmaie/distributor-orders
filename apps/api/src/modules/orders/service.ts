@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import type { z } from "zod";
-import { canTransition, type AdminOrderListQuery, type CartPriceBody, type CreateOrderBody, type OrderListQuery, type OrderStatus } from "@do/shared";
+import { canTransition, type AdminOrderListQuery, type CartPriceBody, type CreateDeliveryBody, type CreateOrderBody, type OrderListQuery, type OrderStatus } from "@do/shared";
 import { prisma } from "../../lib/db";
 import { HttpError } from "../../lib/errors";
 import { toJson } from "../../lib/json";
@@ -19,22 +19,23 @@ const money = (d: Prisma.Decimal) => d.toFixed(2);
 type Tx = Prisma.TransactionClient;
 type NotifRow = { channel: "whatsapp" | "in_app"; recipient: string; payload: string };
 
-/** One in-app (SSE) row per user id, plus one WhatsApp row per user that has a phone number. */
-function notifyUsers(users: { id: bigint; phone: string | null }[], payload: string, opts: { whatsapp: boolean }): NotifRow[] {
+/** One in-app (SSE) row per user id; WhatsApp is sent only after explicit opt-in. */
+function notifyUsers(users: { id: bigint; phone: string | null; whatsappOptInAt: Date | null }[], payload: string, opts: { whatsapp: boolean }): NotifRow[] {
   const rows: NotifRow[] = [];
   for (const u of users) {
     rows.push({ channel: "in_app", recipient: u.id.toString(), payload });
-    if (opts.whatsapp && u.phone?.trim()) rows.push({ channel: "whatsapp", recipient: u.phone.trim(), payload });
+    if (opts.whatsapp && u.whatsappOptInAt && u.phone?.trim()) rows.push({ channel: "whatsapp", recipient: u.phone.trim(), payload });
   }
   return rows;
 }
 
 const activeAdmins = (tx: Tx) =>
-  tx.user.findMany({ where: { isActive: true, role: { in: ["admin", "super_admin"] } }, select: { id: true, phone: true } });
+  tx.user.findMany({ where: { isActive: true, role: { in: ["admin", "super_admin"] } }, select: { id: true, phone: true, whatsappOptInAt: true } });
 
 const orderInclude = {
-  items: { orderBy: { id: "asc" } },
+  items: { orderBy: { id: "asc" }, include: { variant: { select: { sku: true, product: { select: { id: true, unit: true } } } } } },
   history: { orderBy: { id: "asc" } },
+  deliveries: { orderBy: { deliveredAt: "desc" }, include: { items: true } },
   warehouse: { select: { id: true, name: true } },
   user: { select: { id: true, username: true, fullName: true, phone: true } },
 } satisfies Prisma.OrderInclude;
@@ -54,7 +55,13 @@ function shapeOrder(o: OrderFull, admin: boolean) {
     updatedAt: o.updatedAt,
     items: o.items.map((i) => ({
       id: i.id, variantId: i.variantId, productName: i.productName, variantLabel: i.variantLabel,
+      sku: i.variant.sku, productId: i.variant.product.id, unit: i.variant.product.unit,
       unitPrice: money(i.unitPrice), discountPct: money(i.discountPct), qty: i.qty, lineTotal: money(i.lineTotal),
+    })),
+    deliveries: o.deliveries.map((d) => ({
+      id: d.id.toString(), trackingNumber: d.trackingNumber, note: d.note, deliveredAt: d.deliveredAt,
+      amount: money(d.items.reduce((sum, item) => sum.add(item.amount), new Prisma.Decimal(0))),
+      items: d.items.map((item) => ({ orderItemId: item.orderItemId.toString(), qty: item.qty, amount: money(item.amount) })),
     })),
     // Distributors get the timeline only (no admin ids / internal notes)
     history: o.history.map((h) =>
@@ -276,7 +283,9 @@ export async function changeStatus(
       where: { id: orderId, ...(opts.ownerOnly ? { userId: actorId } : {}) },
       include: {
         reservations: { where: { status: "active" }, orderBy: [{ variantId: "asc" }, { id: "asc" }] },
-        user: { select: { id: true, fullName: true, phone: true } },
+        items: true,
+        deliveries: { include: { items: true } },
+        user: { select: { id: true, fullName: true, phone: true, whatsappOptInAt: true } },
       },
     });
     if (!order) throw new HttpError(404, "ORDER_NOT_FOUND");
@@ -320,6 +329,22 @@ export async function changeStatus(
           data: { status: to === "cancelled" ? "released" : "fulfilled" },
         });
       }
+      if (to === "delivered" && order.reservations.length) {
+        const deliveredByItem = new Map<string, Prisma.Decimal>();
+        for (const d of order.deliveries) for (const item of d.items) {
+          deliveredByItem.set(item.orderItemId.toString(), (deliveredByItem.get(item.orderItemId.toString()) ?? new Prisma.Decimal(0)).add(item.amount));
+        }
+        await tx.delivery.create({
+          data: {
+            orderId: order.id, createdBy: actorId, note: "تسليم كامل للطلب",
+            items: { create: order.items.filter((item) => order.reservations.some((r) => r.variantId === item.variantId)).map((item) => ({
+              orderItemId: item.id,
+              qty: order.reservations.find((r) => r.variantId === item.variantId)!.qty,
+              amount: item.lineTotal.sub(deliveredByItem.get(item.id.toString()) ?? new Prisma.Decimal(0)),
+            })) },
+          },
+        });
+      }
     }
 
     await tx.orderStatusHistory.create({
@@ -334,7 +359,7 @@ export async function changeStatus(
     const rows: NotifRow[] = [];
     if (order.userId !== actorId) {
       // An admin changed it → tell the distributor (in-app + WhatsApp).
-      rows.push(...notifyUsers([{ id: order.user.id, phone: order.user.phone }], payload, { whatsapp: true }));
+      rows.push(...notifyUsers([{ id: order.user.id, phone: order.user.phone, whatsappOptInAt: order.user.whatsappOptInAt }], payload, { whatsapp: true }));
       // …and keep the other admins' boards/bells in sync (in-app only).
       rows.push(...notifyUsers(admins, payload, { whatsapp: false }));
     } else {
@@ -351,6 +376,89 @@ export async function changeStatus(
   }, TX_OPTS);
 
   wakeWorker();
+}
+
+// ---------------------------------------------------------------- partial / full delivery
+export async function recordDelivery(orderId: bigint, input: z.output<typeof CreateDeliveryBody>, actorId: bigint, ip?: string) {
+  await prisma.$transaction(async (tx) => {
+    const order = await tx.order.findUnique({
+      where: { id: orderId },
+      include: {
+        items: true,
+        reservations: { where: { status: "active" } },
+        deliveries: { include: { items: true } },
+        user: { select: { id: true, fullName: true, phone: true, whatsappOptInAt: true } },
+      },
+    });
+    if (!order) throw new HttpError(404, "ORDER_NOT_FOUND");
+    if (order.status !== "ready") throw new HttpError(409, "ORDER_NOT_READY", "Only ready orders can be dispatched");
+
+    const shippedQty = new Map<string, number>();
+    const shippedAmount = new Map<string, Prisma.Decimal>();
+    for (const delivery of order.deliveries) for (const item of delivery.items) {
+      const key = item.orderItemId.toString();
+      shippedQty.set(key, (shippedQty.get(key) ?? 0) + item.qty);
+      shippedAmount.set(key, (shippedAmount.get(key) ?? new Prisma.Decimal(0)).add(item.amount));
+    }
+    const requested = new Map<string, number>();
+    for (const item of input.items) {
+      const key = item.orderItemId.toString();
+      if (requested.has(key)) throw new HttpError(400, "DUPLICATE_DELIVERY_ITEM");
+      requested.set(key, item.qty);
+      const orderItem = order.items.find((line) => line.id === item.orderItemId);
+      if (!orderItem) throw new HttpError(400, "INVALID_DELIVERY_ITEM");
+      const left = orderItem.qty - (shippedQty.get(key) ?? 0);
+      if (item.qty > left) throw new HttpError(409, "DELIVERY_QTY_EXCEEDED", `Only ${left} units remain for ${orderItem.variantLabel}`);
+      const reservation = order.reservations.find((row) => row.variantId === orderItem.variantId);
+      if (!reservation || item.qty > reservation.qty) throw new HttpError(409, "RESERVATION_MISSING");
+    }
+
+    const delivery = await tx.delivery.create({
+      data: { orderId, trackingNumber: input.trackingNumber || null, note: input.note || null, createdBy: actorId },
+    });
+    for (const item of input.items) {
+      const key = item.orderItemId.toString();
+      const orderItem = order.items.find((line) => line.id === item.orderItemId)!;
+      const reservation = order.reservations.find((row) => row.variantId === orderItem.variantId)!;
+      const leftQty = orderItem.qty - (shippedQty.get(key) ?? 0);
+      const leftAmount = orderItem.lineTotal.sub(shippedAmount.get(key) ?? new Prisma.Decimal(0));
+      const amount = item.qty === leftQty ? leftAmount : leftAmount.mul(item.qty).div(leftQty).toDecimalPlaces(2);
+
+      const changed = await tx.$executeRaw`
+        UPDATE stock_levels SET on_hand = on_hand - ${item.qty}, reserved = reserved - ${item.qty}
+        WHERE variant_id = ${reservation.variantId} AND warehouse_id = ${reservation.warehouseId}
+          AND reserved >= ${item.qty} AND on_hand >= ${item.qty}`;
+      if (changed !== 1) throw new HttpError(500, "STOCK_INCONSISTENT");
+      await tx.reservation.update({ where: { id: reservation.id }, data: {
+        qty: reservation.qty - item.qty,
+        ...(reservation.qty === item.qty ? { status: "fulfilled" } : {}),
+      } });
+      await tx.stockMovement.create({ data: {
+        variantId: reservation.variantId, warehouseId: reservation.warehouseId, type: "ship", qty: -item.qty,
+        refType: "delivery", refId: delivery.id, createdBy: actorId,
+      } });
+      await tx.deliveryItem.create({ data: { deliveryId: delivery.id, orderItemId: item.orderItemId, qty: item.qty, amount } });
+    }
+
+    const complete = order.items.every((item) => (shippedQty.get(item.id.toString()) ?? 0) + (requested.get(item.id.toString()) ?? 0) >= item.qty);
+    if (complete) {
+      const changed = await tx.order.updateMany({ where: { id: orderId, status: "ready" }, data: { status: "delivered" } });
+      if (changed.count !== 1) throw new HttpError(409, "CONFLICT");
+      await tx.orderStatusHistory.create({ data: { orderId, fromStatus: "ready", toStatus: "delivered", changedBy: actorId, note: input.note || "اكتمل تسليم الطلب" } });
+      const admins = (await activeAdmins(tx)).filter((admin) => admin.id !== actorId);
+      const payload = toJson({ type: "order_status", orderId, orderNo: order.orderNo, from: "ready", to: "delivered", total: money(order.total), distributor: order.user.fullName });
+      const rows = order.userId !== actorId
+        ? [...notifyUsers([{ id: order.user.id, phone: order.user.phone, whatsappOptInAt: order.user.whatsappOptInAt }], payload, { whatsapp: true }), ...notifyUsers(admins, payload, { whatsapp: false })]
+        : notifyUsers(admins, payload, { whatsapp: true });
+      if (rows.length) await tx.notificationQueue.createMany({ data: rows });
+    }
+    await tx.auditLog.create({ data: {
+      actorId, action: "order.delivery", entity: "delivery", entityId: delivery.id.toString(),
+      meta: toJson({ orderId, complete, items: input.items.map((item) => ({ orderItemId: item.orderItemId, qty: item.qty })) }), ip,
+    } });
+  }, TX_OPTS);
+  wakeWorker();
+  return getOrder(orderId, { admin: true });
 }
 
 export async function cancelOwnOrder(orderId: bigint, userId: bigint, ip?: string) {

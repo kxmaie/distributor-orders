@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
-  Boxes, ClipboardList, FolderTree, LayoutDashboard, LogOut, Menu, Moon, Package, Percent, Shield, Store, Sun, Tag, Users, Warehouse as WarehouseIcon, X,
+  Boxes, ClipboardList, FolderTree, LayoutDashboard, LogOut, Menu, Moon, Package, Percent, Shield, Store, Sun, Tag, Users, Wallet, Warehouse as WarehouseIcon, X,
 } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -25,6 +25,7 @@ const NAV = [
   { to: "/admin/discounts", label: "الخصومات", icon: Percent, end: false, badgeKey: null },
   { to: "/admin/password-requests", label: "طلبات الباسورد", icon: Shield, end: false, badgeKey: "pendingPasswordRequests" },
   { to: "/admin/reports", label: "التقارير", icon: Tag, end: false, badgeKey: null },
+  { to: "/admin/accounts", label: "حسابات الموزعين", icon: Wallet, end: false, badgeKey: null },
 ] as const;
 
 type BadgeKey = "newOrdersCount" | "pendingRegistrations" | "pendingPasswordRequests";

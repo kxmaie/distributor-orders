@@ -6,11 +6,13 @@ type S = {
   user: User | null;
   status: "loading" | "authed" | "anon";
   setSession: (token: string, user: User) => void;
+  updateUser: (patch: Partial<User>) => void;
   clear: () => void;
 };
 // The access token lives in memory only (never localStorage); the refresh cookie is httpOnly.
 export const useAuth = create<S>((set) => ({
   token: null, user: null, status: "loading",
   setSession: (token, user) => set({ token, user, status: "authed" }),
+  updateUser: (patch) => set((state) => ({ user: state.user ? { ...state.user, ...patch } : null })),
   clear: () => set({ token: null, user: null, status: "anon" }),
 }));

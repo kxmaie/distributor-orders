@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import type { z } from "zod";
-import type { StockAdjustBody, StockListQuery, MovementQuery } from "@do/shared";
+import type { StockAdjustBody, StockListQuery, MovementQuery, StockThresholdBody } from "@do/shared";
 import { prisma } from "../../lib/db";
 import { HttpError } from "../../lib/errors";
 import { toJson } from "../../lib/json";
@@ -8,6 +8,7 @@ import { toJson } from "../../lib/json";
 type AdjustInput = z.output<typeof StockAdjustBody>;
 type ListQuery = z.output<typeof StockListQuery>;
 type MoveQuery = z.output<typeof MovementQuery>;
+type ThresholdInput = z.output<typeof StockThresholdBody>;
 
 const key = (variantId: bigint, warehouseId: number) => ({ variantId_warehouseId: { variantId, warehouseId } });
 
@@ -101,4 +102,53 @@ export async function listMovements(q: MoveQuery) {
     }),
   ]);
   return { items, total, page: q.page, pageSize: q.pageSize };
+}
+
+export async function listLowStockAlerts() {
+  const rows = await prisma.stockLevel.findMany({
+    where: { warehouse: { isActive: true }, variant: { isActive: true, product: { isActive: true } } },
+    include: {
+      warehouse: { select: { id: true, name: true } },
+      variant: { select: { id: true, sku: true, label: true, product: { select: { id: true, name: true, categoryId: true, category: { select: { name: true } } } } } },
+    },
+  });
+  const totals = new Map<string, { available: number; categoryId: number; id: string; sku: string; label: string; productId: string; productName: string }>();
+  for (const row of rows) {
+    const id = row.variantId.toString();
+    const previous = totals.get(id);
+    totals.set(id, {
+      available: (previous?.available ?? 0) + Math.max(0, row.onHand - row.reserved),
+      categoryId: row.variant.product.categoryId,
+      id, sku: row.variant.sku, label: row.variant.label,
+      productId: row.variant.product.id.toString(), productName: row.variant.product.name,
+    });
+  }
+  return rows.filter((row) => row.onHand - row.reserved <= row.lowStockThreshold).map((row) => {
+    const pool = Array.from(totals.values())
+      .filter((candidate) => candidate.id !== row.variantId.toString() && candidate.categoryId === row.variant.product.categoryId && candidate.available > 0)
+      .sort((a, b) => b.available - a.available)
+      .slice(0, 3)
+      .map(({ categoryId: _categoryId, ...candidate }) => candidate);
+    return {
+      variantId: row.variantId.toString(), warehouseId: row.warehouseId, warehouse: row.warehouse,
+      productId: row.variant.product.id.toString(), productName: row.variant.product.name,
+      categoryName: row.variant.product.category.name, sku: row.variant.sku, label: row.variant.label,
+      available: row.onHand - row.reserved, threshold: row.lowStockThreshold, alternatives: pool,
+    };
+  });
+}
+
+export async function setStockThreshold(input: ThresholdInput, actorId: bigint, ip?: string) {
+  const updated = await prisma.$transaction(async (tx) => {
+    const row = await tx.stockLevel.update({
+      where: key(input.variantId, input.warehouseId),
+      data: { lowStockThreshold: input.threshold },
+    });
+    await tx.auditLog.create({ data: {
+      actorId, action: "stock.threshold", entity: "stock_level", entityId: `${input.variantId}:${input.warehouseId}`,
+      meta: toJson({ threshold: input.threshold }), ip,
+    } });
+    return row;
+  });
+  return updated;
 }

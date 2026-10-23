@@ -6,6 +6,11 @@
   "functions": {
     "api/index.js": {
       "includeFiles": "../../packages/shared/dist/index.js"
+    },
+    "api/whatsapp-notifications.ts": {
+      "experimentalTriggers": [
+        { "type": "queue/v2beta", "topic": "whatsapp-notifications", "retryAfterSeconds": 60 }
+      ]
     }
   },
   "rewrites": [

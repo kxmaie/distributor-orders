@@ -96,6 +96,11 @@ export const StockAdjustBody = z.object({
   type: z.enum(["receipt", "adjustment"]).default("adjustment"),
   note: z.string().trim().max(255).optional(),
 });
+export const StockThresholdBody = z.object({
+  variantId: bigId,
+  warehouseId: z.number().int().positive(),
+  threshold: z.number().int().min(0).max(1_000_000),
+});
 export const StockListQuery = PageQuery.extend({
   warehouseId: z.coerce.number().int().positive().optional(),
   variantId: z.string().regex(/^\d+$/).transform((v) => BigInt(v)).optional(),

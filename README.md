@@ -141,20 +141,20 @@ Screens: dashboard, orders (Kanban + table), order details (status + print), sto
 
 ## Phase 6 — Notifications (SSE + WhatsApp)
 
-**Who gets what** (all rows are written in the order's own transaction, then `wakeWorker()` delivers them within ~50 ms):
+**Who gets what** (rows are written in the order's own transaction. WhatsApp messages are queued after commit):
 
 | Event | Admins | Distributor (order owner) |
 |---|---|---|
-| Order created | in-app (SSE) + WhatsApp (if phone) | – |
-| Admin changes status | other admins: in-app | in-app + WhatsApp (if phone) |
-| Distributor cancels | in-app + WhatsApp (if phone) | – |
+| Order created | in-app (SSE) + WhatsApp (if opted in) | – |
+| Admin changes status | other admins: in-app | in-app + WhatsApp (if opted in) |
+| Distributor cancels | in-app + WhatsApp (if opted in) | – |
 
 **Queue lifecycle** (`notification_queue.status`): `pending → sent` only after the provider confirmed the send; a failure goes back to
 `pending` with exponential back-off (60 s, 120 s) and becomes `failed` after 3 attempts (or immediately for an invalid phone number).
 If `WHATSAPP_API_URL` is not set, whatsapp rows simply stay `pending` (they are never marked `sent`); rows older than 24 h are expired instead of sent.
 
-**WhatsApp providers** — set in `apps/api/.env` (see `.env.example`): Meta Cloud API, Evolution API, or CallMeBot (testing). Phone numbers
-are normalised to digits-only international format (`01012345678` → `201012345678`, controlled by `WHATSAPP_DEFAULT_COUNTRY_CODE`).
+**WhatsApp providers** — Meta Cloud API, Evolution API, or CallMeBot (testing). On Vercel, the transactional outbox publishes to Vercel Queues and a private queue-triggered Function delivers with retries. Configure `WHATSAPP_API_URL`, `WHATSAPP_API_TOKEN`, and `WHATSAPP_PROVIDER` in Vercel. For Meta, `WHATSAPP_API_URL` must include the Cloud API Phone Number ID and `/messages`; also set the two approved template names (`WHATSAPP_ORDER_CREATED_TEMPLATE`, `WHATSAPP_ORDER_STATUS_TEMPLATE`) and `WHATSAPP_TEMPLATE_LANGUAGE`. Create templates with body variables in this order: order-created = order number, distributor, total, currency; status = order number, Arabic status. Phone numbers
+are normalised to digits-only international format (`01012345678` → `201012345678`, controlled by `WHATSAPP_DEFAULT_COUNTRY_CODE`). Each account must enable WhatsApp opt-in from Profile before order messages can be sent.
 
 **Frontend**: exactly one `EventSource` (`apps/web/src/store/sse.ts`). The bell counter, toasts and react-query invalidation all hang off it
 (`subscribe()`), and a reconnect triggers a refetch so nothing is missed while offline.

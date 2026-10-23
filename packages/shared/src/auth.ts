@@ -29,6 +29,10 @@ export const PublicUser = z.object({
   id: z.string(),
   username: z.string(),
   fullName: z.string(),
+  phone: z.string().nullable(),
+  whatsappOptInAt: z.string().nullable(),
   role: RoleSchema,
 });
 export type PublicUser = z.infer<typeof PublicUser>;
+
+export const WhatsAppConsentBody = z.object({ enabled: z.boolean() });

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowLeft, Boxes } from "lucide-react";
+import { ArrowLeft, Boxes, PackageCheck, Sparkles, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCategories, useOrders, useProducts } from "../hooks/queries";
 import { money } from "../lib/format";
@@ -20,7 +20,9 @@ export default function Home() {
 
   return (
     <div className="space-y-10">
-      <section className="card relative overflow-hidden p-6 md:p-10">
+      <section className="card relative isolate overflow-hidden p-6 md:p-10">
+        <motion.div aria-hidden className="pointer-events-none absolute -end-24 -top-28 -z-10 h-80 w-80 rounded-full bg-primary/20 blur-3xl" animate={{ scale: [0.9, 1.12, 0.9], opacity: [0.45, 0.8, 0.45] }} transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }} />
+        <motion.div aria-hidden className="pointer-events-none absolute -bottom-36 start-1/4 -z-10 h-72 w-72 rounded-full bg-accent/10 blur-3xl" animate={{ x: [0, 30, 0], y: [0, -15, 0] }} transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }} />
         <div className="grid items-center gap-8 md:grid-cols-[1.25fr_1fr]">
           <motion.div className="space-y-5" initial="h" animate="s" variants={{ s: { transition: { staggerChildren: 0.1 } } }}>
             <motion.p variants={item} className="text-muted">أهلًا {user?.fullName}</motion.p>
@@ -36,8 +38,16 @@ export default function Home() {
             </motion.div>
           </motion.div>
 
-          {/* Roof + four-pane window: the Turk-pen mark, drawn large */}
-<BrandMark className="mx-auto w-full max-w-[11rem] text-primary opacity-90 md:max-w-[15rem]" />
+          <motion.div className="relative mx-auto grid min-h-64 w-full max-w-sm place-items-center md:min-h-80" initial={{ opacity: 0, scale: 0.82, rotate: -5 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ type: "spring", stiffness: 75, damping: 14, delay: 0.2 }}>
+            <motion.div aria-hidden className="absolute h-52 w-52 rounded-full border border-primary/25 md:h-64 md:w-64" animate={{ rotate: 360 }} transition={{ duration: 24, repeat: Infinity, ease: "linear" }} />
+            <motion.div aria-hidden className="absolute h-60 w-60 rounded-full border border-dashed border-accent/25 md:h-72 md:w-72" animate={{ rotate: -360 }} transition={{ duration: 36, repeat: Infinity, ease: "linear" }} />
+            <motion.div className="relative z-10 rounded-[2rem] bg-surface/70 p-7 shadow-2xl shadow-primary/20 backdrop-blur-sm" animate={{ y: [0, -9, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
+              <BrandMark className="w-36 text-primary opacity-95 md:w-48" />
+            </motion.div>
+            <motion.div className="absolute end-0 top-7 flex items-center gap-2 rounded-2xl border border-line/15 bg-surface/90 px-3 py-2 text-xs font-semibold shadow-xl backdrop-blur" animate={{ y: [0, 6, 0], x: [0, 3, 0] }} transition={{ duration: 3.7, repeat: Infinity, ease: "easeInOut" }}><PackageCheck className="h-4 w-4 text-success" /> متابعة الطلبات</motion.div>
+            <motion.div className="absolute bottom-7 start-0 flex items-center gap-2 rounded-2xl border border-line/15 bg-surface/90 px-3 py-2 text-xs font-semibold shadow-xl backdrop-blur" animate={{ y: [0, -5, 0], x: [0, -3, 0] }} transition={{ duration: 4.3, repeat: Infinity, ease: "easeInOut" }}><TrendingUp className="h-4 w-4 text-primary" /> أسعار موزعين</motion.div>
+            <motion.div aria-hidden className="absolute end-8 bottom-16 text-accent" animate={{ rotate: [0, 18, -8, 0], scale: [1, 1.15, 1] }} transition={{ duration: 4, repeat: Infinity }}><Sparkles className="h-6 w-6" /></motion.div>
+          </motion.div>
         </div>
       </section>
 

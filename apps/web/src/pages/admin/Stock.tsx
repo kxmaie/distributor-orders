@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import {
   AlertTriangle,
+  ArrowLeft,
   ArrowDownUp,
   Boxes,
   Clock,
@@ -18,7 +19,9 @@ import {
   useAdjustStock,
   useAdminMovements,
   useAdminStock,
+  useAdminStockAlerts,
   useAdminWarehouses,
+  useSetStockThreshold,
 } from "../../hooks/adminQueries";
 import { formatDate } from "../../lib/format";
 import { useUI } from "../../store/ui";
@@ -33,7 +36,7 @@ const MOVEMENT_TYPE_LABEL: Record<string, string> = {
 
 export default function AdminStock() {
   const push = useUI((s) => s.push);
-  const [tab, setTab] = useState<"levels" | "movements">("levels");
+  const [tab, setTab] = useState<"levels" | "alerts" | "movements">("levels");
   const [warehouseId, setWarehouseId] = useState<number | undefined>(undefined);
   const [search, setSearch] = useState<string>("");
   const [movementType, setMovementType] = useState<string>("all");
@@ -66,6 +69,8 @@ export default function AdminStock() {
     });
 
   const adjustStock = useAdjustStock();
+  const alerts = useAdminStockAlerts();
+  const setThreshold = useSetStockThreshold();
 
   const handleOpenAdjust = (variantId: string, whId: number, sku: string, prodName: string) => {
     setSelectedStock({ variantId, warehouseId: whId, sku, productName: prodName });
@@ -108,6 +113,13 @@ export default function AdminStock() {
         {/* Tab switch */}
         <div className="flex items-center p-1 bg-surface2/60 border border-line/10 rounded-xl text-xs font-semibold self-start sm:self-auto">
           <button
+            onClick={() => { setTab("alerts"); setPage(1); }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition ${tab === "alerts" ? "bg-primary text-primary-fg shadow-sm" : "text-muted hover:text-ink"}`}
+          >
+            <AlertTriangle className="h-4 w-4" />
+            <span>نواقص المخزون</span>
+          </button>
+          <button
             onClick={() => {
               setTab("levels");
               setPage(1);
@@ -136,7 +148,7 @@ export default function AdminStock() {
 
       {/* Filter Bar */}
       <div className="card p-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {tab === "levels" ? (
+        {tab === "alerts" ? <div className="sm:col-span-2 rounded-xl bg-danger/5 px-4 py-3 text-xs text-muted">الأصناف التي وصلت إلى حد التنبيه، مع بدائلها المتاحة.</div> : tab === "levels" ? (
           <div className="relative sm:col-span-2">
             <Search className="absolute start-3 top-3 h-4 w-4 text-muted" />
             <input
@@ -190,7 +202,34 @@ export default function AdminStock() {
       </div>
 
       {/* Content depending on Tab */}
-      {tab === "levels" ? (
+      {tab === "alerts" ? (
+        <div className="grid gap-4 md:grid-cols-2">
+          {alerts.isLoading && Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-44" />)}
+          {alerts.error && <ErrorBox text="فشل تحميل تنبيهات المخزون" onRetry={() => alerts.refetch()} />}
+          {!alerts.isLoading && !alerts.error && alerts.data?.length === 0 && <div className="card md:col-span-2 p-10 text-center text-muted">ممتاز! مفيش أصناف تحت حد التنبيه.</div>}
+          {alerts.data?.map((alert) => (
+            <motion.article key={`${alert.variantId}-${alert.warehouseId}`} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="card overflow-hidden border-danger/25 p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div><div className="flex items-center gap-2 text-danger"><AlertTriangle className="h-4 w-4" /><span className="text-xs font-bold">يحتاج إعادة طلب</span></div>
+                  <h3 className="mt-2 font-display font-bold">{alert.productName}</h3>
+                  <p className="mt-1 text-xs text-muted">{alert.label} · {alert.sku} · {alert.warehouse.name}</p>
+                </div>
+                <div className="rounded-2xl bg-danger/10 px-4 py-2 text-center"><strong className="block text-2xl text-danger">{alert.available}</strong><span className="text-[10px] text-muted">متاح</span></div>
+              </div>
+              <div className="mt-4 flex items-center justify-between gap-2 border-t border-line/10 pt-3 text-xs">
+                <label className="text-muted">حد التنبيه
+                  <input aria-label="حد التنبيه للمخزون" type="number" min="0" defaultValue={alert.threshold} onBlur={(e) => {
+                    const threshold = Number(e.currentTarget.value);
+                    if (Number.isInteger(threshold) && threshold >= 0 && threshold !== alert.threshold) setThreshold.mutate({ variantId: alert.variantId, warehouseId: alert.warehouseId, threshold }, { onSuccess: () => push("تم تحديث حد التنبيه", "success"), onError: () => push("فشل تحديث حد التنبيه", "danger") });
+                  }} className="input ms-2 inline-block w-20 py-1 text-center" />
+                </label>
+                <Link to={`/admin/products/${alert.productId}`} className="inline-flex items-center gap-1 text-primary">عرض المنتج <ArrowLeft className="h-3 w-3" /></Link>
+              </div>
+              {alert.alternatives.length > 0 && <div className="mt-3 rounded-xl bg-surface2/50 p-3"><p className="mb-2 text-[11px] font-bold text-muted">بدائل متاحة الآن</p><div className="flex flex-wrap gap-2">{alert.alternatives.map((alt) => <Link key={alt.id} to={`/admin/products/${alt.productId}`} className="rounded-full border border-line/15 px-3 py-1 text-[11px] hover:border-primary/40">{alt.productName} · {alt.label} <b className="text-success">({alt.available})</b></Link>)}</div></div>}
+            </motion.article>
+          ))}
+        </div>
+      ) : tab === "levels" ? (
         <>
           {stockLoading && (
             <div className="space-y-3">
@@ -225,7 +264,7 @@ export default function AdminStock() {
                       </tr>
                     ) : (
                       stockData.items.map((row, idx) => {
-                        const isLow = row.available <= 5;
+                        const isLow = row.available <= row.lowStockThreshold;
                         return (
                           <tr key={idx} className="hover:bg-line/5 transition">
                             <td className="p-3.5">
