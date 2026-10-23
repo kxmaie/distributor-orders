@@ -91,7 +91,7 @@ var RegisterBody = import_zod.z.object({
   username: import_zod.z.string().trim().min(3).max(60),
   password: import_zod.z.string().min(PASSWORD_MIN_LENGTH).max(200),
   fullName: import_zod.z.string().trim().min(2).max(120),
-  phone: import_zod.z.string().trim().min(5).max(20)
+  phone: import_zod.z.string().trim().min(5).max(20).optional()
 });
 var PasswordRequestBody = import_zod.z.object({
   username: import_zod.z.string().trim().min(3).max(60),

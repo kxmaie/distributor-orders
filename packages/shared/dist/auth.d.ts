@@ -17,17 +17,17 @@ export declare const RegisterBody: z.ZodObject<{
     username: z.ZodString;
     password: z.ZodString;
     fullName: z.ZodString;
-    phone: z.ZodString;
+    phone: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     username: string;
     password: string;
     fullName: string;
-    phone: string;
+    phone?: string | undefined;
 }, {
     username: string;
     password: string;
     fullName: string;
-    phone: string;
+    phone?: string | undefined;
 }>;
 export type RegisterBody = z.infer<typeof RegisterBody>;
 export declare const PasswordRequestBody: z.ZodObject<{
