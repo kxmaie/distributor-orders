@@ -4,6 +4,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://distributor-orders-p5dz.vercel.app/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
