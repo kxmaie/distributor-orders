@@ -180,3 +180,10 @@ proxy `/api` to Fastify (same origin) so the refresh cookie and SSE keep working
 `<MotionConfig reducedMotion="user">` + a CSS `prefers-reduced-motion` block disable movement for users who ask for it (the loading spinner stays).
 Cart drawer: spring slide, swipe the header to dismiss, scroll lock, Esc, safe-area padding. Modals are bottom sheets on phones.
 Buttons use `<BtnLabel loading>` so a loading state never changes the button's width.
+
+## Product images and admin AI
+
+- Product images use Vercel Blob. Create a **public** Blob store in the Vercel project and add its `BLOB_READ_WRITE_TOKEN` to the API project's Production and Preview environments. Admins can upload JPG, PNG, WebP, or AVIF images up to 5 MB from product create/edit screens.
+- Bulk product creation accepts a UTF-8 CSV file (up to 200 rows / 2 MB). Download the template from **Admin → Products → Import CSV**. Required columns are `name`, `category` (category name, slug, or ID), and `basePrice`; optional columns include unit, stock, SKU, variant, description, and image URL. The page previews and validates rows before sending them through the normal product-creation API.
+- The report assistant uses Vercel AI Gateway. Add `AI_GATEWAY_API_KEY` and `AI_GATEWAY_MODEL` (a model ID available in your AI Gateway account) to the API project's Production and Preview environments. It sends only the selected period's aggregate totals and status counts, not distributor identities or order details.
+- After changing Vercel environment variables, redeploy the API project for them to take effect. Local development reads the same variables from `apps/api/.env`.
