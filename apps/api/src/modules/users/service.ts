@@ -33,9 +33,9 @@ export async function listUsers(q: UserListQueryInput) {
   if (q.active !== undefined) where.isActive = q.active === "true";
   if (q.q) {
     where.OR = [
-      { username: { contains: q.q } },
-      { fullName: { contains: q.q } },
-      { phone: { contains: q.q } },
+      { username: { contains: q.q, mode: "insensitive" } },
+      { fullName: { contains: q.q, mode: "insensitive" } },
+      { phone: { contains: q.q, mode: "insensitive" } },
     ];
   }
 
@@ -64,9 +64,9 @@ export async function listPendingUsers(q: UserListQueryInput) {
   };
   if (q.q) {
     where.OR = [
-      { username: { contains: q.q } },
-      { fullName: { contains: q.q } },
-      { phone: { contains: q.q } },
+      { username: { contains: q.q, mode: "insensitive" } },
+      { fullName: { contains: q.q, mode: "insensitive" } },
+      { phone: { contains: q.q, mode: "insensitive" } },
     ];
   }
 
@@ -138,8 +138,10 @@ export async function getUser(id: bigint) {
 }
 
 export async function createUser(input: UserCreateInput, actorId: bigint, ip?: string) {
-  const username = input.username.trim();
-  const existing = await prisma.user.findUnique({ where: { username } });
+  const username = input.username.trim().toLowerCase();
+  const existing = await prisma.user.findFirst({
+    where: { username: { equals: username, mode: "insensitive" } },
+  });
   if (existing) throw new HttpError(409, "USERNAME_TAKEN", "اسم المستخدم مستخدم بالفعل");
 
   const passwordHash = await hashPassword(input.password);

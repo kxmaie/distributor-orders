@@ -1,27 +1,21 @@
-# Turk-pen — UPVC Accessories (Distributor Orders v2) — SQL Server edition
+# Turk-pen — UPVC Accessories (Distributor Orders v2) — PostgreSQL edition
 
 ## Phase 1 — Database + Auth
 
 ```bash
 npm install
-cp .env.example apps/api/.env        # edit secrets; password must match MSSQL_SA_PASSWORD
-export MSSQL_SA_PASSWORD='<same strong password>'   # PowerShell: $env:MSSQL_SA_PASSWORD='...'
-npm run db:up                         # SQL Server 2022 in Docker (wait until healthy)
+cp .env.example apps/api/.env        # edit secrets; keep POSTGRES_PASSWORD and DATABASE_URL in sync
+npm run db:up                         # PostgreSQL in Docker (wait until healthy)
 cd apps/api
-npx prisma migrate dev --name init    # creates the database (if missing) + all tables
+npx prisma migrate dev --name init    # creates all tables
 ```
 
-Apply the CHECK constraints (replace MySQL enums/unsigned/JSON validation):
+Apply the additional CHECK constraints:
 
 ```bash
 npx prisma migrate dev --create-only --name checks
 # copy the contents of prisma/checks.sql into the new prisma/migrations/*_checks/migration.sql
 npx prisma migrate dev
-```
-
-If `migrate dev` can't create the database, create it once:
-```bash
-docker exec -it <container> /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -Q "CREATE DATABASE distributor_orders"
 ```
 
 ```bash
@@ -30,20 +24,20 @@ npm run api:seed      # super_admin + warehouse from SEED_* env vars
 npm run api:dev       # http://localhost:3000
 ```
 
-Using an existing SQL Server (not Docker)? Just point `DATABASE_URL` at it; the login needs
-permission to create databases for `migrate dev` (shadow DB), or use `prisma migrate deploy` in production.
+For production, set `DATABASE_URL` to the PostgreSQL connection string from your database provider,
+then run `prisma migrate deploy` and the admin seed once.
 
-### Differences from the MySQL version
-| MySQL | SQL Server |
+### Database design notes
+| Concern | PostgreSQL implementation |
 |---|---|
-| ENUM | `VARCHAR` + CHECK; values in `packages/shared/src/enums.ts` |
-| UNSIGNED | signed `INT/BIGINT` + CHECK (`qty > 0`, `>= 0`) |
-| JSON | `NVARCHAR(MAX)` + `ISJSON` CHECK; helpers in `lib/json.ts` |
-| FULLTEXT | removed (search will use `contains` / LIKE; SQL Server Full-Text can be added later via raw SQL) |
-| utf8mb4 | `NVARCHAR` for Arabic text |
-| default cascades | explicit `NoAction` (+ `Cascade` only for order children / variants / refresh tokens) |
+| enum-like values | `VARCHAR` + CHECK; shared values in `packages/shared/src/enums.ts` |
+| non-negative quantities | signed `INT/BIGINT` + CHECK constraints |
+| JSON payloads | serialized text + PostgreSQL JSON validation CHECK; helpers in `lib/json.ts` |
+| text search | Prisma `contains` with case-insensitive mode |
+| Arabic text | PostgreSQL UTF-8 text columns |
+| relation deletes | explicit `NoAction` (+ `Cascade` only for order children / variants / refresh tokens) |
 
-Usernames are compared case-insensitively (SQL Server default collation).
+Usernames are compared case-insensitively and stored in lowercase.
 
 ### Endpoints
 | Method | Path | Notes |

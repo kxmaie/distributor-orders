@@ -33,7 +33,9 @@ async function issueRefresh(userId: bigint, familyId: string, meta: Meta) {
 }
 
 export async function login(username: string, password: string, meta: Meta) {
-  const user = await prisma.user.findUnique({ where: { username } });
+  const user = await prisma.user.findFirst({
+    where: { username: { equals: username.trim(), mode: "insensitive" } },
+  });
 
   if (!user) {
     await dummyVerify(password);
@@ -109,11 +111,15 @@ export async function logout(rawToken: string | undefined) {
 }
 
 export async function createPasswordRequest(username: string, note?: string) {
-  const cleanUsername = username.trim();
+  const cleanUsername = username.trim().toLowerCase();
   const cleanNote = note?.trim().normalize("NFC");
-  const user = await prisma.user.findUnique({ where: { username: cleanUsername } });
+  const user = await prisma.user.findFirst({
+    where: { username: { equals: cleanUsername, mode: "insensitive" } },
+  });
   // Caller always sees success (no username enumeration)
-  const exists = await prisma.passwordRequest.findFirst({ where: { username: cleanUsername, status: "pending" } });
+  const exists = await prisma.passwordRequest.findFirst({
+    where: { username: { equals: cleanUsername, mode: "insensitive" }, status: "pending" },
+  });
   if (!exists) await prisma.passwordRequest.create({ data: { username: cleanUsername, note: cleanNote, userId: user?.id } });
 }
 
@@ -124,8 +130,10 @@ export async function getMe(userId: bigint) {
 }
 
 export async function register(input: RegisterBody, ip?: string) {
-  const username = input.username.trim();
-  const existing = await prisma.user.findUnique({ where: { username } });
+  const username = input.username.trim().toLowerCase();
+  const existing = await prisma.user.findFirst({
+    where: { username: { equals: username, mode: "insensitive" } },
+  });
   if (existing) throw new HttpError(409, "USERNAME_TAKEN", "اسم المستخدم مستخدم بالفعل، اختر اسماً آخر");
 
   const passwordHash = await hashPassword(input.password);

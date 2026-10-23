@@ -36,7 +36,7 @@ export async function adjustStock(input: AdjustInput, actorId: bigint, ip?: stri
   await ensureRow(variantId, warehouseId);
 
   return prisma.$transaction(async (tx) => {
-    // Atomic single-statement update (SQL Server has no SELECT ... FOR UPDATE).
+    // Atomic conditional update keeps stock changes safe under PostgreSQL concurrency.
     // Never lets on_hand drop below what is already reserved (which also implies >= 0).
     const n = await tx.$executeRaw`
       UPDATE stock_levels SET on_hand = on_hand + ${delta}
@@ -65,7 +65,7 @@ export async function listStock(q: ListQuery) {
   const where: Prisma.StockLevelWhereInput = {};
   if (q.warehouseId) where.warehouseId = q.warehouseId;
   if (q.variantId) where.variantId = q.variantId;
-  if (q.q) where.variant = { OR: [{ sku: { contains: q.q } }, { label: { contains: q.q } }, { product: { name: { contains: q.q } } }] };
+  if (q.q) where.variant = { OR: [{ sku: { contains: q.q, mode: "insensitive" } }, { label: { contains: q.q, mode: "insensitive" } }, { product: { name: { contains: q.q, mode: "insensitive" } } }] };
 
   const [total, rows] = await Promise.all([
     prisma.stockLevel.count({ where }),

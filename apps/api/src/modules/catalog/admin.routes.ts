@@ -100,7 +100,7 @@ const adminCatalogRoutes: FastifyPluginAsync = async (app) => {
     const where: Prisma.ProductWhereInput = {};
     if (q.active) where.isActive = q.active === "true";
     if (q.category) where.category = /^\d+$/.test(q.category) ? { id: Number(q.category) } : { slug: q.category };
-    if (q.q) where.OR = [{ name: { contains: q.q } }, { description: { contains: q.q } }];
+    if (q.q) where.OR = [{ name: { contains: q.q, mode: "insensitive" } }, { description: { contains: q.q, mode: "insensitive" } }];
     const [total, items] = await Promise.all([
       prisma.product.count({ where }),
       prisma.product.findMany({

@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "cd ../.. && npm install",
-  "buildCommand": "cd ../.. && npm run build -w @do/shared && npm run generate -w @do/api && npm run build -w @do/api && npm run build:vercel -w @do/api",
+  "buildCommand": "cd ../.. && npm run build -w @do/shared && npm run generate -w @do/api && if [ \"$VERCEL_ENV\" = \"production\" ]; then npm run migrate:deploy -w @do/api && npm run seed -w @do/api; fi && npm run build -w @do/api && npm run build:vercel -w @do/api",
   "functions": {
     "api/index.js": {
       "includeFiles": "../../packages/shared/dist/index.js"

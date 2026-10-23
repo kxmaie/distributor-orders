@@ -6,7 +6,7 @@ import { hashPassword } from "../src/lib/password";
 const prisma = new PrismaClient();
 
 async function main() {
-  const username = process.env.SEED_ADMIN_USERNAME;
+  const username = process.env.SEED_ADMIN_USERNAME?.trim().toLowerCase();
   const password = process.env.SEED_ADMIN_PASSWORD;
   const fullName = process.env.SEED_ADMIN_FULLNAME ?? "Super Admin";
   if (!username || !password) throw new Error("Set SEED_ADMIN_USERNAME and SEED_ADMIN_PASSWORD");

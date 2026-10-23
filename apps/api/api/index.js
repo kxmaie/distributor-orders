@@ -48463,166 +48463,206 @@ var require_zod = __commonJS({
   }
 });
 
-// ../../packages/shared/dist/auth.js
-var require_auth = __commonJS({
-  "../../packages/shared/dist/auth.js"(exports2) {
+// ../../packages/shared/dist/index.js
+var require_dist5 = __commonJS({
+  "../../packages/shared/dist/index.js"(exports2, module2) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.PublicUser = exports2.PasswordRequestBody = exports2.RegisterBody = exports2.LoginBody = exports2.PASSWORD_MIN_LENGTH = exports2.RoleSchema = void 0;
-    var zod_1 = require_zod();
-    exports2.RoleSchema = zod_1.z.enum(["distributor", "admin", "super_admin"]);
-    exports2.PASSWORD_MIN_LENGTH = 12;
-    exports2.LoginBody = zod_1.z.object({
-      username: zod_1.z.string().trim().min(3).max(60),
-      password: zod_1.z.string().min(1).max(200)
+    var __defProp2 = Object.defineProperty;
+    var __getOwnPropDesc2 = Object.getOwnPropertyDescriptor;
+    var __getOwnPropNames2 = Object.getOwnPropertyNames;
+    var __hasOwnProp2 = Object.prototype.hasOwnProperty;
+    var __export2 = (target, all) => {
+      for (var name in all)
+        __defProp2(target, name, { get: all[name], enumerable: true });
+    };
+    var __copyProps2 = (to, from, except, desc) => {
+      if (from && typeof from === "object" || typeof from === "function") {
+        for (let key2 of __getOwnPropNames2(from))
+          if (!__hasOwnProp2.call(to, key2) && key2 !== except)
+            __defProp2(to, key2, { get: () => from[key2], enumerable: !(desc = __getOwnPropDesc2(from, key2)) || desc.enumerable });
+      }
+      return to;
+    };
+    var __toCommonJS2 = (mod) => __copyProps2(__defProp2({}, "__esModule", { value: true }), mod);
+    var index_exports = {};
+    __export2(index_exports, {
+      AdminOrderListQuery: () => AdminOrderListQuery2,
+      AdminProductQuery: () => AdminProductQuery2,
+      CartItem: () => CartItem,
+      CartPriceBody: () => CartPriceBody2,
+      CatalogListQuery: () => CatalogListQuery2,
+      CategoryCreate: () => CategoryCreate2,
+      CategoryUpdate: () => CategoryUpdate2,
+      CreateOrderBody: () => CreateOrderBody2,
+      DiscountCreate: () => DiscountCreate2,
+      DiscountListQuery: () => DiscountListQuery2,
+      DiscountUpdate: () => DiscountUpdate2,
+      IdParam: () => IdParam7,
+      IntIdParam: () => IntIdParam2,
+      LoginBody: () => LoginBody2,
+      MOVEMENT_TYPES: () => MOVEMENT_TYPES,
+      Money: () => Money,
+      MovementQuery: () => MovementQuery2,
+      NOTIF_CHANNELS: () => NOTIF_CHANNELS,
+      ORDER_STATUSES: () => ORDER_STATUSES,
+      ORDER_TRANSITIONS: () => ORDER_TRANSITIONS,
+      OrderListQuery: () => OrderListQuery2,
+      PASSWORD_MIN_LENGTH: () => PASSWORD_MIN_LENGTH,
+      PASSWORD_REQUEST_STATUSES: () => PASSWORD_REQUEST_STATUSES,
+      PageQuery: () => PageQuery,
+      PasswordRequestBody: () => PasswordRequestBody2,
+      PasswordRequestQuery: () => PasswordRequestQuery2,
+      PasswordResolveBody: () => PasswordResolveBody2,
+      Pct: () => Pct,
+      ProductCreate: () => ProductCreate2,
+      ProductUpdate: () => ProductUpdate2,
+      PublicUser: () => PublicUser,
+      QUEUE_STATUSES: () => QUEUE_STATUSES,
+      RESERVATION_STATUSES: () => RESERVATION_STATUSES,
+      RegisterBody: () => RegisterBody2,
+      ReportsQuery: () => ReportsQuery2,
+      RoleSchema: () => RoleSchema3,
+      SalesReportQuery: () => SalesReportQuery,
+      SignedMoney: () => SignedMoney,
+      StatusChangeBody: () => StatusChangeBody2,
+      StockAdjustBody: () => StockAdjustBody2,
+      StockListQuery: () => StockListQuery2,
+      UNITS: () => UNITS,
+      UserApproveBody: () => UserApproveBody2,
+      UserCreate: () => UserCreate2,
+      UserListQuery: () => UserListQuery2,
+      UserUpdate: () => UserUpdate2,
+      VariantCreate: () => VariantCreate2,
+      VariantUpdate: () => VariantUpdate2,
+      WarehouseCreate: () => WarehouseCreate2,
+      WarehouseUpdate: () => WarehouseUpdate2,
+      canTransition: () => canTransition2
     });
-    exports2.RegisterBody = zod_1.z.object({
-      username: zod_1.z.string().trim().min(3).max(60),
-      password: zod_1.z.string().min(exports2.PASSWORD_MIN_LENGTH).max(200),
-      fullName: zod_1.z.string().trim().min(2).max(120),
-      phone: zod_1.z.string().trim().min(5).max(20)
+    module2.exports = __toCommonJS2(index_exports);
+    var import_zod3 = require_zod();
+    var RoleSchema3 = import_zod3.z.enum(["distributor", "admin", "super_admin"]);
+    var PASSWORD_MIN_LENGTH = 12;
+    var LoginBody2 = import_zod3.z.object({
+      username: import_zod3.z.string().trim().min(3).max(60),
+      password: import_zod3.z.string().min(1).max(200)
     });
-    exports2.PasswordRequestBody = zod_1.z.object({
-      username: zod_1.z.string().trim().min(3).max(60),
-      note: zod_1.z.string().trim().max(255).optional()
+    var RegisterBody2 = import_zod3.z.object({
+      username: import_zod3.z.string().trim().min(3).max(60),
+      password: import_zod3.z.string().min(PASSWORD_MIN_LENGTH).max(200),
+      fullName: import_zod3.z.string().trim().min(2).max(120),
+      phone: import_zod3.z.string().trim().min(5).max(20)
     });
-    exports2.PublicUser = zod_1.z.object({
-      id: zod_1.z.string(),
-      username: zod_1.z.string(),
-      fullName: zod_1.z.string(),
-      role: exports2.RoleSchema
+    var PasswordRequestBody2 = import_zod3.z.object({
+      username: import_zod3.z.string().trim().min(3).max(60),
+      note: import_zod3.z.string().trim().max(255).optional()
     });
-  }
-});
-
-// ../../packages/shared/dist/enums.js
-var require_enums = __commonJS({
-  "../../packages/shared/dist/enums.js"(exports2) {
-    "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.QUEUE_STATUSES = exports2.NOTIF_CHANNELS = exports2.PASSWORD_REQUEST_STATUSES = exports2.RESERVATION_STATUSES = exports2.MOVEMENT_TYPES = exports2.UNITS = exports2.ORDER_STATUSES = void 0;
-    exports2.ORDER_STATUSES = ["new", "confirmed", "in_production", "ready", "delivered", "cancelled"];
-    exports2.UNITS = ["piece", "meter", "sqm"];
-    exports2.MOVEMENT_TYPES = ["receipt", "adjustment", "reserve", "release", "ship"];
-    exports2.RESERVATION_STATUSES = ["active", "released", "fulfilled"];
-    exports2.PASSWORD_REQUEST_STATUSES = ["pending", "resolved", "rejected"];
-    exports2.NOTIF_CHANNELS = ["whatsapp", "in_app"];
-    exports2.QUEUE_STATUSES = ["pending", "sent", "failed"];
-  }
-});
-
-// ../../packages/shared/dist/catalog.js
-var require_catalog = __commonJS({
-  "../../packages/shared/dist/catalog.js"(exports2) {
-    "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.MovementQuery = exports2.StockListQuery = exports2.StockAdjustBody = exports2.WarehouseUpdate = exports2.WarehouseCreate = exports2.VariantUpdate = exports2.VariantCreate = exports2.AdminProductQuery = exports2.ProductUpdate = exports2.ProductCreate = exports2.CategoryUpdate = exports2.CategoryCreate = exports2.CatalogListQuery = exports2.PageQuery = exports2.SignedMoney = exports2.Money = exports2.IntIdParam = exports2.IdParam = void 0;
-    var zod_1 = require_zod();
-    var enums_1 = require_enums();
-    var bigId = zod_1.z.union([zod_1.z.string().regex(/^\d+$/), zod_1.z.number().int().positive()]).transform((v) => BigInt(v));
-    exports2.IdParam = zod_1.z.object({ id: zod_1.z.string().regex(/^\d+$/).transform((v) => BigInt(v)) });
-    exports2.IntIdParam = zod_1.z.object({ id: zod_1.z.coerce.number().int().positive() });
-    exports2.Money = zod_1.z.union([zod_1.z.number(), zod_1.z.string()]).transform((v) => String(v).trim()).refine((v) => /^\d{1,10}(\.\d{1,2})?$/.test(v), "Invalid amount (max 2 decimals)");
-    exports2.SignedMoney = zod_1.z.union([zod_1.z.number(), zod_1.z.string()]).transform((v) => String(v).trim()).refine((v) => /^-?\d{1,10}(\.\d{1,2})?$/.test(v), "Invalid amount (max 2 decimals)");
-    exports2.PageQuery = zod_1.z.object({
-      page: zod_1.z.coerce.number().int().min(1).default(1),
-      pageSize: zod_1.z.coerce.number().int().min(1).max(100).default(20)
+    var PublicUser = import_zod3.z.object({
+      id: import_zod3.z.string(),
+      username: import_zod3.z.string(),
+      fullName: import_zod3.z.string(),
+      role: RoleSchema3
     });
-    var slug = zod_1.z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(120);
-    exports2.CatalogListQuery = exports2.PageQuery.extend({
-      category: zod_1.z.string().trim().max(120).optional(),
+    var ORDER_STATUSES = ["new", "confirmed", "in_production", "ready", "delivered", "cancelled"];
+    var UNITS = ["piece", "meter", "sqm"];
+    var MOVEMENT_TYPES = ["receipt", "adjustment", "reserve", "release", "ship"];
+    var RESERVATION_STATUSES = ["active", "released", "fulfilled"];
+    var PASSWORD_REQUEST_STATUSES = ["pending", "resolved", "rejected"];
+    var NOTIF_CHANNELS = ["whatsapp", "in_app"];
+    var QUEUE_STATUSES = ["pending", "sent", "failed"];
+    var import_zod22 = require_zod();
+    var bigId = import_zod22.z.union([import_zod22.z.string().regex(/^\d+$/), import_zod22.z.number().int().positive()]).transform((v) => BigInt(v));
+    var IdParam7 = import_zod22.z.object({ id: import_zod22.z.string().regex(/^\d+$/).transform((v) => BigInt(v)) });
+    var IntIdParam2 = import_zod22.z.object({ id: import_zod22.z.coerce.number().int().positive() });
+    var Money = import_zod22.z.union([import_zod22.z.number(), import_zod22.z.string()]).transform((v) => String(v).trim()).refine((v) => /^\d{1,10}(\.\d{1,2})?$/.test(v), "Invalid amount (max 2 decimals)");
+    var SignedMoney = import_zod22.z.union([import_zod22.z.number(), import_zod22.z.string()]).transform((v) => String(v).trim()).refine((v) => /^-?\d{1,10}(\.\d{1,2})?$/.test(v), "Invalid amount (max 2 decimals)");
+    var PageQuery = import_zod22.z.object({
+      page: import_zod22.z.coerce.number().int().min(1).default(1),
+      pageSize: import_zod22.z.coerce.number().int().min(1).max(100).default(20)
+    });
+    var slug = import_zod22.z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(120);
+    var CatalogListQuery2 = PageQuery.extend({
+      category: import_zod22.z.string().trim().max(120).optional(),
       // id or slug
-      q: zod_1.z.string().trim().max(100).optional()
+      q: import_zod22.z.string().trim().max(100).optional()
     });
-    exports2.CategoryCreate = zod_1.z.object({
-      name: zod_1.z.string().trim().min(1).max(100),
+    var CategoryCreate2 = import_zod22.z.object({
+      name: import_zod22.z.string().trim().min(1).max(100),
       slug: slug.optional(),
-      sortOrder: zod_1.z.number().int().default(0)
+      sortOrder: import_zod22.z.number().int().default(0)
     });
-    exports2.CategoryUpdate = zod_1.z.object({
-      name: zod_1.z.string().trim().min(1).max(100),
+    var CategoryUpdate2 = import_zod22.z.object({
+      name: import_zod22.z.string().trim().min(1).max(100),
       slug,
-      sortOrder: zod_1.z.number().int(),
-      isActive: zod_1.z.boolean()
+      sortOrder: import_zod22.z.number().int(),
+      isActive: import_zod22.z.boolean()
     }).partial();
-    exports2.ProductCreate = zod_1.z.object({
-      categoryId: zod_1.z.number().int().positive(),
-      name: zod_1.z.string().trim().min(1).max(160),
-      description: zod_1.z.string().max(5e3).nullable().optional(),
-      imageUrl: zod_1.z.string().max(500).nullable().optional(),
-      basePrice: exports2.Money,
-      unit: zod_1.z.enum(enums_1.UNITS).default("piece"),
-      warehouseId: zod_1.z.coerce.number().int().positive().optional(),
-      initialStock: zod_1.z.coerce.number().int().min(0).max(1e6).optional(),
-      sku: zod_1.z.string().trim().max(60).optional(),
-      variantLabel: zod_1.z.string().trim().max(120).optional()
+    var ProductCreate2 = import_zod22.z.object({
+      categoryId: import_zod22.z.number().int().positive(),
+      name: import_zod22.z.string().trim().min(1).max(160),
+      description: import_zod22.z.string().max(5e3).nullable().optional(),
+      imageUrl: import_zod22.z.string().max(500).nullable().optional(),
+      basePrice: Money,
+      unit: import_zod22.z.enum(UNITS).default("piece"),
+      warehouseId: import_zod22.z.coerce.number().int().positive().optional(),
+      initialStock: import_zod22.z.coerce.number().int().min(0).max(1e6).optional(),
+      sku: import_zod22.z.string().trim().max(60).optional(),
+      variantLabel: import_zod22.z.string().trim().max(120).optional()
     });
-    exports2.ProductUpdate = zod_1.z.object({
-      categoryId: zod_1.z.number().int().positive(),
-      name: zod_1.z.string().trim().min(1).max(160),
-      description: zod_1.z.string().max(5e3).nullable(),
-      imageUrl: zod_1.z.string().max(500).nullable(),
-      basePrice: exports2.Money,
-      unit: zod_1.z.enum(enums_1.UNITS),
-      isActive: zod_1.z.boolean(),
-      warehouseId: zod_1.z.coerce.number().int().positive().optional(),
-      stockAdjust: zod_1.z.coerce.number().int().optional()
+    var ProductUpdate2 = import_zod22.z.object({
+      categoryId: import_zod22.z.number().int().positive(),
+      name: import_zod22.z.string().trim().min(1).max(160),
+      description: import_zod22.z.string().max(5e3).nullable(),
+      imageUrl: import_zod22.z.string().max(500).nullable(),
+      basePrice: Money,
+      unit: import_zod22.z.enum(UNITS),
+      isActive: import_zod22.z.boolean(),
+      warehouseId: import_zod22.z.coerce.number().int().positive().optional(),
+      stockAdjust: import_zod22.z.coerce.number().int().optional()
     }).partial();
-    exports2.AdminProductQuery = exports2.PageQuery.extend({
-      category: zod_1.z.string().trim().max(120).optional(),
-      q: zod_1.z.string().trim().max(100).optional(),
-      active: zod_1.z.enum(["true", "false"]).optional()
+    var AdminProductQuery2 = PageQuery.extend({
+      category: import_zod22.z.string().trim().max(120).optional(),
+      q: import_zod22.z.string().trim().max(100).optional(),
+      active: import_zod22.z.enum(["true", "false"]).optional()
     });
-    var sku = zod_1.z.string().regex(/^[A-Za-z0-9._-]{1,60}$/);
-    exports2.VariantCreate = zod_1.z.object({
+    var sku = import_zod22.z.string().regex(/^[A-Za-z0-9._-]{1,60}$/);
+    var VariantCreate2 = import_zod22.z.object({
       productId: bigId,
-      sku: zod_1.z.string().trim().min(1).max(60).optional(),
-      label: zod_1.z.string().trim().min(1).max(120),
-      priceDelta: exports2.SignedMoney.default("0"),
-      warehouseId: zod_1.z.coerce.number().int().positive().optional(),
-      initialStock: zod_1.z.coerce.number().int().min(0).max(1e6).optional()
+      sku: import_zod22.z.string().trim().min(1).max(60).optional(),
+      label: import_zod22.z.string().trim().min(1).max(120),
+      priceDelta: SignedMoney.default("0"),
+      warehouseId: import_zod22.z.coerce.number().int().positive().optional(),
+      initialStock: import_zod22.z.coerce.number().int().min(0).max(1e6).optional()
     });
-    exports2.VariantUpdate = zod_1.z.object({
+    var VariantUpdate2 = import_zod22.z.object({
       sku,
-      label: zod_1.z.string().trim().min(1).max(120),
-      priceDelta: exports2.SignedMoney,
-      isActive: zod_1.z.boolean()
+      label: import_zod22.z.string().trim().min(1).max(120),
+      priceDelta: SignedMoney,
+      isActive: import_zod22.z.boolean()
     }).partial();
-    exports2.WarehouseCreate = zod_1.z.object({ name: zod_1.z.string().trim().min(1).max(80) });
-    exports2.WarehouseUpdate = zod_1.z.object({
-      name: zod_1.z.string().trim().min(1).max(80),
-      isActive: zod_1.z.boolean()
+    var WarehouseCreate2 = import_zod22.z.object({ name: import_zod22.z.string().trim().min(1).max(80) });
+    var WarehouseUpdate2 = import_zod22.z.object({
+      name: import_zod22.z.string().trim().min(1).max(80),
+      isActive: import_zod22.z.boolean()
     }).partial();
-    exports2.StockAdjustBody = zod_1.z.object({
+    var StockAdjustBody2 = import_zod22.z.object({
       variantId: bigId,
-      warehouseId: zod_1.z.number().int().positive(),
-      delta: zod_1.z.number().int().refine((n) => n !== 0 && Math.abs(n) <= 1e6, "delta must be non-zero, |delta| <= 1,000,000"),
-      type: zod_1.z.enum(["receipt", "adjustment"]).default("adjustment"),
-      note: zod_1.z.string().trim().max(255).optional()
+      warehouseId: import_zod22.z.number().int().positive(),
+      delta: import_zod22.z.number().int().refine((n) => n !== 0 && Math.abs(n) <= 1e6, "delta must be non-zero, |delta| <= 1,000,000"),
+      type: import_zod22.z.enum(["receipt", "adjustment"]).default("adjustment"),
+      note: import_zod22.z.string().trim().max(255).optional()
     });
-    exports2.StockListQuery = exports2.PageQuery.extend({
-      warehouseId: zod_1.z.coerce.number().int().positive().optional(),
-      variantId: zod_1.z.string().regex(/^\d+$/).transform((v) => BigInt(v)).optional(),
-      q: zod_1.z.string().trim().max(100).optional()
+    var StockListQuery2 = PageQuery.extend({
+      warehouseId: import_zod22.z.coerce.number().int().positive().optional(),
+      variantId: import_zod22.z.string().regex(/^\d+$/).transform((v) => BigInt(v)).optional(),
+      q: import_zod22.z.string().trim().max(100).optional()
     });
-    exports2.MovementQuery = exports2.PageQuery.extend({
-      warehouseId: zod_1.z.coerce.number().int().positive().optional(),
-      variantId: zod_1.z.string().regex(/^\d+$/).transform((v) => BigInt(v)).optional(),
-      type: zod_1.z.enum(enums_1.MOVEMENT_TYPES).optional()
+    var MovementQuery2 = PageQuery.extend({
+      warehouseId: import_zod22.z.coerce.number().int().positive().optional(),
+      variantId: import_zod22.z.string().regex(/^\d+$/).transform((v) => BigInt(v)).optional(),
+      type: import_zod22.z.enum(MOVEMENT_TYPES).optional()
     });
-  }
-});
-
-// ../../packages/shared/dist/orders.js
-var require_orders = __commonJS({
-  "../../packages/shared/dist/orders.js"(exports2) {
-    "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.StatusChangeBody = exports2.AdminOrderListQuery = exports2.OrderListQuery = exports2.CreateOrderBody = exports2.CartPriceBody = exports2.CartItem = exports2.canTransition = exports2.ORDER_TRANSITIONS = void 0;
-    var zod_1 = require_zod();
-    var enums_1 = require_enums();
-    var catalog_1 = require_catalog();
-    exports2.ORDER_TRANSITIONS = {
+    var import_zod32 = require_zod();
+    var ORDER_TRANSITIONS = {
       new: ["confirmed", "cancelled"],
       confirmed: ["in_production", "cancelled"],
       in_production: ["ready", "cancelled"],
@@ -48630,155 +48670,103 @@ var require_orders = __commonJS({
       delivered: [],
       cancelled: []
     };
-    var canTransition2 = (from, to) => exports2.ORDER_TRANSITIONS[from].includes(to);
-    exports2.canTransition = canTransition2;
-    var BigIdSchema = zod_1.z.union([zod_1.z.string().regex(/^\d+$/), zod_1.z.number().int().positive()]).transform((v) => BigInt(v));
-    exports2.CartItem = zod_1.z.object({
+    var canTransition2 = (from, to) => ORDER_TRANSITIONS[from].includes(to);
+    var BigIdSchema = import_zod32.z.union([import_zod32.z.string().regex(/^\d+$/), import_zod32.z.number().int().positive()]).transform((v) => BigInt(v));
+    var CartItem = import_zod32.z.object({
       variantId: BigIdSchema,
-      qty: zod_1.z.number().int().min(1).max(1e5)
+      qty: import_zod32.z.number().int().min(1).max(1e5)
     });
-    exports2.CartPriceBody = zod_1.z.object({
-      items: zod_1.z.array(exports2.CartItem).min(1).max(50),
-      warehouseId: zod_1.z.number().int().positive().optional()
+    var CartPriceBody2 = import_zod32.z.object({
+      items: import_zod32.z.array(CartItem).min(1).max(50),
+      warehouseId: import_zod32.z.number().int().positive().optional()
     });
-    exports2.CreateOrderBody = exports2.CartPriceBody.extend({
-      notes: zod_1.z.string().trim().max(1e3).optional()
+    var CreateOrderBody2 = CartPriceBody2.extend({
+      notes: import_zod32.z.string().trim().max(1e3).optional()
     });
-    exports2.OrderListQuery = catalog_1.PageQuery.extend({
-      status: zod_1.z.enum(enums_1.ORDER_STATUSES).optional()
+    var OrderListQuery2 = PageQuery.extend({
+      status: import_zod32.z.enum(ORDER_STATUSES).optional()
     });
-    var day = zod_1.z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "use YYYY-MM-DD");
-    exports2.AdminOrderListQuery = exports2.OrderListQuery.extend({
-      q: zod_1.z.string().trim().max(100).optional(),
-      userId: zod_1.z.string().regex(/^\d+$/).transform((v) => BigInt(v)).optional(),
+    var day = import_zod32.z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "use YYYY-MM-DD");
+    var AdminOrderListQuery2 = OrderListQuery2.extend({
+      q: import_zod32.z.string().trim().max(100).optional(),
+      userId: import_zod32.z.string().regex(/^\d+$/).transform((v) => BigInt(v)).optional(),
       from: day.optional(),
       to: day.optional()
       // inclusive
     });
-    exports2.StatusChangeBody = zod_1.z.object({
-      status: zod_1.z.enum(enums_1.ORDER_STATUSES),
-      note: zod_1.z.string().trim().max(255).optional()
+    var StatusChangeBody2 = import_zod32.z.object({
+      status: import_zod32.z.enum(ORDER_STATUSES),
+      note: import_zod32.z.string().trim().max(255).optional()
     });
-  }
-});
-
-// ../../packages/shared/dist/admin.js
-var require_admin = __commonJS({
-  "../../packages/shared/dist/admin.js"(exports2) {
-    "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.ReportsQuery = exports2.DiscountUpdate = exports2.DiscountCreate = exports2.DiscountListQuery = exports2.PasswordResolveBody = exports2.PasswordRequestQuery = exports2.UserUpdate = exports2.UserCreate = exports2.UserApproveBody = exports2.UserListQuery = exports2.Pct = void 0;
-    var zod_1 = require_zod();
-    var auth_1 = require_auth();
-    var catalog_1 = require_catalog();
-    var enums_1 = require_enums();
-    exports2.Pct = zod_1.z.union([zod_1.z.number(), zod_1.z.string()]).transform((v) => String(v).trim()).refine((v) => /^\d{1,3}(\.\d{1,2})?$/.test(v), "Invalid percent").refine((v) => Number(v) >= 0 && Number(v) <= 100, "Percent must be 0\u2013100");
-    var phone = zod_1.z.union([zod_1.z.string().trim().max(20), zod_1.z.null()]).transform((v) => v === "" ? null : v);
-    var Password = zod_1.z.string().min(auth_1.PASSWORD_MIN_LENGTH).max(200);
-    exports2.UserListQuery = catalog_1.PageQuery.extend({
-      q: zod_1.z.string().trim().max(100).optional(),
-      role: auth_1.RoleSchema.optional(),
-      active: zod_1.z.enum(["true", "false"]).optional(),
-      pending: zod_1.z.enum(["true", "false"]).optional()
+    var import_zod4 = require_zod();
+    var Pct = import_zod4.z.union([import_zod4.z.number(), import_zod4.z.string()]).transform((v) => String(v).trim()).refine((v) => /^\d{1,3}(\.\d{1,2})?$/.test(v), "Invalid percent").refine((v) => Number(v) >= 0 && Number(v) <= 100, "Percent must be 0\u2013100");
+    var phone = import_zod4.z.union([import_zod4.z.string().trim().max(20), import_zod4.z.null()]).transform((v) => v === "" ? null : v);
+    var Password = import_zod4.z.string().min(PASSWORD_MIN_LENGTH).max(200);
+    var UserListQuery2 = PageQuery.extend({
+      q: import_zod4.z.string().trim().max(100).optional(),
+      role: RoleSchema3.optional(),
+      active: import_zod4.z.enum(["true", "false"]).optional(),
+      pending: import_zod4.z.enum(["true", "false"]).optional()
     });
-    exports2.UserApproveBody = zod_1.z.object({
-      defaultDiscountPct: exports2.Pct.optional()
+    var UserApproveBody2 = import_zod4.z.object({
+      defaultDiscountPct: Pct.optional()
     });
-    exports2.UserCreate = zod_1.z.object({
-      username: zod_1.z.string().trim().min(3).max(60),
+    var UserCreate2 = import_zod4.z.object({
+      username: import_zod4.z.string().trim().min(3).max(60),
       password: Password,
-      fullName: zod_1.z.string().trim().min(1).max(120),
+      fullName: import_zod4.z.string().trim().min(1).max(120),
       phone: phone.optional(),
-      role: auth_1.RoleSchema.default("distributor"),
-      defaultDiscountPct: exports2.Pct.default("0")
+      role: RoleSchema3.default("distributor"),
+      defaultDiscountPct: Pct.default("0")
     });
-    exports2.UserUpdate = zod_1.z.object({
-      fullName: zod_1.z.string().trim().min(1).max(120),
+    var UserUpdate2 = import_zod4.z.object({
+      fullName: import_zod4.z.string().trim().min(1).max(120),
       phone,
-      role: auth_1.RoleSchema,
-      defaultDiscountPct: exports2.Pct,
-      isActive: zod_1.z.boolean(),
+      role: RoleSchema3,
+      defaultDiscountPct: Pct,
+      isActive: import_zod4.z.boolean(),
       password: Password,
-      unlock: zod_1.z.literal(true)
+      unlock: import_zod4.z.literal(true)
     }).partial();
-    exports2.PasswordRequestQuery = catalog_1.PageQuery.extend({
-      status: zod_1.z.enum(enums_1.PASSWORD_REQUEST_STATUSES).optional()
+    var PasswordRequestQuery2 = PageQuery.extend({
+      status: import_zod4.z.enum(PASSWORD_REQUEST_STATUSES).optional()
     });
-    exports2.PasswordResolveBody = zod_1.z.object({
-      status: zod_1.z.enum(["resolved", "rejected"]),
+    var PasswordResolveBody2 = import_zod4.z.object({
+      status: import_zod4.z.enum(["resolved", "rejected"]),
       newPassword: Password.optional()
     }).superRefine((b, ctx) => {
       if (b.status === "resolved" && !b.newPassword) {
         ctx.addIssue({ code: "custom", path: ["newPassword"], message: "newPassword is required when resolving" });
       }
     });
-    var optionalBig = zod_1.z.union([zod_1.z.string().regex(/^\d+$/), zod_1.z.number().int().positive(), zod_1.z.null()]).optional().transform((v) => v == null || v === void 0 ? null : BigInt(v));
-    var optionalInt = zod_1.z.number().int().positive().nullable().optional();
-    var isoDate = zod_1.z.string().trim().min(10).refine((s) => !Number.isNaN(Date.parse(s)), "Invalid date");
-    exports2.DiscountListQuery = catalog_1.PageQuery.extend({
-      userId: zod_1.z.string().regex(/^\d+$/).transform((v) => BigInt(v)).optional(),
-      active: zod_1.z.enum(["true", "false"]).optional()
+    var optionalBig = import_zod4.z.union([import_zod4.z.string().regex(/^\d+$/), import_zod4.z.number().int().positive(), import_zod4.z.null()]).optional().transform((v) => v == null || v === void 0 ? null : BigInt(v));
+    var optionalInt = import_zod4.z.number().int().positive().nullable().optional();
+    var isoDate = import_zod4.z.string().trim().min(10).refine((s) => !Number.isNaN(Date.parse(s)), "Invalid date");
+    var DiscountListQuery2 = PageQuery.extend({
+      userId: import_zod4.z.string().regex(/^\d+$/).transform((v) => BigInt(v)).optional(),
+      active: import_zod4.z.enum(["true", "false"]).optional()
     });
-    exports2.DiscountCreate = zod_1.z.object({
+    var DiscountCreate2 = import_zod4.z.object({
       userId: optionalBig,
       categoryId: optionalInt,
       productId: optionalBig,
-      pct: exports2.Pct,
+      pct: Pct,
       startsAt: isoDate.nullable().optional(),
       endsAt: isoDate.nullable().optional(),
-      isActive: zod_1.z.boolean().default(true)
+      isActive: import_zod4.z.boolean().default(true)
     });
-    exports2.DiscountUpdate = exports2.DiscountCreate.partial();
-    var day = zod_1.z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "use YYYY-MM-DD");
-    exports2.ReportsQuery = zod_1.z.object({
-      from: day.optional(),
-      to: day.optional()
+    var DiscountUpdate2 = DiscountCreate2.partial();
+    var day2 = import_zod4.z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "use YYYY-MM-DD");
+    var ReportsQuery2 = import_zod4.z.object({
+      from: day2.optional(),
+      to: day2.optional()
     });
-  }
-});
-
-// ../../packages/shared/dist/reports.js
-var require_reports = __commonJS({
-  "../../packages/shared/dist/reports.js"(exports2) {
-    "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.SalesReportQuery = void 0;
-    var zod_1 = require_zod();
+    var import_zod5 = require_zod();
     var dayRegex = /^\d{4}-\d{2}-\d{2}$/;
-    exports2.SalesReportQuery = zod_1.z.object({
-      from: zod_1.z.string().regex(dayRegex, "use YYYY-MM-DD").optional(),
-      to: zod_1.z.string().regex(dayRegex, "use YYYY-MM-DD").optional()
+    var SalesReportQuery = import_zod5.z.object({
+      from: import_zod5.z.string().regex(dayRegex, "use YYYY-MM-DD").optional(),
+      to: import_zod5.z.string().regex(dayRegex, "use YYYY-MM-DD").optional()
     });
-  }
-});
-
-// ../../packages/shared/dist/index.js
-var require_dist5 = __commonJS({
-  "../../packages/shared/dist/index.js"(exports2) {
-    "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? (function(o, m, k, k2) {
-      if (k2 === void 0) k2 = k;
-      var desc = Object.getOwnPropertyDescriptor(m, k);
-      if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-        desc = { enumerable: true, get: function() {
-          return m[k];
-        } };
-      }
-      Object.defineProperty(o, k2, desc);
-    }) : (function(o, m, k, k2) {
-      if (k2 === void 0) k2 = k;
-      o[k2] = m[k];
-    }));
-    var __exportStar = exports2 && exports2.__exportStar || function(m, exports3) {
-      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports3, p)) __createBinding(exports3, m, p);
-    };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    __exportStar(require_auth(), exports2);
-    __exportStar(require_enums(), exports2);
-    __exportStar(require_catalog(), exports2);
-    __exportStar(require_orders(), exports2);
-    __exportStar(require_admin(), exports2);
-    __exportStar(require_reports(), exports2);
   }
 });
 
@@ -55334,7 +55322,9 @@ async function issueRefresh(userId, familyId, meta) {
   return token;
 }
 async function login(username, password, meta) {
-  const user = await prisma.user.findUnique({ where: { username } });
+  const user = await prisma.user.findFirst({
+    where: { username: { equals: username.trim(), mode: "insensitive" } }
+  });
   if (!user) {
     await dummyVerify(password);
     throw new HttpError(401, "INVALID_CREDENTIALS");
@@ -55398,10 +55388,14 @@ async function logout(rawToken) {
   }
 }
 async function createPasswordRequest(username, note) {
-  const cleanUsername = username.trim();
+  const cleanUsername = username.trim().toLowerCase();
   const cleanNote = note?.trim().normalize("NFC");
-  const user = await prisma.user.findUnique({ where: { username: cleanUsername } });
-  const exists = await prisma.passwordRequest.findFirst({ where: { username: cleanUsername, status: "pending" } });
+  const user = await prisma.user.findFirst({
+    where: { username: { equals: cleanUsername, mode: "insensitive" } }
+  });
+  const exists = await prisma.passwordRequest.findFirst({
+    where: { username: { equals: cleanUsername, mode: "insensitive" }, status: "pending" }
+  });
   if (!exists) await prisma.passwordRequest.create({ data: { username: cleanUsername, note: cleanNote, userId: user?.id } });
 }
 async function getMe(userId) {
@@ -55410,8 +55404,10 @@ async function getMe(userId) {
   return toPublicUser(user);
 }
 async function register(input, ip) {
-  const username = input.username.trim();
-  const existing = await prisma.user.findUnique({ where: { username } });
+  const username = input.username.trim().toLowerCase();
+  const existing = await prisma.user.findFirst({
+    where: { username: { equals: username, mode: "insensitive" } }
+  });
   if (existing) throw new HttpError(409, "USERNAME_TAKEN", "\u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0645\u0633\u062A\u062E\u062F\u0645 \u0628\u0627\u0644\u0641\u0639\u0644\u060C \u0627\u062E\u062A\u0631 \u0627\u0633\u0645\u0627\u064B \u0622\u062E\u0631");
   const passwordHash = await hashPassword(input.password);
   const fullName = input.fullName.trim().normalize("NFC");
@@ -55556,14 +55552,14 @@ async function listProducts(q, discountPct) {
     else catFilter.slug = q.category;
   }
   const where = { isActive: true, category: catFilter };
-  if (q.q) where.OR = [{ name: { contains: q.q } }, { description: { contains: q.q } }];
+  if (q.q) where.OR = [{ name: { contains: q.q, mode: "insensitive" } }, { description: { contains: q.q, mode: "insensitive" } }];
   const [total, rows] = await Promise.all([
     prisma.product.count({ where }),
     prisma.product.findMany({
       where,
       include: productInclude,
       orderBy: [{ name: "asc" }, { id: "asc" }],
-      // skip/take on SQL Server needs a deterministic orderBy
+      // Pagination uses a deterministic order.
       skip: (q.page - 1) * q.pageSize,
       take: q.pageSize
     })
@@ -55694,7 +55690,7 @@ var adminCatalogRoutes = async (app) => {
     const where = {};
     if (q.active) where.isActive = q.active === "true";
     if (q.category) where.category = /^\d+$/.test(q.category) ? { id: Number(q.category) } : { slug: q.category };
-    if (q.q) where.OR = [{ name: { contains: q.q } }, { description: { contains: q.q } }];
+    if (q.q) where.OR = [{ name: { contains: q.q, mode: "insensitive" } }, { description: { contains: q.q, mode: "insensitive" } }];
     const [total, items] = await Promise.all([
       prisma.product.count({ where }),
       prisma.product.findMany({
@@ -56105,7 +56101,7 @@ async function listStock(q) {
   const where = {};
   if (q.warehouseId) where.warehouseId = q.warehouseId;
   if (q.variantId) where.variantId = q.variantId;
-  if (q.q) where.variant = { OR: [{ sku: { contains: q.q } }, { label: { contains: q.q } }, { product: { name: { contains: q.q } } }] };
+  if (q.q) where.variant = { OR: [{ sku: { contains: q.q, mode: "insensitive" } }, { label: { contains: q.q, mode: "insensitive" } }, { product: { name: { contains: q.q, mode: "insensitive" } } }] };
   const [total, rows] = await Promise.all([
     prisma.stockLevel.count({ where }),
     prisma.stockLevel.findMany({
@@ -56762,9 +56758,9 @@ async function listAllOrders(q) {
   if (q.status) where.status = q.status;
   if (q.userId) where.userId = q.userId;
   if (q.q) where.OR = [
-    { orderNo: { contains: q.q } },
-    { user: { fullName: { contains: q.q } } },
-    { user: { username: { contains: q.q } } }
+    { orderNo: { contains: q.q, mode: "insensitive" } },
+    { user: { fullName: { contains: q.q, mode: "insensitive" } } },
+    { user: { username: { contains: q.q, mode: "insensitive" } } }
   ];
   if (q.from || q.to) {
     const range = {};
@@ -56939,9 +56935,9 @@ async function listUsers(q) {
   if (q.active !== void 0) where.isActive = q.active === "true";
   if (q.q) {
     where.OR = [
-      { username: { contains: q.q } },
-      { fullName: { contains: q.q } },
-      { phone: { contains: q.q } }
+      { username: { contains: q.q, mode: "insensitive" } },
+      { fullName: { contains: q.q, mode: "insensitive" } },
+      { phone: { contains: q.q, mode: "insensitive" } }
     ];
   }
   const [total, items] = await Promise.all([
@@ -56966,9 +56962,9 @@ async function listPendingUsers(q) {
   };
   if (q.q) {
     where.OR = [
-      { username: { contains: q.q } },
-      { fullName: { contains: q.q } },
-      { phone: { contains: q.q } }
+      { username: { contains: q.q, mode: "insensitive" } },
+      { fullName: { contains: q.q, mode: "insensitive" } },
+      { phone: { contains: q.q, mode: "insensitive" } }
     ];
   }
   const [total, items] = await Promise.all([
@@ -57029,8 +57025,10 @@ async function getUser(id) {
   return user;
 }
 async function createUser(input, actorId, ip) {
-  const username = input.username.trim();
-  const existing = await prisma.user.findUnique({ where: { username } });
+  const username = input.username.trim().toLowerCase();
+  const existing = await prisma.user.findFirst({
+    where: { username: { equals: username, mode: "insensitive" } }
+  });
   if (existing) throw new HttpError(409, "USERNAME_TAKEN", "\u0627\u0633\u0645 \u0627\u0644\u0645\u0633\u062A\u062E\u062F\u0645 \u0645\u0633\u062A\u062E\u062F\u0645 \u0628\u0627\u0644\u0641\u0639\u0644");
   const passwordHash = await hashPassword(input.password);
   const fullName = input.fullName.trim().normalize("NFC");

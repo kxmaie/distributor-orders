@@ -36,7 +36,7 @@ export async function buildApp() {
   await app.register(rateLimit, { global: true, max: 200, timeWindow: "1 minute" });
   await app.register(authPlugin);
 
-  // Ensure all JSON responses carry explicit UTF-8 charset (fixes Arabic ? display in SQL Server / clients)
+  // Ensure all JSON responses carry an explicit UTF-8 charset for Arabic clients.
   app.addHook("onSend", async (_req, reply) => {
     const ct = reply.getHeader("content-type");
     if (typeof ct === "string" && ct.includes("application/json") && !ct.includes("charset")) {

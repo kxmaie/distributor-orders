@@ -77,15 +77,15 @@ export async function listProducts(
     else catFilter.slug = q.category;
   }
   const where: Prisma.ProductWhereInput = { isActive: true, category: catFilter };
-  // SQL Server: no `mode: "insensitive"` (default collation is already case-insensitive)
-  if (q.q) where.OR = [{ name: { contains: q.q } }, { description: { contains: q.q } }];
+  // Keep catalog search case-insensitive across PostgreSQL installations.
+  if (q.q) where.OR = [{ name: { contains: q.q, mode: "insensitive" } }, { description: { contains: q.q, mode: "insensitive" } }];
 
   const [total, rows] = await Promise.all([
     prisma.product.count({ where }),
     prisma.product.findMany({
       where,
       include: productInclude,
-      orderBy: [{ name: "asc" }, { id: "asc" }], // skip/take on SQL Server needs a deterministic orderBy
+      orderBy: [{ name: "asc" }, { id: "asc" }], // Pagination uses a deterministic order.
       skip: (q.page - 1) * q.pageSize,
       take: q.pageSize,
     }),

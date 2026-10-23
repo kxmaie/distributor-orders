@@ -272,7 +272,7 @@ export default function AdminCategories() {
             <div className="p-3 rounded-xl bg-danger/10 border border-danger/20 text-danger space-y-1">
               <p className="font-bold text-sm">تحذير هام: هذا إجراء نهائي ولا يمكن التراجع عنه!</p>
               <p>
-                سيتم حذف التصنيف <strong>"{deleteConfirm.name}"</strong> وجميع المنتجات والمقاسات التالفة أو المرتبطة به نهائياً من قاعدة البيانات (SQL Server).
+                سيتم حذف التصنيف <strong>"{deleteConfirm.name}"</strong> وجميع المنتجات والمقاسات التالفة أو المرتبطة به نهائياً من قاعدة البيانات.
               </p>
             </div>
             <p className="text-muted">هل أنت متأكد تماماً من رغبتك في حذف هذا التصنيف نهائياً؟</p>

@@ -1,5 +1,5 @@
-// DB enums don't exist on SQL Server; the values live here and are enforced by
-// Zod at the API boundary and by CHECK constraints in the database.
+// Application enum values live here and are enforced by database CHECK constraints.
+// Zod validates the API boundary.
 export const ORDER_STATUSES = ["new", "confirmed", "in_production", "ready", "delivered", "cancelled"] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 

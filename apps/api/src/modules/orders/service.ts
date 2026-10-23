@@ -245,9 +245,9 @@ export async function listAllOrders(q: AdminListQ) {
   if (q.status) where.status = q.status;
   if (q.userId) where.userId = q.userId;
   if (q.q) where.OR = [
-    { orderNo: { contains: q.q } },
-    { user: { fullName: { contains: q.q } } },
-    { user: { username: { contains: q.q } } },
+    { orderNo: { contains: q.q, mode: "insensitive" } },
+    { user: { fullName: { contains: q.q, mode: "insensitive" } } },
+    { user: { username: { contains: q.q, mode: "insensitive" } } },
   ];
   if (q.from || q.to) {
     const range: Prisma.DateTimeFilter = {};
