@@ -2,6 +2,7 @@ import { MotionConfig } from "framer-motion";
 import { lazy, Suspense, useEffect, type ReactElement } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Layout from "./components/Layout";
+import AssistantWidget from "./components/AssistantWidget";
 import Logo from "./components/Logo";
 import AdminLayout from "./components/admin/AdminLayout";
 import { OfflineBanner, UpdatePrompt } from "./components/PWAPrompts";
@@ -111,6 +112,7 @@ export default function App() {
         </Boot>
         {/* SSE connection — mounts for any authenticated user */}
         <SSEProvider />
+        <AssistantWidget />
         <Toasts />
         <OfflineBanner />
         <UpdatePrompt />
