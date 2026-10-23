@@ -15,7 +15,7 @@ export const RegisterBody = z.object({
   username: z.string().trim().min(3).max(60),
   password: z.string().min(PASSWORD_MIN_LENGTH).max(200),
   fullName: z.string().trim().min(2).max(120),
-  phone: z.string().trim().min(5).max(20),
+  phone: z.string().trim().min(5).max(20).optional(),
 });
 export type RegisterBody = z.infer<typeof RegisterBody>;
 

@@ -45,6 +45,11 @@ h1, h2, h3, .font-display { font-family: Montserrat, Cairo, "IBM Plex Sans Arabi
 @keyframes shimmer { 100% { transform: translateX(100%); } }
 @keyframes drift-a { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(40px,30px,0) scale(1.15); } }
 @keyframes drift-b { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(-50px,-20px,0) scale(1.1); } }
+.brand-logo__image { transform-origin: center; animation: brand-arrive .75s cubic-bezier(.2,.8,.2,1) both; transition: filter .25s ease, transform .3s ease; }
+.brand-logo__aura { animation: brand-aura 4s ease-in-out infinite; transition: opacity .25s ease; }
+.brand-logo:hover .brand-logo__image { filter: drop-shadow(0 0 9px rgb(var(--primary) / .34)); transform: translateY(-1px) scale(1.025); }
+@keyframes brand-arrive { from { opacity: 0; transform: translateY(5px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes brand-aura { 0%,100% { opacity: .45; transform: scale(.94); } 50% { opacity: .9; transform: scale(1.06); } }
 .blob-a { animation: drift-a 14s ease-in-out infinite; }
 .blob-b { animation: drift-b 18s ease-in-out infinite; }
 .blob-a, .blob-b { will-change: transform; }
@@ -52,7 +57,7 @@ h1, h2, h3, .font-display { font-family: Montserrat, Cairo, "IBM Plex Sans Arabi
   html { scroll-behavior: auto; }
   /* Decorative motion off; the loading spinner (animate-spin) stays because it is functional feedback. */
   *, ::before, ::after { transition-duration: .01ms !important; transition-delay: 0s !important; }
-  .blob-a, .blob-b, .skeleton::after { animation: none; }
+  .blob-a, .blob-b, .skeleton::after, .brand-logo__image, .brand-logo__aura { animation: none; }
 }
 /* Pause the infinite background drift when the tab/app is hidden. */
 @media (update: slow) { .blob-a, .blob-b { animation: none; } }

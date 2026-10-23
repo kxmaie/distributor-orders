@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync, FastifyRequest } from "fastify";
 import type { Prisma } from "@prisma/client";
+import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import {
   AdminProductQuery, CategoryCreate, CategoryUpdate, IdParam, IntIdParam, ProductCreate, ProductUpdate,
   VariantCreate, VariantUpdate, WarehouseCreate, WarehouseUpdate,
@@ -12,6 +13,33 @@ import { slugify } from "../../lib/slug";
 const adminCatalogRoutes: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", app.requireRole("admin", "super_admin"));
   const actor = (req: FastifyRequest) => BigInt(req.user.sub);
+
+  app.post("/uploads/image", async (req, reply) => {
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      throw new HttpError(503, "IMAGE_STORAGE_NOT_CONFIGURED", "Image storage is not configured");
+    }
+    try {
+      const result = await handleUpload({
+        body: req.body as HandleUploadBody,
+        request: req.raw,
+        onBeforeGenerateToken: async (pathname) => {
+          if (!/^products\/[^/]+$/.test(pathname)) {
+            throw new HttpError(400, "INVALID_UPLOAD_PATH");
+          }
+          return {
+            allowedContentTypes: ["image/jpeg", "image/png", "image/webp", "image/avif"],
+            maximumSizeInBytes: 5 * 1024 * 1024,
+            addRandomSuffix: true,
+            allowOverwrite: false,
+          };
+        },
+      });
+      return reply.send(result);
+    } catch (error) {
+      if (error instanceof HttpError) throw error;
+      throw new HttpError(400, "IMAGE_UPLOAD_FAILED", "Could not authorize image upload");
+    }
+  });
 
   // ---------- categories ----------
   app.get("/categories", async () =>

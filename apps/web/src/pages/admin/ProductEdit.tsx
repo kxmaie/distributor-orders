@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, Boxes, Check, Edit, Plus, RotateCcw, Trash2, Warehouse as WarehouseIcon } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { UNITS } from "@do/shared";
 import { ErrorBox, Modal, Skeleton, Spinner } from "../../components/ui";
@@ -8,11 +8,13 @@ import { api, errorText } from "../../lib/api";
 import { UNIT_LABEL } from "../../lib/format";
 import { useUI } from "../../store/ui";
 import type { AdminCategory, AdminProduct, AdminVariant, Warehouse } from "../../lib/types";
+import ImageUploadField from "../../components/admin/ImageUploadField";
 
 export default function AdminProductEdit() {
   const { id = "" } = useParams();
   const push = useUI((s) => s.push);
   const qc = useQueryClient();
+  const [imageUrl, setImageUrl] = useState("");
 
   // Modals state
   const [varOpen, setVarOpen] = useState(false);
@@ -29,6 +31,7 @@ export default function AdminProductEdit() {
     queryKey: ["admin-product", id],
     queryFn: () => api.get<AdminProduct>(`/admin/products/${id}`),
   });
+  useEffect(() => { if (p.data) setImageUrl(p.data.imageUrl ?? ""); }, [p.data?.id, p.data?.imageUrl]);
   const cats = useQuery({
     queryKey: ["admin-cats"],
     queryFn: () => api.get<AdminCategory[]>("/admin/categories"),
@@ -269,7 +272,7 @@ export default function AdminProductEdit() {
 
         <label className="label">
           رابط الصورة (اختياري)
-          <input name="imageUrl" className="input font-mono" dir="ltr" defaultValue={prod.imageUrl ?? ""} />
+          <ImageUploadField value={imageUrl} onChange={setImageUrl} />
         </label>
 
         <label className="label md:col-span-2">

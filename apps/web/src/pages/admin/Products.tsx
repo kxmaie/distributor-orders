@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { Boxes, Edit, FolderTree, Layers, Plus, Trash2, Warehouse as WarehouseIcon } from "lucide-react";
+import { Boxes, Edit, FileUp, FolderTree, Layers, Plus, Trash2, Warehouse as WarehouseIcon } from "lucide-react";
 import { UNITS } from "@do/shared";
 import { EmptyState, ErrorBox, Modal, Skeleton, Spinner } from "../../components/ui";
 import { useAdminWarehouses } from "../../hooks/adminQueries";
@@ -9,12 +9,35 @@ import { api, errorText } from "../../lib/api";
 import { money, UNIT_LABEL } from "../../lib/format";
 import { useUI } from "../../store/ui";
 import type { AdminCategory, AdminProduct, Page } from "../../lib/types";
+import ImageUploadField from "../../components/admin/ImageUploadField";
+
+type ImportRow = { categoryId: number; name: string; basePrice: string; unit: string; initialStock: number; sku?: string; variantLabel?: string; description?: string; imageUrl?: string };
+function parseCsv(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [], cell = "", quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '"' && quoted && text[i + 1] === '"') { cell += '"'; i++; }
+    else if (ch === '"') quoted = !quoted;
+    else if (ch === "," && !quoted) { row.push(cell.trim()); cell = ""; }
+    else if ((ch === "\n" || ch === "\r") && !quoted) { if (ch === "\r" && text[i + 1] === "\n") i++; row.push(cell.trim()); if (row.some(Boolean)) rows.push(row); row = []; cell = ""; }
+    else cell += ch;
+  }
+  row.push(cell.trim()); if (row.some(Boolean)) rows.push(row);
+  return rows;
+}
 
 export default function AdminProducts() {
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<AdminProduct | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importRows, setImportRows] = useState<ImportRow[]>([]);
+  const [importError, setImportError] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [newImageUrl, setNewImageUrl] = useState("");
+  const importInput = useRef<HTMLInputElement>(null);
   const push = useUI((s) => s.push);
   const qc = useQueryClient();
 
@@ -30,6 +53,7 @@ export default function AdminProducts() {
     onSuccess: () => {
       push("تم إضافة المنتج وإنشاء رصيد المخزون بنجاح", "ok");
       setOpen(false);
+      setNewImageUrl("");
       qc.invalidateQueries({ queryKey: ["admin-products"] });
       qc.invalidateQueries({ queryKey: ["admin", "stock"] });
       qc.invalidateQueries({ queryKey: ["admin", "movements"] });
@@ -78,6 +102,42 @@ export default function AdminProducts() {
     });
   }
 
+  async function onImportFile(file?: File) {
+    if (!file) return;
+    setImportError(""); setImportRows([]);
+    if (!file.name.toLowerCase().endsWith(".csv") || file.size > 2 * 1024 * 1024) { setImportError("ارفع ملف CSV حتى 2 ميجابايت. يمكن فتح Excel وحفظ الملف بصيغة CSV."); return; }
+    const rows = parseCsv(await file.text());
+    if (rows.length < 2 || rows.length > 201) { setImportError("الملف لازم يحتوي عنوان الأعمدة وصفًا واحدًا على الأقل، وبحد أقصى 200 منتج."); return; }
+    const headers = rows[0].map((h) => h.replace(/^\uFEFF/, "").toLowerCase());
+    const at = (...names: string[]) => headers.findIndex((h) => names.includes(h));
+    const idx = { name: at("name", "الاسم", "اسم المنتج"), category: at("category", "categoryid", "التصنيف"), price: at("baseprice", "price", "السعر"), unit: at("unit", "الوحدة"), stock: at("initialstock", "stock", "المخزون"), sku: at("sku", "كود الصنف"), variant: at("variantlabel", "variant", "المقاس"), description: at("description", "الوصف"), image: at("imageurl", "image", "رابط الصورة") };
+    if (idx.name < 0 || idx.category < 0 || idx.price < 0) { setImportError("الأعمدة المطلوبة: name, category, basePrice. حمّل نموذج CSV من هنا لتجهيز الملف."); return; }
+    const products: ImportRow[] = [];
+    for (const [n, cells] of rows.slice(1).entries()) {
+      const get = (i: number) => i >= 0 ? cells[i] ?? "" : "";
+      const categoryValue = get(idx.category).trim().toLowerCase();
+      const category = cats.data?.find((c) => String(c.id) === categoryValue || c.slug.toLowerCase() === categoryValue || c.name.toLowerCase() === categoryValue);
+      const name = get(idx.name), price = get(idx.price).replace(/[^0-9.]/g, "");
+      const unit = get(idx.unit) || "piece";
+      const stock = Number(get(idx.stock) || 0);
+      if (!name || !category || !Number.isFinite(Number(price)) || Number(price) <= 0 || !UNITS.includes(unit as typeof UNITS[number]) || !Number.isInteger(stock) || stock < 0) { setImportError(`راجع الصف ${n + 2}: الاسم والتصنيف الموجود والسعر الموجب والوحدة والكمية الصحيحة مطلوبة.`); return; }
+      products.push({ categoryId: category.id, name, basePrice: price, unit, initialStock: stock, sku: get(idx.sku) || undefined, variantLabel: get(idx.variant) || undefined, description: get(idx.description) || undefined, imageUrl: get(idx.image) || undefined });
+    }
+    setImportRows(products);
+  }
+
+  async function importProducts() {
+    setImporting(true);
+    let added = 0;
+    for (const row of importRows) {
+      try { await api.post("/admin/products", row); added++; }
+      catch { /* Keep going so one duplicate SKU does not stop the whole file. */ }
+    }
+    setImporting(false); setImportOpen(false); setImportRows([]);
+    push(`اكتملت الإضافة: ${added} من ${importRows.length} منتج. راجع المنتجات التي لم تُضف يدويًا.`, added === importRows.length ? "ok" : "err");
+    qc.invalidateQueries({ queryKey: ["admin-products"] }); qc.invalidateQueries({ queryKey: ["admin", "stock"] }); qc.invalidateQueries({ queryKey: ["admin", "movements"] });
+  }
+
   const getTotalStock = (p: AdminProduct) => {
     return p.variants?.reduce((sum, v) => {
       const vSum = v.stockLevels?.reduce((acc, s) => acc + (s.onHand || 0), 0) ?? 0;
@@ -94,6 +154,7 @@ export default function AdminProducts() {
           <p className="text-sm text-muted">إدارة قائمة المنتجات والأسعار والمقاسات</p>
         </div>
         <div className="flex items-center gap-2">
+        <button className="btn-ghost" onClick={() => { setImportRows([]); setImportError(""); setImportOpen(true); }}><FileUp className="h-4 w-4" />استيراد CSV</button>
           <Link to="/admin/categories" className="btn-ghost text-xs">
             <FolderTree className="h-4 w-4" />
             <span>إدارة التصنيفات</span>
@@ -281,7 +342,7 @@ export default function AdminProducts() {
             </label>
             <label className="label">
               رابط الصورة (اختياري)
-              <input name="imageUrl" className="input font-mono" dir="ltr" placeholder="https://..." />
+              <ImageUploadField value={newImageUrl} onChange={setNewImageUrl} />
             </label>
           </div>
 
@@ -349,6 +410,22 @@ export default function AdminProducts() {
             {create.isPending ? <Spinner /> : "حفظ المنتج وإيداع المخزون"}
           </button>
         </form>
+      </Modal>
+
+      <Modal open={importOpen} title="استيراد منتجات من ملف CSV" onClose={() => !importing && setImportOpen(false)}>
+        <div className="space-y-4 text-sm">
+          <p className="text-muted">جهز الملف بالأعمدة المطلوبة: <b dir="ltr">name, category, basePrice</b>. التصنيف يقبل الاسم أو الرابط أو الرقم. الحد الأقصى 200 منتج في الملف.</p>
+          <button type="button" className="btn-ghost text-xs" onClick={() => {
+            const csv = "name,category,basePrice,unit,initialStock,sku,variantLabel,description,imageUrl\nمثال منتج,category-slug,100,piece,0,SKU-001,الأساسي,,,";
+            const url = URL.createObjectURL(new Blob(["\uFEFF", csv], { type: "text/csv;charset=utf-8" }));
+            const a = document.createElement("a"); a.href = url; a.download = "products-template.csv"; a.click(); URL.revokeObjectURL(url);
+          }}>تحميل نموذج CSV</button>
+          <input ref={importInput} className="input" type="file" accept=".csv,text/csv" onChange={(e) => void onImportFile(e.target.files?.[0])} />
+          {cats.data && <p className="text-xs text-muted">التصنيفات المتاحة: {cats.data.map((c) => `${c.name} (${c.slug})`).join("، ")}</p>}
+          {importError && <p role="alert" className="rounded-xl border border-danger/30 bg-danger/10 p-3 text-xs text-danger">{importError}</p>}
+          {importRows.length > 0 && <div className="rounded-xl border border-primary/25 bg-primary/5 p-3"><p className="font-bold text-primary">تمت معاينة {importRows.length} منتجًا قبل الإضافة</p><ul className="mt-2 space-y-1 text-xs text-muted">{importRows.slice(0, 5).map((r, i) => <li key={`${r.name}-${i}`}>{r.name} · {r.basePrice} · {cats.data?.find((c) => c.id === r.categoryId)?.name}</li>)}</ul>{importRows.length > 5 && <p className="mt-1 text-xs text-muted">و {importRows.length - 5} منتجات أخرى</p>}</div>}
+          <div className="flex justify-end gap-2"><button type="button" className="btn-ghost text-xs" disabled={importing} onClick={() => setImportOpen(false)}>إلغاء</button><button type="button" className="btn-primary text-xs" disabled={!importRows.length || importing} onClick={() => void importProducts()}>{importing ? <Spinner /> : `إضافة ${importRows.length} منتج`}</button></div>
+        </div>
       </Modal>
 
       {/* Hard Delete Confirmation Modal */}
