@@ -88,4 +88,3 @@ const MESSAGES: Record<string, string> = {
 };
 export const errorText = (e: unknown) =>
   e instanceof ApiError ? MESSAGES[e.code] ?? "حدث خطأ غير متوقع، حاول مرة أخرى" : "تعذّر الاتصال بالخادم، تأكد من الإنترنت";
-
