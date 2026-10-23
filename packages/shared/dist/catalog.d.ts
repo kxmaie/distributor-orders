@@ -230,6 +230,19 @@ export declare const StockAdjustBody: z.ZodObject<{
     type?: "receipt" | "adjustment" | undefined;
     note?: string | undefined;
 }>;
+export declare const StockThresholdBody: z.ZodObject<{
+    variantId: z.ZodEffects<z.ZodUnion<[z.ZodString, z.ZodNumber]>, bigint, string | number>;
+    warehouseId: z.ZodNumber;
+    threshold: z.ZodNumber;
+}, "strip", z.ZodTypeAny, {
+    warehouseId: number;
+    variantId: bigint;
+    threshold: number;
+}, {
+    warehouseId: number;
+    variantId: string | number;
+    threshold: number;
+}>;
 export declare const StockListQuery: z.ZodObject<{
     page: z.ZodDefault<z.ZodNumber>;
     pageSize: z.ZodDefault<z.ZodNumber>;

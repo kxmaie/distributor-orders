@@ -20,6 +20,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
+  AccountQuery: () => AccountQuery,
   AdminOrderListQuery: () => AdminOrderListQuery,
   AdminProductQuery: () => AdminProductQuery,
   CartItem: () => CartItem,
@@ -27,7 +28,9 @@ __export(index_exports, {
   CatalogListQuery: () => CatalogListQuery,
   CategoryCreate: () => CategoryCreate,
   CategoryUpdate: () => CategoryUpdate,
+  CreateDeliveryBody: () => CreateDeliveryBody,
   CreateOrderBody: () => CreateOrderBody,
+  CreatePaymentBody: () => CreatePaymentBody,
   DiscountCreate: () => DiscountCreate,
   DiscountListQuery: () => DiscountListQuery,
   DiscountUpdate: () => DiscountUpdate,
@@ -61,6 +64,7 @@ __export(index_exports, {
   StatusChangeBody: () => StatusChangeBody,
   StockAdjustBody: () => StockAdjustBody,
   StockListQuery: () => StockListQuery,
+  StockThresholdBody: () => StockThresholdBody,
   UNITS: () => UNITS,
   UserApproveBody: () => UserApproveBody,
   UserCreate: () => UserCreate,
@@ -191,6 +195,11 @@ var StockAdjustBody = import_zod2.z.object({
   type: import_zod2.z.enum(["receipt", "adjustment"]).default("adjustment"),
   note: import_zod2.z.string().trim().max(255).optional()
 });
+var StockThresholdBody = import_zod2.z.object({
+  variantId: bigId,
+  warehouseId: import_zod2.z.number().int().positive(),
+  threshold: import_zod2.z.number().int().min(0).max(1e6)
+});
 var StockListQuery = PageQuery.extend({
   warehouseId: import_zod2.z.coerce.number().int().positive().optional(),
   variantId: import_zod2.z.string().regex(/^\d+$/).transform((v) => BigInt(v)).optional(),
@@ -313,8 +322,29 @@ var SalesReportQuery = import_zod5.z.object({
   from: import_zod5.z.string().regex(dayRegex, "use YYYY-MM-DD").optional(),
   to: import_zod5.z.string().regex(dayRegex, "use YYYY-MM-DD").optional()
 });
+
+// src/business.ts
+var import_zod6 = require("zod");
+var bigId2 = import_zod6.z.union([import_zod6.z.string().regex(/^\d+$/), import_zod6.z.number().int().positive()]).transform((v) => BigInt(v));
+var Money2 = import_zod6.z.union([import_zod6.z.number(), import_zod6.z.string()]).transform(String).refine((v) => /^\d{1,10}(\.\d{1,2})?$/.test(v) && Number(v) > 0, "Invalid amount");
+var CreateDeliveryBody = import_zod6.z.object({
+  trackingNumber: import_zod6.z.string().trim().max(100).optional(),
+  note: import_zod6.z.string().trim().max(500).optional(),
+  items: import_zod6.z.array(import_zod6.z.object({ orderItemId: bigId2, qty: import_zod6.z.number().int().min(1).max(1e6) })).min(1).max(100)
+});
+var CreatePaymentBody = import_zod6.z.object({
+  amount: Money2,
+  method: import_zod6.z.enum(["cash", "bank_transfer", "check", "other"]),
+  reference: import_zod6.z.string().trim().max(100).optional(),
+  note: import_zod6.z.string().trim().max(500).optional()
+});
+var AccountQuery = import_zod6.z.object({
+  from: import_zod6.z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  to: import_zod6.z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional()
+});
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  AccountQuery,
   AdminOrderListQuery,
   AdminProductQuery,
   CartItem,
@@ -322,7 +352,9 @@ var SalesReportQuery = import_zod5.z.object({
   CatalogListQuery,
   CategoryCreate,
   CategoryUpdate,
+  CreateDeliveryBody,
   CreateOrderBody,
+  CreatePaymentBody,
   DiscountCreate,
   DiscountListQuery,
   DiscountUpdate,
@@ -356,6 +388,7 @@ var SalesReportQuery = import_zod5.z.object({
   StatusChangeBody,
   StockAdjustBody,
   StockListQuery,
+  StockThresholdBody,
   UNITS,
   UserApproveBody,
   UserCreate,

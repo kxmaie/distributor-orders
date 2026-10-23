@@ -12,6 +12,7 @@ import type {
   Page,
   PasswordRequest,
   StockMovement,
+  StockAlert,
   StockRow,
   Warehouse,
 } from "../lib/types";
@@ -83,6 +84,20 @@ export const useAdminStock = (params: { warehouseId?: number; q?: string; page?:
       }),
     placeholderData: keepPreviousData,
   });
+
+export const useAdminStockAlerts = () => useQuery({
+  queryKey: ["admin", "stock-alerts"],
+  queryFn: () => api.get<StockAlert[]>("/admin/stock/alerts"),
+  refetchInterval: 60_000,
+});
+
+export function useSetStockThreshold() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: { variantId: string; warehouseId: number; threshold: number }) => api.patch("/admin/stock/threshold", body),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin", "stock"] }); qc.invalidateQueries({ queryKey: ["admin", "stock-alerts"] }); },
+  });
+}
 
 export const useAdminMovements = (params: { warehouseId?: number; variantId?: string; type?: string; page?: number }) =>
   useQuery({

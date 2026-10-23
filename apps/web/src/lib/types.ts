@@ -31,8 +31,16 @@ export type OrderSummary = {
 };
 export type OrderDetail = Omit<OrderSummary, "itemCount"> & {
   notes: string | null;
-  items: { id: string; variantId: string; productName: string; variantLabel: string; unitPrice: string; discountPct: string; qty: number; lineTotal: string }[];
+  items: { id: string; variantId: string; productId: string; sku: string; unit: "piece" | "meter" | "sqm"; productName: string; variantLabel: string; unitPrice: string; discountPct: string; qty: number; lineTotal: string }[];
+  deliveries: { id: string; trackingNumber: string | null; note: string | null; deliveredAt: string; amount: string; items: { orderItemId: string; qty: number; amount: string }[] }[];
   history: { fromStatus: string | null; toStatus: OrderStatus; createdAt: string; changedBy?: string; note?: string | null }[];
+};
+
+export type AccountStatement = {
+  user: { id: string; fullName: string; username: string };
+  openingBalance: string;
+  balance: string;
+  rows: { id: string; date: string; type: "delivery" | "payment"; reference: string; description: string; debit: string; credit: string; balance: string }[];
 };
 
 export type AdminUser = {
@@ -64,9 +72,15 @@ export type AdminProduct = {
 };
 export type Warehouse = { id: number; name: string; isActive: boolean };
 export type StockRow = {
-  variantId: string; warehouseId: number; onHand: number; reserved: number; available: number;
+  variantId: string; warehouseId: number; onHand: number; reserved: number; available: number; lowStockThreshold: number;
   variant: { sku: string; label: string; product: { id: string; name: string } };
   warehouse: { id: number; name: string };
+};
+export type StockAlert = {
+  variantId: string; warehouseId: number; warehouse: { id: number; name: string };
+  productId: string; productName: string; categoryName: string; sku: string; label: string;
+  available: number; threshold: number;
+  alternatives: { id: string; sku: string; label: string; productId: string; productName: string; available: number }[];
 };
 export type StockMovement = {
   id: string; variantId: string; warehouseId: number; type: string; qty: number; note: string | null; createdAt: string;
