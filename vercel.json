@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://distributor-orders-p5dz.vercel.app/api/:path*"
+    }
+  ]
+}

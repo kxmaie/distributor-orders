@@ -5,10 +5,10 @@
   "buildCommand": "cd ../.. && npm run build -w @do/shared && npm run generate -w @do/api && npm run build -w @do/api && npm run build:vercel -w @do/api",
   "functions": {
     "api/index.js": {
-      "includeFiles": "../../packages/shared/index.js"
+      "includeFiles": "../../packages/shared/dist/index.js"
     }
   },
   "rewrites": [
-    { "source": "/(.*)", "destination": "/api/index.js" }
+    { "source": "/(.*)", "destination": "/api/index" }
   ]
 }
