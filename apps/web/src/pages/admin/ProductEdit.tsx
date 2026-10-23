@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowRight, Boxes, Check, Edit, Plus, RotateCcw, Trash2, Warehouse as WarehouseIcon } from "lucide-react";
+import { ArrowRight, Boxes, Check, Edit, Package, PackageCheck, Plus, RotateCcw, Trash2, Warehouse as WarehouseIcon } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { UNITS } from "@do/shared";
@@ -214,7 +214,7 @@ export default function AdminProductEdit() {
             <ArrowRight className="h-3.5 w-3.5" />
             <span>العودة لقائمة المنتجات</span>
           </Link>
-          <h1 className="font-display text-2xl font-extrabold">{prod.name}</h1>
+          <div className="flex items-center gap-2"><span className="grid h-10 w-10 place-items-center rounded-2xl bg-primary/10 text-primary shadow-glow"><Package className="h-5 w-5" /></span><h1 className="font-display text-2xl font-extrabold">{prod.name}</h1></div>
           <p className="text-xs text-muted">تعديل بيانات المنتج، المقاسات، والتحكم بأرصدة المخزون في كل فرع</p>
         </div>
       </div>
@@ -222,7 +222,7 @@ export default function AdminProductEdit() {
       {/* Product Details Form */}
       <form className="card grid gap-4 p-5 md:grid-cols-2 text-xs" onSubmit={onSaveProduct}>
         <div className="md:col-span-2 font-bold text-sm text-ink border-b border-line/10 pb-2 flex items-center justify-between">
-          <span>بيانات المنتج الأساسية</span>
+          <span className="flex items-center gap-2"><PackageCheck className="h-4 w-4 text-primary" />بيانات المنتج الأساسية</span>
           <span
             className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
               prod.isActive ? "bg-success/15 text-success" : "bg-danger/15 text-danger"
@@ -271,7 +271,7 @@ export default function AdminProductEdit() {
         </label>
 
         <label className="label">
-          رابط الصورة (اختياري)
+          صورة المنتج (اختياري)
           <ImageUploadField value={imageUrl} onChange={setImageUrl} />
         </label>
 
