@@ -108,5 +108,3 @@ const assistantRoutes: FastifyPluginAsync = async (app) => {
 };
 
 export default assistantRoutes;
-
-

@@ -151,10 +151,3 @@ export default function AssistantWidget() {
     </>
   );
 }
-
-
-
-
-
-
-
