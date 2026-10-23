@@ -17,6 +17,7 @@ model User {
   passwordHash       String    @map("password_hash") @db.VarChar(255)
   fullName           String    @map("full_name") @db.VarChar(120)
   phone              String?   @db.VarChar(30)
+  whatsappOptInAt    DateTime? @map("whatsapp_opt_in_at")
   role               String    @default("distributor") @db.VarChar(20) // distributor | admin | super_admin
   defaultDiscountPct Decimal   @default(0) @map("default_discount_pct") @db.Decimal(5, 2)
   isActive           Boolean   @default(true) @map("is_active")
@@ -274,8 +275,10 @@ model NotificationQueue {
   status        String   @default("pending") @db.VarChar(20) // pending | sent | failed
   attempts      Int      @default(0)
   nextAttemptAt DateTime @default(now()) @map("next_attempt_at")
+  dispatchedAt  DateTime? @map("dispatched_at")
 
   @@index([status, nextAttemptAt])
+  @@index([channel, status, dispatchedAt])
   @@map("notification_queue")
 }
 

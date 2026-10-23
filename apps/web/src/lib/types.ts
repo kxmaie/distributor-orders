@@ -1,7 +1,7 @@
 import type { OrderStatus } from "@do/shared";
 
 export type Role = "distributor" | "admin" | "super_admin";
-export type User = { id: string; username: string; fullName: string; role: Role };
+export type User = { id: string; username: string; fullName: string; phone: string | null; whatsappOptInAt: string | null; role: Role };
 
 export type Category = { id: number; name: string; slug: string; sortOrder: number };
 export type Variant = { id: string; sku: string; label: string; price: string; yourPrice: string; available: number; inStock: boolean };

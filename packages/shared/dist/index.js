@@ -74,6 +74,7 @@ __export(index_exports, {
   VariantUpdate: () => VariantUpdate,
   WarehouseCreate: () => WarehouseCreate,
   WarehouseUpdate: () => WarehouseUpdate,
+  WhatsAppConsentBody: () => WhatsAppConsentBody,
   canTransition: () => canTransition
 });
 module.exports = __toCommonJS(index_exports);
@@ -100,8 +101,11 @@ var PublicUser = import_zod.z.object({
   id: import_zod.z.string(),
   username: import_zod.z.string(),
   fullName: import_zod.z.string(),
+  phone: import_zod.z.string().nullable(),
+  whatsappOptInAt: import_zod.z.string().nullable(),
   role: RoleSchema
 });
+var WhatsAppConsentBody = import_zod.z.object({ enabled: import_zod.z.boolean() });
 
 // src/enums.ts
 var ORDER_STATUSES = ["new", "confirmed", "in_production", "ready", "delivered", "cancelled"];
@@ -398,5 +402,6 @@ var AccountQuery = import_zod6.z.object({
   VariantUpdate,
   WarehouseCreate,
   WarehouseUpdate,
+  WhatsAppConsentBody,
   canTransition
 });

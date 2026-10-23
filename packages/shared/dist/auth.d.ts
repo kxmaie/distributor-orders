@@ -45,16 +45,29 @@ export declare const PublicUser: z.ZodObject<{
     id: z.ZodString;
     username: z.ZodString;
     fullName: z.ZodString;
+    phone: z.ZodNullable<z.ZodString>;
+    whatsappOptInAt: z.ZodNullable<z.ZodString>;
     role: z.ZodEnum<["distributor", "admin", "super_admin"]>;
 }, "strip", z.ZodTypeAny, {
     username: string;
     fullName: string;
+    phone: string | null;
     id: string;
+    whatsappOptInAt: string | null;
     role: "distributor" | "admin" | "super_admin";
 }, {
     username: string;
     fullName: string;
+    phone: string | null;
     id: string;
+    whatsappOptInAt: string | null;
     role: "distributor" | "admin" | "super_admin";
 }>;
 export type PublicUser = z.infer<typeof PublicUser>;
+export declare const WhatsAppConsentBody: z.ZodObject<{
+    enabled: z.ZodBoolean;
+}, "strip", z.ZodTypeAny, {
+    enabled: boolean;
+}, {
+    enabled: boolean;
+}>;

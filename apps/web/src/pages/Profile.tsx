@@ -17,6 +17,8 @@ export default function Profile() {
   const { theme, toggleTheme, push } = useUI();
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
+  const [whatsAppBusy, setWhatsAppBusy] = useState(false);
+  const updateUser = useAuth((s) => s.updateUser);
 
   async function logout() {
     try { await api.post("/auth/logout"); } catch { /* ignore: we clear local state either way */ }
@@ -28,6 +30,15 @@ export default function Profile() {
     catch (e) { push(errorText(e), "err"); }
     finally { setBusy(false); }
   }
+  async function setWhatsAppOptIn(enabled: boolean) {
+    setWhatsAppBusy(true);
+    try {
+      const result = await api.patch<{ whatsappOptInAt: string | null }>("/auth/whatsapp-consent", { enabled });
+      updateUser(result);
+      push(enabled ? "تم تفعيل موافقتك على رسائل تحديث الطلبات عبر واتساب" : "تم إيقاف رسائل واتساب", "ok");
+    } catch (error) { push(errorText(error), "err"); }
+    finally { setWhatsAppBusy(false); }
+  }
 
   const rows: [string, string, boolean][] = [["الاسم", user.fullName, false], ["اسم المستخدم", user.username, true], ["الصلاحية", ROLE[user.role], false]];
   return (
@@ -38,6 +49,17 @@ export default function Profile() {
           <div key={k} className="flex items-center justify-between p-4"><dt className="text-muted">{k}</dt><dd className="font-semibold" dir={ltr ? "ltr" : undefined}>{v}</dd></div>
         ))}
       </dl>
+      <section className="card space-y-3 p-4">
+        <div>
+          <h2 className="font-semibold">إشعارات واتساب</h2>
+          <p className="mt-1 text-sm text-muted">تُرسل تحديثات الطلبات إلى رقم الهاتف المسجل في حسابك. تقدر توقفها في أي وقت.</p>
+          {!user.phone && <p className="mt-2 text-xs text-danger">أضف رقم هاتف لحسابك أولًا من خلال الأدمن.</p>}
+        </div>
+        <label className="flex items-center gap-3 text-sm">
+          <input type="checkbox" checked={Boolean(user.whatsappOptInAt)} disabled={!user.phone || whatsAppBusy} onChange={(event) => void setWhatsAppOptIn(event.target.checked)} className="h-4 w-4 accent-primary" />
+          أوافق على استلام رسائل واتساب عن الطلبات
+        </label>
+      </section>
       <div className="grid gap-3">
         {user.role !== "distributor" && (
           <Link to="/admin" className="btn-primary"><LayoutDashboard className="h-4 w-4" /> لوحة الأدمن</Link>

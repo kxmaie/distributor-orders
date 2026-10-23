@@ -14,15 +14,19 @@ const Env = z.object({
   /**
    * WhatsApp integration (see lib/whatsapp.ts). Leave WHATSAPP_API_URL empty to disable sending
    * (whatsapp rows then simply stay `pending` in notification_queue).
-   *  - Meta Cloud API  → WHATSAPP_API_URL=https://graph.facebook.com/v21.0/<PHONE_NUMBER_ID>/messages
+   *  - Meta Cloud API  → WHATSAPP_API_URL=https://graph.facebook.com/<VERSION>/<PHONE_NUMBER_ID>/messages
    *  - Evolution API   → WHATSAPP_API_URL=https://<host>/message/sendText/<instance>
    *  - CallMeBot       → WHATSAPP_API_URL=https://api.callmebot.com/whatsapp.php
    * WHATSAPP_API_TOKEN is the access token / apikey for the chosen provider.
-   * WHATSAPP_PROVIDER is optional (auto-detected from the URL).
+   * WHATSAPP_PROVIDER is optional (auto-detected from the URL). Meta also needs approved
+   * WHATSAPP_ORDER_CREATED_TEMPLATE and WHATSAPP_ORDER_STATUS_TEMPLATE names.
    */
   WHATSAPP_API_URL: emptyToUndef(z.string().url().optional()),
   WHATSAPP_API_TOKEN: emptyToUndef(z.string().optional()),
   WHATSAPP_PROVIDER: emptyToUndef(z.enum(["meta", "evolution", "callmebot"]).optional()),
+  WHATSAPP_ORDER_CREATED_TEMPLATE: emptyToUndef(z.string().regex(/^[a-z0-9_]+$/).optional()),
+  WHATSAPP_ORDER_STATUS_TEMPLATE: emptyToUndef(z.string().regex(/^[a-z0-9_]+$/).optional()),
+  WHATSAPP_TEMPLATE_LANGUAGE: z.string().regex(/^[a-z]{2}(_[A-Z]{2})?$/).default("ar"),
   /** Prepended to local numbers that start with 0 (e.g. 01012345678 -> 201012345678). Egypt = 20. */
   WHATSAPP_DEFAULT_COUNTRY_CODE: z.string().regex(/^\d{1,4}$/).default("20"),
   WHATSAPP_CURRENCY_LABEL: z.string().default("ج.م"),

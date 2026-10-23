@@ -10,10 +10,12 @@ type Meta = { ip?: string; userAgent?: string };
 const addDays = (d: number) => new Date(Date.now() + d * 86_400_000);
 const addMinutes = (m: number) => new Date(Date.now() + m * 60_000);
 
-export const toPublicUser = (u: { id: bigint; username: string; fullName: string; role: string }) => ({
+export const toPublicUser = (u: { id: bigint; username: string; fullName: string; phone: string | null; whatsappOptInAt: Date | null; role: string }) => ({
   id: u.id.toString(),
   username: u.username,
   fullName: u.fullName,
+  phone: u.phone,
+  whatsappOptInAt: u.whatsappOptInAt?.toISOString() ?? null,
   role: RoleSchema.parse(u.role),
 });
 
@@ -127,6 +129,16 @@ export async function getMe(userId: bigint) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user || !user.isActive) throw new HttpError(401, "UNAUTHORIZED");
   return toPublicUser(user);
+}
+
+export async function setWhatsAppConsent(userId: bigint, enabled: boolean, ip?: string) {
+  return prisma.$transaction(async (tx) => {
+    const user = await tx.user.update({ where: { id: userId }, data: { whatsappOptInAt: enabled ? new Date() : null } });
+    await tx.auditLog.create({ data: {
+      actorId: userId, action: enabled ? "whatsapp.opt_in" : "whatsapp.opt_out", entity: "user", entityId: userId.toString(), ip,
+    } });
+    return { whatsappOptInAt: user.whatsappOptInAt?.toISOString() ?? null };
+  });
 }
 
 export async function register(input: RegisterBody, ip?: string) {

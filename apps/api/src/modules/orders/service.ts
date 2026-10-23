@@ -19,18 +19,18 @@ const money = (d: Prisma.Decimal) => d.toFixed(2);
 type Tx = Prisma.TransactionClient;
 type NotifRow = { channel: "whatsapp" | "in_app"; recipient: string; payload: string };
 
-/** One in-app (SSE) row per user id, plus one WhatsApp row per user that has a phone number. */
-function notifyUsers(users: { id: bigint; phone: string | null }[], payload: string, opts: { whatsapp: boolean }): NotifRow[] {
+/** One in-app (SSE) row per user id; WhatsApp is sent only after explicit opt-in. */
+function notifyUsers(users: { id: bigint; phone: string | null; whatsappOptInAt: Date | null }[], payload: string, opts: { whatsapp: boolean }): NotifRow[] {
   const rows: NotifRow[] = [];
   for (const u of users) {
     rows.push({ channel: "in_app", recipient: u.id.toString(), payload });
-    if (opts.whatsapp && u.phone?.trim()) rows.push({ channel: "whatsapp", recipient: u.phone.trim(), payload });
+    if (opts.whatsapp && u.whatsappOptInAt && u.phone?.trim()) rows.push({ channel: "whatsapp", recipient: u.phone.trim(), payload });
   }
   return rows;
 }
 
 const activeAdmins = (tx: Tx) =>
-  tx.user.findMany({ where: { isActive: true, role: { in: ["admin", "super_admin"] } }, select: { id: true, phone: true } });
+  tx.user.findMany({ where: { isActive: true, role: { in: ["admin", "super_admin"] } }, select: { id: true, phone: true, whatsappOptInAt: true } });
 
 const orderInclude = {
   items: { orderBy: { id: "asc" }, include: { variant: { select: { sku: true, product: { select: { id: true, unit: true } } } } } },
@@ -285,7 +285,7 @@ export async function changeStatus(
         reservations: { where: { status: "active" }, orderBy: [{ variantId: "asc" }, { id: "asc" }] },
         items: true,
         deliveries: { include: { items: true } },
-        user: { select: { id: true, fullName: true, phone: true } },
+        user: { select: { id: true, fullName: true, phone: true, whatsappOptInAt: true } },
       },
     });
     if (!order) throw new HttpError(404, "ORDER_NOT_FOUND");
@@ -359,7 +359,7 @@ export async function changeStatus(
     const rows: NotifRow[] = [];
     if (order.userId !== actorId) {
       // An admin changed it → tell the distributor (in-app + WhatsApp).
-      rows.push(...notifyUsers([{ id: order.user.id, phone: order.user.phone }], payload, { whatsapp: true }));
+      rows.push(...notifyUsers([{ id: order.user.id, phone: order.user.phone, whatsappOptInAt: order.user.whatsappOptInAt }], payload, { whatsapp: true }));
       // …and keep the other admins' boards/bells in sync (in-app only).
       rows.push(...notifyUsers(admins, payload, { whatsapp: false }));
     } else {
@@ -387,7 +387,7 @@ export async function recordDelivery(orderId: bigint, input: z.output<typeof Cre
         items: true,
         reservations: { where: { status: "active" } },
         deliveries: { include: { items: true } },
-        user: { select: { id: true, fullName: true, phone: true } },
+        user: { select: { id: true, fullName: true, phone: true, whatsappOptInAt: true } },
       },
     });
     if (!order) throw new HttpError(404, "ORDER_NOT_FOUND");
@@ -448,7 +448,7 @@ export async function recordDelivery(orderId: bigint, input: z.output<typeof Cre
       const admins = (await activeAdmins(tx)).filter((admin) => admin.id !== actorId);
       const payload = toJson({ type: "order_status", orderId, orderNo: order.orderNo, from: "ready", to: "delivered", total: money(order.total), distributor: order.user.fullName });
       const rows = order.userId !== actorId
-        ? [...notifyUsers([{ id: order.user.id, phone: order.user.phone }], payload, { whatsapp: true }), ...notifyUsers(admins, payload, { whatsapp: false })]
+        ? [...notifyUsers([{ id: order.user.id, phone: order.user.phone, whatsappOptInAt: order.user.whatsappOptInAt }], payload, { whatsapp: true }), ...notifyUsers(admins, payload, { whatsapp: false })]
         : notifyUsers(admins, payload, { whatsapp: true });
       if (rows.length) await tx.notificationQueue.createMany({ data: rows });
     }

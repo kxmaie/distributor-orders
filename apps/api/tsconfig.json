@@ -10,5 +10,5 @@
     "rootDir": ".",
     "resolveJsonModule": true
   },
-  "include": ["src", "prisma", "test"]
+  "include": ["src", "prisma", "test", "api"]
 }

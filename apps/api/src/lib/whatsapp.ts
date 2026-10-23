@@ -39,7 +39,9 @@ const STATUS_AR: Record<string, string> = {
 };
 
 export function isWhatsAppConfigured(): boolean {
-  return Boolean(config.WHATSAPP_API_URL);
+  if (!config.WHATSAPP_API_URL || !config.WHATSAPP_API_TOKEN) return false;
+  const provider = detectProvider(config.WHATSAPP_API_URL, config.WHATSAPP_PROVIDER);
+  return provider !== "meta" || Boolean(config.WHATSAPP_ORDER_CREATED_TEMPLATE && config.WHATSAPP_ORDER_STATUS_TEMPLATE);
 }
 
 export function detectProvider(url: string, explicit?: WaProvider): WaProvider {
@@ -91,18 +93,31 @@ async function http(url: string, init: RequestInit, label: string): Promise<{ st
   return { status: res.status, body };
 }
 
-async function sendViaMeta(to: string, text: string, token: string, url: string) {
+async function sendViaMeta(to: string, payload: WaPayload, token: string, url: string) {
+  const isCreated = payload.type === "order_created";
+  const templateName = isCreated ? config.WHATSAPP_ORDER_CREATED_TEMPLATE : config.WHATSAPP_ORDER_STATUS_TEMPLATE;
+  if (!templateName) throw new PermanentError(`Missing approved WhatsApp template for ${payload.type}`);
+  const values = isCreated
+    ? [payload.orderNo ?? "", payload.distributor ?? "", payload.total ?? "", config.WHATSAPP_CURRENCY_LABEL]
+    : [payload.orderNo ?? "", STATUS_AR[payload.to ?? ""] ?? payload.to ?? ""];
   const { body } = await http(
     url,
     {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ messaging_product: "whatsapp", to, type: "text", text: { body: text } }),
+      body: JSON.stringify({
+        messaging_product: "whatsapp", to, type: "template",
+        template: {
+          name: templateName,
+          language: { code: config.WHATSAPP_TEMPLATE_LANGUAGE },
+          components: [{ type: "body", parameters: values.map((text) => ({ type: "text", text })) }],
+        },
+      }),
     },
     "Meta",
   );
-  // Success = Meta returned a message id. (Note: free-form text only works inside the 24h
-  // customer-service window; outside it you must send an approved template message.)
+  // Success = Meta returned a message id. Template messages are approved and can be sent outside
+  // the 24-hour customer-service window.
   let id: string | undefined;
   try { id = (JSON.parse(body) as { messages?: { id?: string }[] }).messages?.[0]?.id; } catch { /* not json */ }
   if (!id) throw new Error(`Meta: no message id in response: ${body.slice(0, 300)}`);
@@ -131,7 +146,8 @@ async function sendViaCallMeBot(to: string, text: string, token: string, baseUrl
 /** Send one WhatsApp text. Throws on any failure (including "not configured" and "bad phone"). */
 export async function sendWhatsApp(recipientRaw: string, payloadJson: string): Promise<void> {
   const url = config.WHATSAPP_API_URL;
-  if (!url) throw new Error("WhatsApp is not configured (WHATSAPP_API_URL missing)");
+  if (!isWhatsAppConfigured()) throw new PermanentError("WhatsApp credentials and approved message templates are not configured");
+  if (!url) throw new PermanentError("WhatsApp API URL is missing");
 
   const to = normalizePhone(recipientRaw);
   if (!to) throw new PermanentError(`Invalid phone number: "${recipientRaw}"`);
@@ -142,7 +158,7 @@ export async function sendWhatsApp(recipientRaw: string, payloadJson: string): P
   const token = config.WHATSAPP_API_TOKEN ?? "";
 
   switch (detectProvider(url, config.WHATSAPP_PROVIDER)) {
-    case "meta": return sendViaMeta(to, text, token, url);
+    case "meta": return sendViaMeta(to, payload, token, url);
     case "callmebot": return sendViaCallMeBot(to, text, token, url);
     default: return sendViaEvolution(to, text, token, url);
   }

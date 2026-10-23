@@ -1,6 +1,11 @@
 ALTER TABLE "stock_levels"
 ADD COLUMN "low_stock_threshold" INTEGER NOT NULL DEFAULT 5;
 
+ALTER TABLE "users" ADD COLUMN "whatsapp_opt_in_at" TIMESTAMP(3);
+ALTER TABLE "notification_queue" ADD COLUMN "dispatched_at" TIMESTAMP(3);
+CREATE INDEX "notification_queue_channel_status_dispatched_at_idx"
+ON "notification_queue"("channel", "status", "dispatched_at");
+
 CREATE TABLE "deliveries" (
     "id" BIGSERIAL NOT NULL,
     "order_id" BIGINT NOT NULL,
