@@ -84,6 +84,8 @@ const MESSAGES: Record<string, string> = {
   VARIANT_NOT_FOUND: "المقاس غير موجود",
   WAREHOUSE_NOT_FOUND: "المخزن غير موجود",
   CONFLICT: "تعارض في البيانات، حدّث الصفحة وحاول مرة أخرى",
+  AI_PROVIDER_ERROR: "خدمة المساعد واجهت مشكلة. تأكد من إعداد AI Gateway في Vercel ثم حاول مرة أخرى.",
 };
 export const errorText = (e: unknown) =>
   e instanceof ApiError ? MESSAGES[e.code] ?? "حدث خطأ غير متوقع، حاول مرة أخرى" : "تعذّر الاتصال بالخادم، تأكد من الإنترنت";
+
