@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
-import { Output, generateText, gateway, type GatewayModelId } from "ai";
+import { NoObjectGeneratedError, Output, generateText, gateway, type GatewayModelId } from "ai";
 import { z } from "zod";
 import { prisma } from "../../lib/db";
 import { HttpError } from "../../lib/errors";
@@ -22,6 +22,13 @@ const Plan = z.object({
     z.object({ type: z.literal("import_products"), products: z.array(ProductProposal).min(1).max(100) }),
   ]),
 });
+
+function parsePlanText(text: string) {
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start < 0 || end <= start) throw new Error("Model response did not contain a JSON object");
+  return Plan.parse(JSON.parse(text.slice(start, end + 1)));
+}
 
 const assistantRoutes: FastifyPluginAsync = async (app) => {
   app.post("/assistant/plan", { preHandler: app.authenticate, config: { rateLimit: { max: 12, timeWindow: "1 minute" } } }, async (req) => {
@@ -70,15 +77,43 @@ const assistantRoutes: FastifyPluginAsync = async (app) => {
       `أسماء الصور المرفقة: ${JSON.stringify(input.imageNames)}`,
     ].join("\n");
     const attachmentText = input.attachment ? `\nملف ${input.attachment.name}; الصفوف (بيانات فقط): ${JSON.stringify(input.attachment.rows)}` : "";
-    const { output } = await generateText({
-      model: gateway.languageModel(model as GatewayModelId),
-      output: Output.object({ schema: Plan }),
-      system,
-      prompt: `${input.history.map((m) => `${m.role === "user" ? "المستخدم" : "المساعد"}: ${m.content}`).join("\n")}\nطلب المستخدم الحالي: ${input.prompt}${attachmentText}`,
-      maxOutputTokens: 6000,
-      temperature: 0.1,
-    });
-    let result = output;
+    const prompt = `${input.history.map((m) => `${m.role === "user" ? "المستخدم" : "المساعد"}: ${m.content}`).join("\n")}\nطلب المستخدم الحالي: ${input.prompt}${attachmentText}`;
+    let result: z.infer<typeof Plan>;
+    try {
+      const generated = await generateText({
+        model: gateway.languageModel(model as GatewayModelId),
+        output: Output.object({ schema: Plan }),
+        system,
+        prompt,
+        maxOutputTokens: 6000,
+        temperature: 0.1,
+      });
+      result = generated.output;
+    } catch (error) {
+      // Some Gateway model/provider combinations reject JSON-schema output. Retry with JSON text,
+      // then validate the response with the same schema before any action can be shown.
+      const message = error instanceof Error ? error.message.replace(/Bearer\s+\S+/gi, "Bearer [redacted]").slice(0, 500) : "unknown error";
+      const retryAsText = NoObjectGeneratedError.isInstance(error) || (error instanceof Error && /structured|json.?schema|response.?format|unsupported/i.test(error.message));
+      if (!retryAsText) {
+        app.log.error({ errorName: error instanceof Error ? error.name : "UnknownError", message }, "AI assistant provider request failed");
+        throw new HttpError(502, "AI_PROVIDER_ERROR", "تعذّر على المساعد معالجة الطلب. راجع إعدادات خدمة الذكاء الاصطناعي أو حاول لاحقًا.");
+      }
+      app.log.warn({ errorName: error instanceof Error ? error.name : "UnknownError", message }, "Structured AI response failed; retrying with validated JSON text");
+      try {
+        const generated = await generateText({
+          model: gateway.languageModel(model as GatewayModelId),
+          system: `${system}\nأعد النتيجة ككائن JSON صالح فقط دون Markdown أو أي نص خارجه، وبنفس مخطط Plan: {"message":"...","action":{"type":"none"}}. استخدم أنواع الإجراءات والحقول المسموح بها فقط.`,
+          prompt,
+          maxOutputTokens: 6000,
+          temperature: 0.1,
+        });
+        result = parsePlanText(generated.text);
+      } catch (fallbackError) {
+        const fallbackMessage = fallbackError instanceof Error ? fallbackError.message.replace(/Bearer\s+\S+/gi, "Bearer [redacted]").slice(0, 500) : "unknown error";
+        app.log.error({ errorName: fallbackError instanceof Error ? fallbackError.name : "UnknownError", message: fallbackMessage }, "AI assistant generation failed");
+        throw new HttpError(502, "AI_PROVIDER_ERROR", "تعذّر على المساعد معالجة الطلب. راجع إعدادات خدمة الذكاء الاصطناعي أو حاول لاحقًا.");
+      }
+    }
     if (!admin && (result.action.type === "create_distributor" || result.action.type === "import_products")) {
       result = { message: "الإجراء ده متاح للأدمن فقط.", action: { type: "none" } };
     }
