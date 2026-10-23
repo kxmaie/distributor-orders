@@ -6,7 +6,6 @@ import {
   Download,
   Filter,
   Printer,
-  Sparkles,
   ShoppingBag,
   TrendingUp,
 } from "lucide-react";
@@ -18,7 +17,6 @@ import { STATUS_LABEL } from "../../lib/status";
 import { useAdminSalesReport } from "../../hooks/adminQueries";
 import { formatCurrency, formatDate } from "../../lib/format";
 import type { OrderStatus } from "@do/shared";
-import { api, ApiError } from "../../lib/api";
 
 export default function AdminReports() {
   const [from, setFrom] = useState<string>(() => {
@@ -26,30 +24,10 @@ export default function AdminReports() {
     return d.toISOString().slice(0, 10);
   });
   const [to, setTo] = useState<string>(() => new Date().toISOString().slice(0, 10));
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
-  const [aiError, setAiError] = useState("");
-  const [asking, setAsking] = useState(false);
 
   const { data, isLoading, error, refetch } = useAdminSalesReport({ from, to });
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  async function askAssistant() {
-    if (question.trim().length < 3 || asking) return;
-    setAsking(true); setAiError(""); setAnswer("");
-    try {
-      const result = await api.post<{ answer: string }>("/admin/reports/ask", { question, from, to });
-      setAnswer(result.answer);
-    } catch (error) {
-      setAiError(error instanceof ApiError && error.code === "AI_NOT_CONFIGURED"
-        ? "مساعد الذكاء الاصطناعي يحتاج إعداد AI Gateway ومفتاحه السري في Vercel."
-        : "تعذر إنشاء التقرير الآن. حاول مرة أخرى بعد قليل.");
-    } finally { setAsking(false); }
-  }
-
+  const handlePrint = () => { window.print(); };
   const handleExport = () => {
     if (!data) return;
     downloadCsv(
@@ -79,21 +57,6 @@ export default function AdminReports() {
           </button>
         </div>
       </div>
-
-      <section className="card overflow-hidden border-primary/20 print:hidden">
-        <div className="flex items-center gap-3 border-b border-line/10 bg-primary/5 p-4">
-          <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/15 text-primary"><Sparkles className="h-5 w-5" /></span>
-          <div><h2 className="font-bold">مساعد التقارير الذكي</h2><p className="text-xs text-muted">اسأل عن المبيعات والطلبات في الفترة المحددة</p></div>
-        </div>
-        <div className="space-y-3 p-4">
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <input className="input text-sm" value={question} onChange={(e) => setQuestion(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void askAssistant(); }} placeholder="مثال: لخص أداء المبيعات وما أكثر حالة طلبات؟" maxLength={500} />
-            <button type="button" className="btn-primary shrink-0 text-sm" onClick={() => void askAssistant()} disabled={asking || question.trim().length < 3}>{asking ? "بيحلل التقرير…" : <><Sparkles className="h-4 w-4" /> اسأل</>}</button>
-          </div>
-          {aiError && <p role="alert" className="rounded-xl bg-danger/10 p-3 text-sm text-danger">{aiError}</p>}
-          {answer && <div className="rounded-xl bg-surface2/70 p-4 text-sm leading-7 whitespace-pre-wrap">{answer}</div>}
-        </div>
-      </section>
 
       {/* Date Filter Bar (Hidden in Print) */}
       <div className="card p-4 flex flex-wrap items-center gap-3 print:hidden">
