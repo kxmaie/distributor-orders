@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { Boxes, Edit, FileUp, FolderTree, Layers, Plus, Trash2, Warehouse as WarehouseIcon } from "lucide-react";
+import { Boxes, Edit, FileUp, FolderTree, Layers, Package, Plus, Trash2, Warehouse as WarehouseIcon } from "lucide-react";
 import { UNITS } from "@do/shared";
 import { EmptyState, ErrorBox, Modal, Skeleton, Spinner } from "../../components/ui";
 import { useAdminWarehouses } from "../../hooks/adminQueries";
@@ -150,7 +150,7 @@ export default function AdminProducts() {
       {/* Top Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-extrabold">المنتجات (Products)</h1>
+          <div className="flex items-center gap-2"><span className="grid h-10 w-10 place-items-center rounded-2xl bg-primary/10 text-primary"><Package className="h-5 w-5" /></span><h1 className="font-display text-2xl font-extrabold">المنتجات (Products)</h1></div>
           <p className="text-sm text-muted">إدارة قائمة المنتجات والأسعار والمقاسات</p>
         </div>
         <div className="flex items-center gap-2">
@@ -341,7 +341,7 @@ export default function AdminProducts() {
               <input name="basePrice" className="input font-mono" dir="ltr" required placeholder="0.00" />
             </label>
             <label className="label">
-              رابط الصورة (اختياري)
+              صورة المنتج (اختياري)
               <ImageUploadField value={newImageUrl} onChange={setNewImageUrl} />
             </label>
           </div>
