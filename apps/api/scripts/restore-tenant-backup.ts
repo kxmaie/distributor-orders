@@ -8,7 +8,7 @@ import path from "node:path";
 import { Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { PrismaClient } from "@prisma/client";
-import { listTenantDatabaseConnections } from "../src/lib/tenant-registry";
+import { closePlatformControlClient, listTenantDatabaseConnections } from "../src/lib/tenant-registry";
 
 type Manifest = { version: number; tenantSlug: string; algorithm: string; iv: string; tag: string; checksumSha256: string; fileName: string };
 function pgEnv(connection: string) {
@@ -53,4 +53,4 @@ async function main() {
     console.log(`Restore completed for ${manifest.tenantSlug}.`);
   } finally { await rm(plaintext, { force: true }); }
 }
-main().catch((error) => { console.error(error instanceof Error ? error.message : "Restore failed"); process.exitCode = 1; });
+main().catch((error) => { console.error(error instanceof Error ? error.message : "Restore failed"); process.exitCode = 1; }).finally(async () => { await closePlatformControlClient().catch(() => undefined); });

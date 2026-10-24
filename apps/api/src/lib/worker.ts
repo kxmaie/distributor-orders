@@ -211,6 +211,17 @@ export function wakeWorker(): void {
     }
     return;
   }
+  if (config.TENANCY_MODE === "multi") {
+    const tenant = currentTenant();
+    if (!tenant) return;
+    void (async () => {
+      const backgroundTenant = await resolveTenant(tenant.slug);
+      if (!backgroundTenant) return;
+      try { await runWithTenant(backgroundTenant, () => processOneBatch()); }
+      finally { backgroundTenant.release(); }
+    })().catch((err) => console.error("[worker] tenant notification work failed:", err));
+    return;
+  }
   if (!started) return;
   if (running) { wakeRequested = true; return; }
   schedule(WAKE_DELAY);

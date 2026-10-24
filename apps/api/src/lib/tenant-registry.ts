@@ -15,6 +15,12 @@ export function platformControlClient() {
   return (control ??= new PrismaClient({ datasources: { db: { url } } }));
 }
 
+export async function closePlatformControlClient() {
+  const client = control;
+  control = undefined;
+  if (client) await client.$disconnect();
+}
+
 export function decryptDatabaseUrl(ciphertext: string) {
   const keyHex = process.env.TENANT_ENCRYPTION_KEY;
   if (!keyHex || !/^[\da-f]{64}$/i.test(keyHex)) throw new Error("TENANT_ENCRYPTION_KEY must be 32-byte hex");

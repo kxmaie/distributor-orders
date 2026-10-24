@@ -6,7 +6,7 @@ import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
-import { platformControlClient, listTenantDatabaseConnections, recordPlatformBackup } from "../src/lib/tenant-registry";
+import { closePlatformControlClient, listTenantDatabaseConnections, recordPlatformBackup } from "../src/lib/tenant-registry";
 
 function pgEnv(connection: string) {
   const url = new URL(connection);
@@ -72,4 +72,4 @@ async function main() {
   if (failed) throw new Error(`${failed} tenant backup(s) failed; successful files remain available`);
   console.log(`Encrypted backups saved in ${directory}. Copy them to owner-controlled storage and test restore regularly.`);
 }
-main().catch((error) => { console.error(error instanceof Error ? error.message : "Backup failed"); process.exitCode = 1; }).finally(async () => { if (process.env.CONTROL_DATABASE_URL) await platformControlClient().$disconnect().catch(() => undefined); });
+main().catch((error) => { console.error(error instanceof Error ? error.message : "Backup failed"); process.exitCode = 1; }).finally(async () => { await closePlatformControlClient().catch(() => undefined); });
