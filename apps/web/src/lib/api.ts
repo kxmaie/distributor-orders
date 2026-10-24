@@ -97,6 +97,11 @@ const MESSAGES: Record<string, string> = {
   UNBALANCED_VOUCHER: "القيد غير متوازن؛ يجب تساوي المدين والدائن",
   INVALID_RECEIPT_VOUCHER: "سند القبض يجب أن يزيد أصلًا ويقابله إيراد أو التزام",
   INVALID_PAYMENT_VOUCHER: "سند الصرف يجب أن يخفض أصلًا ويقابله مصروف أو التزام",
+  FISCAL_YEAR_NOT_FINISHED: "لا يمكن إقفال السنة الحالية أو سنة مستقبلية.",
+  FISCAL_YEAR_ALREADY_CLOSED: "السنة المالية مقفلة بالفعل.",
+  NO_PROFIT_LOSS_BALANCES: "لا توجد أرصدة إيرادات أو مصروفات لإقفالها.",
+  RETAINED_EARNINGS_ACCOUNT_INVALID: "راجع الحساب 3100؛ يجب أن يكون من نوع حقوق الملكية.",
+  UNBALANCED_YEAR_CLOSE: "تعذر إنشاء قيد إقفال متوازن.",
   AI_PROVIDER_ERROR: "خدمة المساعد واجهت مشكلة. تأكد من إعداد AI Gateway في Vercel ثم حاول مرة أخرى.",
 };
 export const errorText = (e: unknown) =>
