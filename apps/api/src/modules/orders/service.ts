@@ -33,7 +33,7 @@ const activeAdmins = (tx: Tx) =>
   tx.user.findMany({ where: { isActive: true, role: { in: ["admin", "super_admin"] } }, select: { id: true, phone: true, whatsappOptInAt: true } });
 
 const orderInclude = {
-  items: { orderBy: { id: "asc" }, include: { variant: { select: { sku: true, product: { select: { id: true, unit: true } } } } } },
+  items: { orderBy: { id: "asc" }, include: { variant: { select: { sku: true, product: { select: { id: true, unit: true, piecesPerUnit: true } } } } } },
   history: { orderBy: { id: "asc" } },
   deliveries: { orderBy: { deliveredAt: "desc" }, include: { items: true } },
   warehouse: { select: { id: true, name: true } },
@@ -55,7 +55,7 @@ function shapeOrder(o: OrderFull, admin: boolean) {
     updatedAt: o.updatedAt,
     items: o.items.map((i) => ({
       id: i.id, variantId: i.variantId, productName: i.productName, variantLabel: i.variantLabel,
-      sku: i.variant.sku, productId: i.variant.product.id, unit: i.variant.product.unit,
+      sku: i.variant.sku, productId: i.variant.product.id, unit: i.variant.product.unit, piecesPerUnit: i.variant.product.piecesPerUnit,
       unitPrice: money(i.unitPrice), discountPct: money(i.discountPct), qty: i.qty, lineTotal: money(i.lineTotal),
     })),
     deliveries: o.deliveries.map((d) => ({
@@ -93,6 +93,8 @@ const fmtLine = (l: PricedLine) => ({
 
 // ---------------------------------------------------------------- pricing
 export async function priceCart(userId: bigint, body: CartBody) {
+  const limit = Number((await prisma.appSetting.findUnique({ where: { key: "max_order_items" } }))?.value ?? 20);
+  if (new Set(body.items.map((item) => item.variantId.toString())).size > limit) throw new HttpError(400, "ORDER_ITEM_LIMIT", `الحد الأقصى للأصناف في الطلب هو ${limit}`);
   const priced = await priceItems(prisma, userId, body.items);
   const { fulfillable, shortages } = await findWarehouses(prisma, priced.lines, body.warehouseId);
   return {
@@ -120,6 +122,10 @@ const stockError = (shortages?: unknown) =>
   new HttpError(409, "INSUFFICIENT_STOCK", "Not enough stock to fulfil this order", shortages);
 
 export async function createOrder(userId: bigint, body: CreateBody, ip?: string) {
+  const limitSetting = await prisma.appSetting.findUnique({ where: { key: "max_order_items" } });
+  const maxOrderItems = Number(limitSetting?.value ?? 20);
+  const distinctItems = new Set(body.items.map((item) => item.variantId.toString())).size;
+  if (distinctItems > maxOrderItems) throw new HttpError(400, "ORDER_ITEM_LIMIT", `الحد الأقصى للأصناف في الطلب هو ${maxOrderItems}`);
   // 1) Pre-check outside the transaction: pick the warehouse (first one that can fulfil everything)
   const pre = await priceItems(prisma, userId, body.items);
   const fit = await findWarehouses(prisma, pre.lines, body.warehouseId);
@@ -206,6 +212,41 @@ export async function createOrder(userId: bigint, body: CreateBody, ip?: string)
   return getOrder(orderId, { ownerId: userId });
 }
 
+export async function updateOwnOrder(orderId: bigint, userId: bigint, body: CreateBody, ip?: string) {
+  const limitSetting = await prisma.appSetting.findUnique({ where: { key: "max_order_items" } });
+  const maxItems = Number(limitSetting?.value ?? 20);
+  if (new Set(body.items.map((item) => item.variantId.toString())).size > maxItems) throw new HttpError(400, "ORDER_ITEM_LIMIT", `الحد الأقصى للأصناف في الطلب هو ${maxItems}`);
+  await prisma.$transaction(async (tx) => {
+    const order = await tx.order.findFirst({ where: { id: orderId, userId }, include: { reservations: { where: { status: "active" } } } });
+    if (!order) throw new HttpError(404, "ORDER_NOT_FOUND");
+    if (order.status !== "new") throw new HttpError(409, "ORDER_ALREADY_CONFIRMED", "لا يمكن تعديل الطلب بعد اعتماده");
+    const priced = await priceItems(tx, userId, body.items);
+    const existing = new Map(order.reservations.map((r) => [r.variantId.toString(), r]));
+    const next = new Map(priced.lines.map((line) => [line.variantId.toString(), line]));
+    for (const key of [...new Set([...existing.keys(), ...next.keys()])].sort((a, b) => BigInt(a) < BigInt(b) ? -1 : 1)) {
+      const old = existing.get(key); const line = next.get(key);
+      const oldQty = old?.qty ?? 0; const nextQty = line?.qty ?? 0; const delta = nextQty - oldQty;
+      if (delta > 0) {
+        const count = await tx.$executeRaw`UPDATE stock_levels SET reserved = reserved + ${delta} WHERE variant_id = ${BigInt(key)} AND warehouse_id = ${order.warehouseId} AND on_hand - reserved >= ${delta}`;
+        if (count !== 1) throw stockError([{ variantId: BigInt(key), requested: nextQty }]);
+      } else if (delta < 0) {
+        const count = await tx.$executeRaw`UPDATE stock_levels SET reserved = reserved - ${-delta} WHERE variant_id = ${BigInt(key)} AND warehouse_id = ${order.warehouseId} AND reserved >= ${-delta}`;
+        if (count !== 1) throw new HttpError(500, "STOCK_INCONSISTENT");
+      }
+      if (line) {
+        if (old) await tx.reservation.update({ where: { id: old.id }, data: { qty: nextQty, status: "active" } });
+        else await tx.reservation.create({ data: { orderId, variantId: line.variantId, warehouseId: order.warehouseId, qty: nextQty } });
+      } else if (old) await tx.reservation.update({ where: { id: old.id }, data: { status: "released" } });
+      if (delta !== 0) await tx.stockMovement.create({ data: { variantId: BigInt(key), warehouseId: order.warehouseId, type: delta > 0 ? "reserve" : "release", qty: delta > 0 ? delta : delta, refType: "order", refId: orderId, createdBy: userId, note: "تعديل أصناف الطلب قبل الاعتماد" } });
+    }
+    await tx.orderItem.deleteMany({ where: { orderId } });
+    await tx.orderItem.createMany({ data: priced.lines.map((line) => ({ orderId, variantId: line.variantId, productName: line.productName, variantLabel: line.variantLabel, unitPrice: line.unitPrice, discountPct: line.discountPct, qty: line.qty, lineTotal: line.lineTotal })) });
+    const changed = await tx.order.updateMany({ where: { id: orderId, userId, status: "new" }, data: { subtotal: priced.subtotal, discountTotal: priced.discountTotal, total: priced.total, notes: body.notes } });
+    if (changed.count !== 1) throw new HttpError(409, "CONFLICT");
+    await tx.auditLog.create({ data: { actorId: userId, action: "order.update", entity: "order", entityId: orderId.toString(), meta: toJson({ itemCount: priced.lines.length, total: money(priced.total) }), ip } });
+  }, TX_OPTS);
+  return getOrder(orderId, { ownerId: userId });
+}
 // ---------------------------------------------------------------- read
 export async function getOrder(id: bigint, opts: { ownerId?: bigint; admin?: boolean } = {}) {
   const o = await prisma.order.findFirst({
@@ -231,7 +272,7 @@ export async function listMyOrders(userId: bigint, q: ListQ) {
 
 export async function listBoard() {
   const columns = await Promise.all(
-    (["new", "confirmed", "in_production", "ready", "delivered", "cancelled"] as const).map(async (status) => {
+    (["new", "confirmed", "ready", "delivered", "cancelled"] as const).map(async (status) => {
       const [total, rows] = await Promise.all([
         prisma.order.count({ where: { status } }),
         prisma.order.findMany({
@@ -276,7 +317,7 @@ export async function listAllOrders(q: AdminListQ) {
 // ---------------------------------------------------------------- status changes
 export async function changeStatus(
   orderId: bigint, to: OrderStatus, actorId: bigint, note: string | undefined, ip: string | undefined,
-  opts: { ownerOnly?: boolean } = {},
+  opts: { ownerOnly?: boolean; admin?: boolean } = {},
 ) {
   await prisma.$transaction(async (tx) => {
     const order = await tx.order.findFirst({
@@ -292,6 +333,9 @@ export async function changeStatus(
 
     const from = order.status as OrderStatus;
     if (!canTransition(from, to)) throw new HttpError(409, "INVALID_TRANSITION", `Cannot change status from ${from} to ${to}`);
+    if (opts.admin && !((from === "new" && (to === "confirmed" || to === "cancelled")) || (from === "confirmed" && to === "ready"))) {
+      throw new HttpError(403, "ADMIN_ORDER_ACTION_FORBIDDEN", "الأدمن يمكنه اعتماد الطلب أو إلغاؤه أو تجهيزه للبيع فقط");
+    }
     if (opts.ownerOnly && !(from === "new" && to === "cancelled")) {
       throw new HttpError(409, "CANCEL_NOT_ALLOWED", "An order can only be cancelled before it is confirmed");
     }
@@ -466,7 +510,7 @@ export async function cancelOwnOrder(orderId: bigint, userId: bigint, ip?: strin
   return getOrder(orderId, { ownerId: userId });
 }
 
-export async function adminChangeStatus(orderId: bigint, to: OrderStatus, adminId: bigint, note: string | undefined, ip?: string) {
-  await changeStatus(orderId, to, adminId, note, ip);
+export async function adminChangeStatus(orderId: bigint, to: OrderStatus, adminId: bigint, note: string | undefined, ip?: string, role: "admin" | "super_admin" = "admin") {
+  await changeStatus(orderId, to, adminId, note, ip, { admin: role === "admin" });
   return getOrder(orderId, { admin: true });
 }

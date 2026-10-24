@@ -4,8 +4,7 @@ import { PageQuery } from "./catalog";
 
 export const ORDER_TRANSITIONS: Record<OrderStatus, readonly OrderStatus[]> = {
   new: ["confirmed", "cancelled"],
-  confirmed: ["in_production", "cancelled"],
-  in_production: ["ready", "cancelled"],
+  confirmed: ["ready", "cancelled"],
   ready: ["delivered", "cancelled"],
   delivered: [],
   cancelled: [],

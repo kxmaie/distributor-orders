@@ -27,7 +27,6 @@ const STATUSES: { value: string; label: string }[] = [
   { value: "all", label: "الكل" },
   { value: "new", label: "جديد" },
   { value: "confirmed", label: "مؤكد" },
-  { value: "in_production", label: "قيد التصنيع" },
   { value: "ready", label: "جاهز للتسليم" },
   { value: "delivered", label: "تم التسليم" },
   { value: "cancelled", label: "ملغي" },
@@ -290,7 +289,7 @@ export default function AdminOrders() {
           ) : (
             /* =================== KANBAN BOARD VIEW =================== */
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 overflow-x-auto pb-4">
-              {(["new", "confirmed", "in_production", "ready", "delivered", "cancelled"] as OrderStatus[]).map(
+              {(["new", "confirmed", "ready", "delivered", "cancelled"] as OrderStatus[]).map(
                 (colStatus) => {
                   const colOrders = data.items.filter((o) => o.status === colStatus);
                   const nextTransitions = ORDER_TRANSITIONS[colStatus] || [];

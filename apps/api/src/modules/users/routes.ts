@@ -3,7 +3,7 @@ import { IdParam, PasswordRequestQuery, PasswordResolveBody, UserApproveBody, Us
 import * as svc from "./service";
 
 const adminUserRoutes: FastifyPluginAsync = async (app) => {
-  app.addHook("preHandler", app.requireRole("admin", "super_admin"));
+  app.addHook("preHandler", app.requireRole("super_admin"));
 
   // ---------- Pending registrations ----------
   app.get("/users/pending", async (req) => {

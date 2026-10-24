@@ -66,7 +66,8 @@ export default function ProductDetails() {
 
           {v ? (
             <motion.div key={v.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-1">
-              <p className="font-display text-3xl font-extrabold text-primary">{money(v.yourPrice)} <span className="text-base font-medium text-muted">/ {UNIT_LABEL[p.unit]}</span></p>
+              <p className="font-display text-3xl font-extrabold text-primary">{money(v.yourPrice)} <span className="text-base font-medium text-muted">/ {p.unitLabel}</span></p>
+              {p.piecesPerUnit > 1 && <p className="text-sm text-muted">سعر القطعة {money(Number(v.yourPrice) / p.piecesPerUnit)} · {p.piecesPerUnit} قطعة في {p.unitLabel} · إجمالي الوحدة {money(v.yourPrice)}</p>}
               {v.yourPrice !== v.price && (
                 <p className="flex items-center gap-2 text-sm text-muted">
                   <span className="line-through">{money(v.price)}</span>

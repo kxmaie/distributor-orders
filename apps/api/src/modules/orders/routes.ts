@@ -13,6 +13,10 @@ const orderRoutes: FastifyPluginAsync = async (app) => {
     return reply.code(201).send(order);
   });
 
+  app.patch("/orders/:id", async (req) => {
+    const { id } = IdParam.parse(req.params);
+    return svc.updateOwnOrder(id, uid(req), CreateOrderBody.parse(req.body), req.ip);
+  });
   app.get("/orders", async (req) => svc.listMyOrders(uid(req), OrderListQuery.parse(req.query)));
 
   app.get("/orders/:id", async (req) => {

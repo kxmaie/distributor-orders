@@ -2,7 +2,7 @@
 ALTER TABLE users ADD CONSTRAINT ck_users_role CHECK (role IN ('distributor','admin','super_admin'));
 ALTER TABLE users ADD CONSTRAINT ck_users_discount CHECK (default_discount_pct BETWEEN 0 AND 100);
 
-ALTER TABLE products ADD CONSTRAINT ck_products_unit CHECK (unit IN ('piece','meter','sqm'));
+ALTER TABLE products ADD CONSTRAINT ck_products_unit CHECK (unit <> '');
 ALTER TABLE products ADD CONSTRAINT ck_products_price CHECK (base_price >= 0);
 
 ALTER TABLE stock_levels ADD CONSTRAINT ck_stock_levels
@@ -15,7 +15,7 @@ ALTER TABLE reservations ADD CONSTRAINT ck_reservations_status CHECK (status IN 
 ALTER TABLE reservations ADD CONSTRAINT ck_reservations_qty CHECK (qty > 0);
 
 ALTER TABLE orders ADD CONSTRAINT ck_orders_status
-  CHECK (status IN ('new','confirmed','in_production','ready','delivered','cancelled'));
+  CHECK (status IN ('new','confirmed','ready','delivered','cancelled'));
 
 ALTER TABLE order_items ADD CONSTRAINT ck_order_items_qty CHECK (qty > 0);
 ALTER TABLE order_items ADD CONSTRAINT ck_order_items_discount CHECK (discount_pct BETWEEN 0 AND 100);

@@ -14,7 +14,6 @@ import { useUI } from "../store/ui";
 const STATUS_LABELS: Record<string, string> = {
   new: "جديد",
   confirmed: "مؤكد",
-  in_production: "قيد الإنتاج",
   ready: "جاهز للاستلام",
   delivered: "تم التسليم",
   cancelled: "ملغى",

@@ -70,13 +70,13 @@ export declare const OrderListQuery: z.ZodObject<{
     page: z.ZodDefault<z.ZodNumber>;
     pageSize: z.ZodDefault<z.ZodNumber>;
 } & {
-    status: z.ZodOptional<z.ZodEnum<["new", "confirmed", "in_production", "ready", "delivered", "cancelled"]>>;
+    status: z.ZodOptional<z.ZodEnum<["new", "confirmed", "ready", "delivered", "cancelled"]>>;
 }, "strip", z.ZodTypeAny, {
     page: number;
     pageSize: number;
-    status?: "new" | "confirmed" | "in_production" | "ready" | "delivered" | "cancelled" | undefined;
+    status?: "new" | "confirmed" | "ready" | "delivered" | "cancelled" | undefined;
 }, {
-    status?: "new" | "confirmed" | "in_production" | "ready" | "delivered" | "cancelled" | undefined;
+    status?: "new" | "confirmed" | "ready" | "delivered" | "cancelled" | undefined;
     page?: number | undefined;
     pageSize?: number | undefined;
 }>;
@@ -84,7 +84,7 @@ export declare const AdminOrderListQuery: z.ZodObject<{
     page: z.ZodDefault<z.ZodNumber>;
     pageSize: z.ZodDefault<z.ZodNumber>;
 } & {
-    status: z.ZodOptional<z.ZodEnum<["new", "confirmed", "in_production", "ready", "delivered", "cancelled"]>>;
+    status: z.ZodOptional<z.ZodEnum<["new", "confirmed", "ready", "delivered", "cancelled"]>>;
 } & {
     q: z.ZodOptional<z.ZodString>;
     userId: z.ZodOptional<z.ZodEffects<z.ZodString, bigint, string>>;
@@ -93,13 +93,13 @@ export declare const AdminOrderListQuery: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     page: number;
     pageSize: number;
-    status?: "new" | "confirmed" | "in_production" | "ready" | "delivered" | "cancelled" | undefined;
+    status?: "new" | "confirmed" | "ready" | "delivered" | "cancelled" | undefined;
     q?: string | undefined;
     userId?: bigint | undefined;
     from?: string | undefined;
     to?: string | undefined;
 }, {
-    status?: "new" | "confirmed" | "in_production" | "ready" | "delivered" | "cancelled" | undefined;
+    status?: "new" | "confirmed" | "ready" | "delivered" | "cancelled" | undefined;
     page?: number | undefined;
     pageSize?: number | undefined;
     q?: string | undefined;
@@ -108,12 +108,12 @@ export declare const AdminOrderListQuery: z.ZodObject<{
     to?: string | undefined;
 }>;
 export declare const StatusChangeBody: z.ZodObject<{
-    status: z.ZodEnum<["new", "confirmed", "in_production", "ready", "delivered", "cancelled"]>;
+    status: z.ZodEnum<["new", "confirmed", "ready", "delivered", "cancelled"]>;
     note: z.ZodOptional<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
-    status: "new" | "confirmed" | "in_production" | "ready" | "delivered" | "cancelled";
+    status: "new" | "confirmed" | "ready" | "delivered" | "cancelled";
     note?: string | undefined;
 }, {
-    status: "new" | "confirmed" | "in_production" | "ready" | "delivered" | "cancelled";
+    status: "new" | "confirmed" | "ready" | "delivered" | "cancelled";
     note?: string | undefined;
 }>;

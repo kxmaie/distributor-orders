@@ -255,10 +255,6 @@ export default function AdminDashboard() {
                 <span className="font-bold text-ink">{statusCounts.confirmed || 0}</span>
               </div>
               <div className="flex justify-between py-1 border-b border-line/10">
-                <span className="text-muted">قيد التصنيع</span>
-                <span className="font-bold text-ink">{statusCounts.in_production || 0}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-line/10">
                 <span className="text-muted">جاهزة للتسليم</span>
                 <span className="font-bold text-ink">{statusCounts.ready || 0}</span>
               </div>

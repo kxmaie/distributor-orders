@@ -3,11 +3,12 @@ import { prisma } from "../../lib/db";
 import { HttpError } from "../../lib/errors";
 
 type ProductRow = Prisma.ProductGetPayload<{
-  include: { category: { select: { id: true; name: true; slug: true } }; variants: true };
+  include: { category: { select: { id: true; name: true; slug: true } }; variants: true; unitInfo: { select: { label: true } } };
 }>;
 
 const productInclude = {
   category: { select: { id: true, name: true, slug: true } },
+  unitInfo: { select: { label: true } },
   variants: { where: { isActive: true }, orderBy: { id: "asc" as const } },
 };
 
@@ -49,10 +50,12 @@ function shape(p: ProductRow, discountPct: Prisma.Decimal, avail: Map<bigint, nu
     description: p.description,
     imageUrl: p.imageUrl,
     unit: p.unit,
+    unitLabel: p.unitInfo.label,
+    piecesPerUnit: p.piecesPerUnit,
     category: p.category,
-    basePrice: p.basePrice.toFixed(2),
+    basePrice: p.basePrice.mul(p.piecesPerUnit).toFixed(2),
     variants: p.variants.map((v) => {
-      const price = p.basePrice.plus(v.priceDelta);
+      const price = p.basePrice.plus(v.priceDelta).mul(p.piecesPerUnit);
       const available = avail.get(v.id) ?? 0;
       return {
         id: v.id,

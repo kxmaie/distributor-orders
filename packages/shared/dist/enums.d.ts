@@ -1,7 +1,7 @@
-export declare const ORDER_STATUSES: readonly ["new", "confirmed", "in_production", "ready", "delivered", "cancelled"];
+export declare const ORDER_STATUSES: readonly ["new", "confirmed", "ready", "delivered", "cancelled"];
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 export declare const UNITS: readonly ["piece", "meter", "sqm"];
-export type Unit = (typeof UNITS)[number];
+export type Unit = string;
 export declare const MOVEMENT_TYPES: readonly ["receipt", "adjustment", "reserve", "release", "ship"];
 export type MovementType = (typeof MOVEMENT_TYPES)[number];
 export declare const RESERVATION_STATUSES: readonly ["active", "released", "fulfilled"];

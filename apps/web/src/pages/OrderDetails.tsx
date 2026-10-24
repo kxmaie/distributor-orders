@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, PartyPopper, Printer, RotateCcw, Truck } from "lucide-react";
 import { Link, useLocation, useParams } from "react-router-dom";
@@ -19,7 +20,14 @@ export default function OrderDetails() {
   const push = useUI((s) => s.push);
   const add = useCart((s) => s.add);
   const setCartOpen = useCart((s) => s.setOpen);
+  const [editQty, setEditQty] = useState<Record<string, number>>({});
+  useEffect(() => { if (o) setEditQty(Object.fromEntries(o.items.map((item) => [item.variantId, item.qty]))); }, [o?.id, o?.updatedAt]);
 
+  const updateOrder = useMutation({
+    mutationFn: () => api.patch(`/orders/${id}`, { items: o!.items.map((item) => ({ variantId: item.variantId, qty: editQty[item.variantId] ?? item.qty })).filter((item) => item.qty > 0), notes: o!.notes ?? undefined }),
+    onSuccess: () => { push("تم تعديل طلبك وتحديث حجز المخزون", "ok"); qc.invalidateQueries({ queryKey: ["order", id] }); qc.invalidateQueries({ queryKey: ["orders"] }); },
+    onError: (e) => push(errorText(e), "err"),
+  });
   const cancel = useMutation({
     mutationFn: () => api.post<unknown>(`/orders/${id}/cancel`),
     onSuccess: () => {
@@ -76,7 +84,7 @@ export default function OrderDetails() {
               <li key={i.id} className="card flex items-center justify-between gap-3 p-4">
                 <div>
                   <p className="font-semibold">{i.productName}</p>
-                  <p className="text-sm text-muted">{i.variantLabel} · {i.qty} × {money(i.unitPrice)}{Number(i.discountPct) > 0 && ` · خصم ${Number(i.discountPct)}%`}</p>
+                  <p className="text-sm text-muted">{i.variantLabel} · {i.qty} × {money(i.unitPrice)}{i.piecesPerUnit > 1 && ` · ${i.piecesPerUnit} قطعة/وحدة` }{Number(i.discountPct) > 0 && ` · خصم ${Number(i.discountPct)}%`}</p>
                   {(deliveredQty.get(i.id) ?? 0) > 0 && <p className="mt-1 text-xs text-success">تم تسليم {deliveredQty.get(i.id)} من {i.qty}</p>}
                 </div>
                 <p className="font-display font-bold text-primary">{money(i.lineTotal)}</p>

@@ -7,4 +7,4 @@ export const dateTime = (iso: string) => dtf.format(new Date(iso));
 export const formatCurrency = money;
 export const formatDate = dateTime;
 
-export const UNIT_LABEL = { piece: "قطعة", meter: "متر", sqm: "م²" } as const;
+export const UNIT_LABEL: Record<string, string> = { piece: "قطعة", meter: "متر", sqm: "م²" };

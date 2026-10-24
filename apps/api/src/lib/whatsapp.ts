@@ -32,7 +32,6 @@ const REQUEST_TIMEOUT_MS = 15_000;
 const STATUS_AR: Record<string, string> = {
   new: "جديد",
   confirmed: "مؤكد",
-  in_production: "قيد الإنتاج",
   ready: "جاهز للاستلام",
   delivered: "تم التسليم",
   cancelled: "ملغى",

@@ -77,7 +77,8 @@ export declare const ProductCreate: z.ZodObject<{
     description: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     imageUrl: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     basePrice: z.ZodEffects<z.ZodEffects<z.ZodUnion<[z.ZodNumber, z.ZodString]>, string, string | number>, string, string | number>;
-    unit: z.ZodDefault<z.ZodEnum<["piece", "meter", "sqm"]>>;
+    unit: z.ZodDefault<z.ZodString>;
+    piecesPerUnit: z.ZodDefault<z.ZodNumber>;
     warehouseId: z.ZodOptional<z.ZodNumber>;
     initialStock: z.ZodOptional<z.ZodNumber>;
     sku: z.ZodOptional<z.ZodString>;
@@ -86,7 +87,8 @@ export declare const ProductCreate: z.ZodObject<{
     name: string;
     categoryId: number;
     basePrice: string;
-    unit: "piece" | "meter" | "sqm";
+    unit: string;
+    piecesPerUnit: number;
     description?: string | null | undefined;
     imageUrl?: string | null | undefined;
     warehouseId?: number | undefined;
@@ -99,7 +101,8 @@ export declare const ProductCreate: z.ZodObject<{
     basePrice: string | number;
     description?: string | null | undefined;
     imageUrl?: string | null | undefined;
-    unit?: "piece" | "meter" | "sqm" | undefined;
+    unit?: string | undefined;
+    piecesPerUnit?: number | undefined;
     warehouseId?: number | undefined;
     initialStock?: number | undefined;
     sku?: string | undefined;
@@ -111,7 +114,8 @@ export declare const ProductUpdate: z.ZodObject<{
     description: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     imageUrl: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     basePrice: z.ZodOptional<z.ZodEffects<z.ZodEffects<z.ZodUnion<[z.ZodNumber, z.ZodString]>, string, string | number>, string, string | number>>;
-    unit: z.ZodOptional<z.ZodEnum<["piece", "meter", "sqm"]>>;
+    unit: z.ZodOptional<z.ZodString>;
+    piecesPerUnit: z.ZodOptional<z.ZodNumber>;
     isActive: z.ZodOptional<z.ZodBoolean>;
     warehouseId: z.ZodOptional<z.ZodOptional<z.ZodNumber>>;
     stockAdjust: z.ZodOptional<z.ZodOptional<z.ZodNumber>>;
@@ -122,7 +126,8 @@ export declare const ProductUpdate: z.ZodObject<{
     description?: string | null | undefined;
     imageUrl?: string | null | undefined;
     basePrice?: string | undefined;
-    unit?: "piece" | "meter" | "sqm" | undefined;
+    unit?: string | undefined;
+    piecesPerUnit?: number | undefined;
     warehouseId?: number | undefined;
     stockAdjust?: number | undefined;
 }, {
@@ -132,7 +137,8 @@ export declare const ProductUpdate: z.ZodObject<{
     description?: string | null | undefined;
     imageUrl?: string | null | undefined;
     basePrice?: string | number | undefined;
-    unit?: "piece" | "meter" | "sqm" | undefined;
+    unit?: string | undefined;
+    piecesPerUnit?: number | undefined;
     warehouseId?: number | undefined;
     stockAdjust?: number | undefined;
 }>;

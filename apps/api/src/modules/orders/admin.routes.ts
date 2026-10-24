@@ -21,7 +21,7 @@ const adminOrderRoutes: FastifyPluginAsync = async (app) => {
   app.patch("/orders/:id/status", async (req) => {
     const { id } = IdParam.parse(req.params);
     const b = StatusChangeBody.parse(req.body);
-    return svc.adminChangeStatus(id, b.status, BigInt(req.user.sub), b.note, req.ip);
+    return svc.adminChangeStatus(id, b.status, BigInt(req.user.sub), b.note, req.ip, req.user.role as "admin" | "super_admin");
   });
 };
 

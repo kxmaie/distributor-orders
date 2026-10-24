@@ -3,7 +3,7 @@ import { DiscountCreate, DiscountListQuery, DiscountUpdate, IdParam } from "@do/
 import * as svc from "./service";
 
 const adminDiscountRoutes: FastifyPluginAsync = async (app) => {
-  app.addHook("preHandler", app.requireRole("admin", "super_admin"));
+  app.addHook("preHandler", app.requireRole("super_admin"));
 
   app.get("/discounts", async (req) => {
     return svc.listDiscounts(DiscountListQuery.parse(req.query));

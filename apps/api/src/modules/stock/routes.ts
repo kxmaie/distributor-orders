@@ -3,7 +3,7 @@ import { MovementQuery, StockAdjustBody, StockListQuery, StockThresholdBody } fr
 import * as svc from "./service";
 
 const stockRoutes: FastifyPluginAsync = async (app) => {
-  app.addHook("preHandler", app.requireRole("admin", "super_admin"));
+  app.addHook("preHandler", app.requireRole("super_admin"));
 
   app.get("/", async (req) => svc.listStock(StockListQuery.parse(req.query)));
   app.get("/alerts", async () => svc.listLowStockAlerts());

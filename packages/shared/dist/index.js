@@ -108,7 +108,7 @@ var PublicUser = import_zod.z.object({
 var WhatsAppConsentBody = import_zod.z.object({ enabled: import_zod.z.boolean() });
 
 // src/enums.ts
-var ORDER_STATUSES = ["new", "confirmed", "in_production", "ready", "delivered", "cancelled"];
+var ORDER_STATUSES = ["new", "confirmed", "ready", "delivered", "cancelled"];
 var UNITS = ["piece", "meter", "sqm"];
 var MOVEMENT_TYPES = ["receipt", "adjustment", "reserve", "release", "ship"];
 var RESERVATION_STATUSES = ["active", "released", "fulfilled"];
@@ -150,7 +150,8 @@ var ProductCreate = import_zod2.z.object({
   description: import_zod2.z.string().max(5e3).nullable().optional(),
   imageUrl: import_zod2.z.string().max(500).nullable().optional(),
   basePrice: Money,
-  unit: import_zod2.z.enum(UNITS).default("piece"),
+  unit: import_zod2.z.string().trim().min(1).max(20).default("piece"),
+  piecesPerUnit: import_zod2.z.coerce.number().int().min(1).max(1e5).default(1),
   warehouseId: import_zod2.z.coerce.number().int().positive().optional(),
   initialStock: import_zod2.z.coerce.number().int().min(0).max(1e6).optional(),
   sku: import_zod2.z.string().trim().max(60).optional(),
@@ -162,7 +163,8 @@ var ProductUpdate = import_zod2.z.object({
   description: import_zod2.z.string().max(5e3).nullable(),
   imageUrl: import_zod2.z.string().max(500).nullable(),
   basePrice: Money,
-  unit: import_zod2.z.enum(UNITS),
+  unit: import_zod2.z.string().trim().min(1).max(20),
+  piecesPerUnit: import_zod2.z.coerce.number().int().min(1).max(1e5),
   isActive: import_zod2.z.boolean(),
   warehouseId: import_zod2.z.coerce.number().int().positive().optional(),
   stockAdjust: import_zod2.z.coerce.number().int().optional()
@@ -219,8 +221,7 @@ var MovementQuery = PageQuery.extend({
 var import_zod3 = require("zod");
 var ORDER_TRANSITIONS = {
   new: ["confirmed", "cancelled"],
-  confirmed: ["in_production", "cancelled"],
-  in_production: ["ready", "cancelled"],
+  confirmed: ["ready", "cancelled"],
   ready: ["delivered", "cancelled"],
   delivered: [],
   cancelled: []
