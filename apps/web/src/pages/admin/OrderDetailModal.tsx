@@ -37,6 +37,8 @@ export default function OrderDetailModal({ orderId, onClose }: Props) {
   if (!orderId) return null;
 
   const handlePrint = () => {
+    document.body.classList.add("print-order-modal");
+    window.addEventListener("afterprint", () => document.body.classList.remove("print-order-modal"), { once: true });
     window.print();
   };
 
@@ -64,9 +66,9 @@ export default function OrderDetailModal({ orderId, onClose }: Props) {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="card w-full max-w-3xl max-h-[90vh] flex flex-col bg-surface overflow-hidden shadow-2xl my-auto print:m-0 print:max-h-none print:shadow-none print:border-none print:bg-white print:text-black"
+        className="order-modal-document card w-full max-w-3xl max-h-[90vh] flex flex-col bg-surface overflow-hidden shadow-2xl my-auto print:m-0 print:max-h-none print:shadow-none print:border-none print:bg-white print:text-black"
       >
-        <div className="hidden px-4 pt-4 print:block"><PrintHeader /></div>
+        <div className="hidden px-4 pt-4 print:block"><PrintHeader title="طلب" /></div>
         {/* Header */}
         <div className="p-4 border-b border-line/10 flex items-center justify-between bg-surface2/50 print:bg-transparent">
           <div className="flex items-center gap-3">
@@ -79,10 +81,10 @@ export default function OrderDetailModal({ orderId, onClose }: Props) {
             <button
               onClick={handlePrint}
               className="btn-ghost text-xs px-3 py-1.5 h-8 flex items-center gap-1.5"
-              title="طباعة الفاتورة"
+              title="طباعة الطلب"
             >
               <Printer className="h-3.5 w-3.5" />
-              <span>طباعة</span>
+              <span>طباعة الطلب</span>
             </button>
             <button
               onClick={onClose}
@@ -279,3 +281,4 @@ export default function OrderDetailModal({ orderId, onClose }: Props) {
     </div>
   );
 }
+
