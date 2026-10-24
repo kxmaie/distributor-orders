@@ -11,7 +11,8 @@
  */
 
 import type { FastifyInstance } from "fastify";
-import { addClient, removeClient } from "../../lib/sse";
+import { addClient, removeClient, tenantUserKey } from "../../lib/sse";
+import { currentTenant } from "../../lib/tenant-context";
 
 const PING_INTERVAL = 30_000;
 // Vercel can terminate a function at 300 seconds. Close cleanly before that;
@@ -40,7 +41,9 @@ export default async function eventsRoutes(app: FastifyInstance) {
         return reply.code(401).send({ error: "UNAUTHORIZED" });
       }
 
-      const userId = req.user.sub; // string id from JWT payload
+      const tenant = currentTenant();
+      if (tenant && req.user.tenantId !== tenant.id) return reply.code(401).send({ error: "TENANT_SESSION_MISMATCH" });
+      const userId = tenantUserKey(req.user.sub); // isolated per-tenant identity
 
       // ── SSE headers ───────────────────────────────────────────────────────
       reply.raw.writeHead(200, {

@@ -1,13 +1,14 @@
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
 import { LoginBody, PasswordRequestBody, RegisterBody, RoleSchema, WhatsAppConsentBody } from "@do/shared";
-import { ACCESS_TTL, REFRESH_COOKIE, REFRESH_TTL_DAYS, isProd } from "../../config";
+import { ACCESS_TTL, REFRESH_COOKIE, REFRESH_TTL_DAYS, config, isProd } from "../../config";
 import * as svc from "./service";
+import { currentTenant } from "../../lib/tenant-context";
 
 const COOKIE_PATH = "/api/v1/auth";
 const cookieOpts = {
   httpOnly: true,
   secure: isProd,
-  sameSite: "strict" as const,
+  sameSite: isProd && config.DEMO_MODE ? "none" as const : "strict" as const,
   path: COOKIE_PATH,
   maxAge: REFRESH_TTL_DAYS * 86_400,
 };
@@ -20,7 +21,8 @@ const authRoutes: FastifyPluginAsync = async (app) => {
     user: Parameters<typeof svc.toPublicUser>[0],
     refreshToken: string,
   ) => {
-    const accessToken = app.jwt.sign({ sub: user.id.toString(), role: RoleSchema.parse(user.role) }, { expiresIn: ACCESS_TTL });
+    const tenantId = currentTenant()?.id;
+    const accessToken = app.jwt.sign({ sub: user.id.toString(), role: RoleSchema.parse(user.role), ...(tenantId ? { tenantId } : {}) }, { expiresIn: ACCESS_TTL });
     reply.setCookie(REFRESH_COOKIE, refreshToken, cookieOpts);
     return { accessToken, user: svc.toPublicUser(user) };
   };

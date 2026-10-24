@@ -27,13 +27,31 @@ import assistantRoutes from "./modules/assistant/routes";
 import settingsRoutes from "./modules/settings/routes";
 import companyRoutes from "./modules/settings/company.routes";
 import { startWorker } from "./lib/worker";
+import { runWithTenant } from "./lib/tenant-context";
+import { resolveTenant } from "./lib/tenant-registry";
+import platformRoutes from "./modules/platform/routes";
 
 export async function buildApp() {
   const app = Fastify({ logger: config.NODE_ENV !== "test", trustProxy: true });
 
   await app.register(helmet);
+  const configuredCorsOrigins = new Set(
+    (config.DEMO_MODE && config.DEMO_CORS_ORIGIN ? config.DEMO_CORS_ORIGIN : config.CORS_ORIGIN)
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+  );
+  // Vercel gives every preview deployment its own hostname. The web app and API
+  // are separate Vercel projects, so exact CORS env values cannot cover previews.
+  // Restrict this exception to this app's team-scoped preview hostnames; keep
+  // production and custom domains on the explicit allowlist above.
+  const isProjectPreviewOrigin = (origin: string) =>
+    /^https:\/\/distributor-orders-(?:[a-z0-9]{6,16}|git-[a-z0-9-]+)-momo-c550\.vercel\.app$/i.test(origin);
   await app.register(cors, {
-    origin: config.CORS_ORIGIN.split(","),
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, false);
+      callback(null, configuredCorsOrigins.has(origin) || isProjectPreviewOrigin(origin));
+    },
     credentials: true,
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
   });
@@ -41,6 +59,42 @@ export async function buildApp() {
   await app.register(jwt, { secret: config.JWT_SECRET });
   await app.register(rateLimit, { global: true, max: 200, timeWindow: "1 minute" });
   await app.register(authPlugin);
+
+  if (config.TENANCY_MODE === "multi") {
+    app.addHook("onRequest", (req, _reply, done) => {
+      if (req.method === "OPTIONS" || req.url.split("?")[0] === "/health" || req.url.split("?")[0].startsWith("/api/v1/platform/")) return done();
+      const tenantSlug = req.headers["x-tenant-slug"];
+      if (typeof tenantSlug !== "string") return done(new HttpError(400, "TENANT_REQUIRED", "حدد مساحة العمل أولاً"));
+      resolveTenant(tenantSlug).then((tenant) => {
+        if (!tenant) return done(new HttpError(404, "TENANT_NOT_FOUND", "مساحة العمل غير موجودة أو غير مفعلة"));
+        Object.assign(req, { tenantRelease: tenant.release });
+        runWithTenant(tenant, () => done());
+      }).catch((error) => done(error instanceof Error ? error : new Error("Tenant lookup failed")));
+    });
+    app.addHook("onResponse", (req, _reply, done) => {
+      (req as typeof req & { tenantRelease?: () => void }).tenantRelease?.();
+      done();
+    });
+    app.addHook("onError", (req, _reply, error, done) => {
+      (req as typeof req & { tenantRelease?: () => void }).tenantRelease?.();
+      done();
+    });
+  }
+
+  // Demo environments are deliberately read-only. Keep authentication/session
+  // endpoints available, but reject every business write at the API boundary.
+  if (config.DEMO_MODE) {
+    app.addHook("onRequest", async (req, reply) => {
+      if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return;
+      const readOnlyAuth = new Set([
+        "POST /api/v1/auth/login",
+        "POST /api/v1/auth/refresh",
+        "POST /api/v1/auth/logout",
+      ]);
+      if (readOnlyAuth.has(`${req.method} ${req.url.split("?")[0]}`)) return;
+      return reply.code(403).send({ error: "DEMO_READ_ONLY", message: "هذه نسخة تجريبية للعرض فقط؛ لا يمكن حفظ التغييرات." });
+    });
+  }
 
   // Ensure all JSON responses carry an explicit UTF-8 charset for Arabic clients.
   app.addHook("onSend", async (_req, reply) => {
@@ -65,6 +119,7 @@ export async function buildApp() {
 
   app.get("/health", async () => ({ ok: true }));
   await app.register(authRoutes, { prefix: "/api/v1/auth" });
+  await app.register(platformRoutes, { prefix: "/api/v1/platform" });
   await app.register(catalogRoutes, { prefix: "/api/v1" });
   await app.register(adminCatalogRoutes, { prefix: "/api/v1/admin" });
   await app.register(stockRoutes, { prefix: "/api/v1/admin/stock" });
@@ -83,7 +138,7 @@ export async function buildApp() {
 
   // Start the background notification worker after the app is built
   // (skipped on Vercel: serverless functions can't run background jobs)
-  if (config.NODE_ENV !== "test" && !process.env.VERCEL) startWorker();
+  if (config.NODE_ENV !== "test" && !process.env.VERCEL && config.TENANCY_MODE === "single") startWorker();
 
   return app;
 }

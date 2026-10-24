@@ -48,6 +48,7 @@ const AdminInventoryReport = lazy(() => import("./pages/admin/InventoryReport"))
 const AdminReturnsReport = lazy(() => import("./pages/admin/ReturnsReport"));
 const AdminItemMovements = lazy(() => import("./pages/admin/ItemMovements"));
 const AdminAuditLog = lazy(() => import("./pages/admin/AuditLog"));
+const PlatformConsole = lazy(() => import("./pages/platform/Console"));
 const SupplierInventory = lazy(() => import("./pages/SupplierInventory"));
 
 function Boot({ children }: { children: ReactElement }) {
@@ -109,12 +110,28 @@ function Fall() {
 }
 
 export default function App() {
+  const platformPage = window.location.pathname.startsWith("/platform");
   useEffect(() => {
+    if (platformPage) return;
     refreshSession().then((ok) => { if (!ok) useAuth.getState().clear(); });
-  }, []);
+  }, [platformPage]);
+
+  if (platformPage) return (
+    <MotionConfig reducedMotion="user">
+      <BrowserRouter>
+        <Suspense fallback={<Fall />}>
+          <Routes>
+            <Route path="/platform/*" element={<PlatformConsole />} />
+            <Route path="*" element={<Navigate to="/platform" replace />} />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </MotionConfig>
+  );
 
   return (
     <MotionConfig reducedMotion="user">
+      {import.meta.env.VITE_DEMO_MODE === "true" && <div className="sticky top-0 z-[100] border-b border-primary/30 bg-primary px-4 py-2 text-center text-sm font-bold text-white shadow-lg">نسخة تجريبية — البيانات للعرض فقط ولا تُحفظ التغييرات</div>}
       <BrowserRouter>
         <Boot>
           <Suspense fallback={<Fall />}>

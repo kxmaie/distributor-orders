@@ -17,7 +17,11 @@
     "api:test": "npm run test -w @do/api",
     "web:dev": "npm run dev -w @do/web",
     "web:build": "npm run build -w @do/web",
-    "build:shared": "npm run build -w @do/shared"
+    "build:shared": "npm run build -w @do/shared",
+    "api:tenant:provision": "npm run tenant:provision -w @do/api",
+    "api:tenant:hash-platform-password": "npm run tenant:hash-platform-password -w @do/api",
+    "api:tenant:backup": "npm run tenant:backup -w @do/api",
+    "api:tenant:restore": "npm run tenant:restore -w @do/api"
   },
   "devDependencies": {
     "vite-plugin-pwa": "^1.3.0"

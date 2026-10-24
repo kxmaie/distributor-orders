@@ -1,6 +1,7 @@
 import { useAuth } from "../store/auth";
 
-const BASE = "/api/v1";
+const BASE = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL)?.replace(/\/$/, "") || "/api/v1";
+const TENANT_SLUG = import.meta.env.VITE_TENANT_SLUG?.trim().toLowerCase();
 
 export class ApiError extends Error {
   constructor(public status: number, public code: string, message: string, public details?: unknown) {
@@ -14,7 +15,7 @@ export function refreshSession(): Promise<boolean> {
   if (!refreshing) {
     refreshing = (async () => {
       try {
-        const r = await fetch(`${BASE}/auth/refresh`, { method: "POST", credentials: "include" });
+        const r = await fetch(`${BASE}/auth/refresh`, { method: "POST", credentials: "include", headers: TENANT_SLUG ? { "X-Tenant-Slug": TENANT_SLUG } : {} });
         if (!r.ok) return false;
         const d = await r.json();
         useAuth.getState().setSession(d.accessToken, d.user);
@@ -40,6 +41,7 @@ async function request<T>(path: string, { method = "GET", body, query, retry = t
     headers: {
       ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(TENANT_SLUG ? { "X-Tenant-Slug": TENANT_SLUG } : {}),
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
@@ -98,6 +100,11 @@ const MESSAGES: Record<string, string> = {
   INVALID_RECEIPT_VOUCHER: "سند القبض يجب أن يزيد أصلًا ويقابله إيراد أو التزام",
   INVALID_PAYMENT_VOUCHER: "سند الصرف يجب أن يخفض أصلًا ويقابله مصروف أو التزام",
   AI_PROVIDER_ERROR: "خدمة المساعد واجهت مشكلة. تأكد من إعداد AI Gateway في Vercel ثم حاول مرة أخرى.",
+  DEMO_READ_ONLY: "هذه نسخة تجريبية للعرض فقط؛ لا يمكن حفظ التغييرات.",
+  TENANT_REQUIRED: "اختر مساحة العمل للمتابعة",
+  TENANT_NOT_FOUND: "مساحة العمل غير موجودة أو غير مفعلة",
+  TENANT_SESSION_MISMATCH: "الجلسة لا تخص مساحة العمل الحالية؛ سجل الدخول من جديد",
+  TENANT_CAPACITY: "الخدمة مشغولة مؤقتًا، حاول مرة أخرى بعد قليل",
 };
 export const errorText = (e: unknown) =>
   e instanceof ApiError ? MESSAGES[e.code] ?? (e.message || "حدث خطأ غير متوقع، حاول مرة أخرى") : "تعذّر الاتصال بالخادم، تأكد من الإنترنت";

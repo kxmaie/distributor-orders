@@ -14,8 +14,11 @@
  * transaction commits) runs a batch almost immediately, so toasts / the bell don't wait for the poll.
  */
 import { prisma } from "./db";
-import { broadcast } from "./sse";
+import { broadcast, tenantUserKey } from "./sse";
 import { send as sendQueueMessage } from "@vercel/queue";
+import { config } from "../config";
+import { currentTenant, runWithTenant } from "./tenant-context";
+import { resolveTenant } from "./tenant-registry";
 import { waitUntil } from "@vercel/functions";
 import { isWhatsAppConfigured, PermanentError, sendWhatsApp } from "./whatsapp";
 
@@ -36,7 +39,7 @@ let warnedUnconfigured = false;
 function deliverInApp(recipient: string, payloadJson: string): void {
   let data: unknown;
   try { data = JSON.parse(payloadJson); } catch { data = payloadJson; }
-  broadcast(recipient, (data as { type?: string })?.type ?? "notification", data);
+  broadcast(tenantUserKey(recipient), (data as { type?: string })?.type ?? "notification", data);
 }
 
 export async function processOneBatch(): Promise<void> {
@@ -112,6 +115,25 @@ export async function processWhatsAppNotification(id: string): Promise<void> {
   await processRow(row, true);
 }
 
+/** Resolve the database before a queue delivery; each tenant may reuse the same local notification id. */
+export async function processWhatsAppNotificationForTenant(id: string, tenantSlug?: string): Promise<void> {
+  if (config.TENANCY_MODE !== "multi") return processWhatsAppNotification(id);
+  if (!tenantSlug || !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(tenantSlug)) throw new PermanentError("Tenant slug is required for a multi-tenant queue message");
+  const tenant = await resolveTenant(tenantSlug);
+  if (!tenant) throw new PermanentError("Tenant is missing or suspended");
+  try { await runWithTenant(tenant, () => processWhatsAppNotification(id)); }
+  finally { tenant.release(); }
+}
+
+/** Best-effort SSE delivery runs inside the current request's tenant context. */
+async function processInAppBatch(): Promise<void> {
+  const rows = await prisma.notificationQueue.findMany({
+    where: { channel: "in_app", status: { in: ["pending", "failed"] }, nextAttemptAt: { lte: new Date() }, attempts: { lt: MAX_ATTEMPTS } },
+    take: 50,
+    orderBy: { nextAttemptAt: "asc" },
+  });
+  for (const row of rows) await processRow(row, false);
+}
 /** Publish the durable database outbox to Vercel Queues after the order transaction commits. */
 async function publishWhatsAppOutbox(): Promise<void> {
   if (!isWhatsAppConfigured()) return;
@@ -126,8 +148,13 @@ async function publishWhatsAppOutbox(): Promise<void> {
   });
   for (const row of rows) {
     try {
-      await sendQueueMessage(WHATSAPP_TOPIC, { notificationId: row.id.toString() }, {
-        idempotencyKey: `whatsapp-notification-${row.id}`,
+      const tenant = currentTenant();
+      if (config.TENANCY_MODE === "multi" && !tenant) {
+        console.error(`[worker] refusing to publish tenantless WhatsApp notification id=${row.id}`);
+        continue;
+      }
+      await sendQueueMessage(WHATSAPP_TOPIC, { notificationId: row.id.toString(), ...(tenant ? { tenantSlug: tenant.slug } : {}) }, {
+        idempotencyKey: `whatsapp-notification-${tenant?.id ?? "single"}-${row.id}`,
         retentionSeconds: 86_400,
       });
       await prisma.notificationQueue.updateMany({
@@ -163,7 +190,36 @@ async function tick() {
 /** Process the queue now-ish instead of waiting for the next poll. Safe to call from anywhere, any time. */
 export function wakeWorker(): void {
   if (process.env.VERCEL) {
-    waitUntil(publishWhatsAppOutbox().catch((err) => console.error("[worker] WhatsApp outbox publish failed:", err)));
+    const tenant = currentTenant();
+    if (config.TENANCY_MODE === "multi") {
+      if (!tenant) {
+        console.error("[worker] refusing to wake a tenantless multi-tenant worker");
+        return;
+      }
+      waitUntil((async () => {
+        const backgroundTenant = await resolveTenant(tenant.slug);
+        if (!backgroundTenant) return;
+        try {
+          await runWithTenant(backgroundTenant, async () => {
+            await processInAppBatch();
+            await publishWhatsAppOutbox();
+          });
+        } finally { backgroundTenant.release(); }
+      })().catch((err) => console.error("[worker] tenant notification work failed:", err)));
+    } else {
+      waitUntil(Promise.all([processInAppBatch(), publishWhatsAppOutbox()]).catch((err) => console.error("[worker] notification work failed:", err)));
+    }
+    return;
+  }
+  if (config.TENANCY_MODE === "multi") {
+    const tenant = currentTenant();
+    if (!tenant) return;
+    void (async () => {
+      const backgroundTenant = await resolveTenant(tenant.slug);
+      if (!backgroundTenant) return;
+      try { await runWithTenant(backgroundTenant, () => processOneBatch()); }
+      finally { backgroundTenant.release(); }
+    })().catch((err) => console.error("[worker] tenant notification work failed:", err));
     return;
   }
   if (!started) return;

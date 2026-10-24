@@ -7,6 +7,7 @@
  */
 
 import type { FastifyReply } from "fastify";
+import { currentTenant } from "./tenant-context";
 
 type Client = { id: string; reply: FastifyReply };
 
@@ -21,6 +22,11 @@ function send(reply: FastifyReply, event: string, data: unknown) {
   } catch {
     // Socket may have closed between the check and the write — ignore
   }
+}
+
+export function tenantUserKey(userId: string): string {
+  const tenantId = currentTenant()?.id;
+  return tenantId ? `${tenantId}:${userId}` : userId;
 }
 
 export function addClient(userId: string, reply: FastifyReply): string {
