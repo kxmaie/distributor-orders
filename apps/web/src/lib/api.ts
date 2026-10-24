@@ -1,6 +1,6 @@
 import { useAuth } from "../store/auth";
 
-const BASE = "/api/v1";
+const BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") || "/api/v1";
 
 export class ApiError extends Error {
   constructor(public status: number, public code: string, message: string, public details?: unknown) {
@@ -98,6 +98,7 @@ const MESSAGES: Record<string, string> = {
   INVALID_RECEIPT_VOUCHER: "سند القبض يجب أن يزيد أصلًا ويقابله إيراد أو التزام",
   INVALID_PAYMENT_VOUCHER: "سند الصرف يجب أن يخفض أصلًا ويقابله مصروف أو التزام",
   AI_PROVIDER_ERROR: "خدمة المساعد واجهت مشكلة. تأكد من إعداد AI Gateway في Vercel ثم حاول مرة أخرى.",
+  DEMO_READ_ONLY: "هذه نسخة تجريبية للعرض فقط؛ لا يمكن حفظ التغييرات.",
 };
 export const errorText = (e: unknown) =>
   e instanceof ApiError ? MESSAGES[e.code] ?? (e.message || "حدث خطأ غير متوقع، حاول مرة أخرى") : "تعذّر الاتصال بالخادم، تأكد من الإنترنت";

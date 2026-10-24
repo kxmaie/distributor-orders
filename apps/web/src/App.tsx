@@ -115,6 +115,7 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
+      {import.meta.env.VITE_DEMO_MODE === "true" && <div className="sticky top-0 z-[100] border-b border-primary/30 bg-primary px-4 py-2 text-center text-sm font-bold text-white shadow-lg">نسخة تجريبية — البيانات للعرض فقط ولا تُحفظ التغييرات</div>}
       <BrowserRouter>
         <Boot>
           <Suspense fallback={<Fall />}>

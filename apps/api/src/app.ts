@@ -42,6 +42,21 @@ export async function buildApp() {
   await app.register(rateLimit, { global: true, max: 200, timeWindow: "1 minute" });
   await app.register(authPlugin);
 
+  // Demo environments are deliberately read-only. Keep authentication/session
+  // endpoints available, but reject every business write at the API boundary.
+  if (config.DEMO_MODE) {
+    app.addHook("onRequest", async (req, reply) => {
+      if (["GET", "HEAD", "OPTIONS"].includes(req.method)) return;
+      const readOnlyAuth = new Set([
+        "POST /api/v1/auth/login",
+        "POST /api/v1/auth/refresh",
+        "POST /api/v1/auth/logout",
+      ]);
+      if (readOnlyAuth.has(`${req.method} ${req.url.split("?")[0]}`)) return;
+      return reply.code(403).send({ error: "DEMO_READ_ONLY", message: "هذه نسخة تجريبية للعرض فقط؛ لا يمكن حفظ التغييرات." });
+    });
+  }
+
   // Ensure all JSON responses carry an explicit UTF-8 charset for Arabic clients.
   app.addHook("onSend", async (_req, reply) => {
     const ct = reply.getHeader("content-type");
