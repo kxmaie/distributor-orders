@@ -46,7 +46,7 @@ export async function buildApp() {
   // Restrict this exception to this app's team-scoped preview hostnames; keep
   // production and custom domains on the explicit allowlist above.
   const isProjectPreviewOrigin = (origin: string) =>
-    /^https:\/\/distributor-orders-[a-z0-9-]+-momo-c550\.vercel\.app$/i.test(origin);
+    /^https:\/\/distributor-orders-(?:[a-z0-9]{6,16}|git-[a-z0-9-]+)-momo-c550\.vercel\.app$/i.test(origin);
   await app.register(cors, {
     origin: (origin, callback) => {
       if (!origin) return callback(null, false);
