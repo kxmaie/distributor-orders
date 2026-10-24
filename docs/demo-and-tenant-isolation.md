@@ -27,7 +27,7 @@ npm run seed -w @do/api
 
 Run these commands with the demo database URL and demo seed credentials loaded in the local environment. Do not use production credentials. The seed operation is idempotent for its sample category, products, variants, and stock.
 
-The API enforces demo read-only behavior server-side; hiding or disabling buttons in the browser is not a security boundary. Authentication and session endpoints remain available, while business writes return `403 DEMO_READ_ONLY`. The UI displays a demo banner. Demo customers should use temporary credentials shared privately, not a reusable public password.
+The API enforces demo read-only behavior server-side; hiding or disabling buttons in the browser is not a security boundary. When the demo frontend and API use separate Vercel hosts, demo refresh cookies use `SameSite=None; Secure` with credentialed CORS. Authentication and session endpoints remain available, while business writes return `403 DEMO_READ_ONLY`. The UI displays a demo banner. Demo customers should use temporary credentials shared privately, not a reusable public password.
 
 ## Separate database per customer
 
