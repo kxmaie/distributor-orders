@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
-  Boxes, Building2, ClipboardList, FolderTree, LayoutDashboard, LogOut, Menu, Moon, Package, Percent, Settings, Shield, Sparkles, Store, Sun, Tag, Users, Wallet, Warehouse as WarehouseIcon, X,
+  Boxes, Building2, ClipboardList, FolderTree, LayoutDashboard, LogOut, Menu, Moon, Package, Percent, Settings, Shield, Sparkles, Store, Sun, Tag, Users, Wallet, Warehouse as WarehouseIcon, X, ReceiptText,
 } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -17,6 +17,7 @@ import Logo from "../Logo";
 const NAV = [
   { to: "/admin", label: "لوحة التحكم", icon: LayoutDashboard, end: true, badgeKey: null },
   { to: "/admin/orders", label: "الطلبات", icon: ClipboardList, end: false, badgeKey: "newOrdersCount" },
+  { to: "/admin/sales", label: "المبيعات", icon: ReceiptText, end: false, badgeKey: null },
   { to: "/admin/products", label: "المنتجات", icon: Package, end: false, badgeKey: null },
   { to: "/admin/categories", label: "التصنيفات", icon: FolderTree, end: false, badgeKey: null },
   { to: "/admin/warehouses", label: "المخازن", icon: WarehouseIcon, end: false, badgeKey: null },
@@ -82,7 +83,7 @@ export default function AdminLayout() {
           <p className="mt-1 truncate text-xs text-muted">{user.fullName}</p>
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto px-3">
-          {(isSuperAdmin ? NAV : NAV.filter((n) => n.to === "/admin/orders" || n.to === "/admin/settings")).map((n) => {
+          {(isSuperAdmin ? NAV : NAV.filter((n) => n.to === "/admin/orders" || n.to === "/admin/sales" || n.to === "/admin/settings")).map((n) => {
             const count = n.badgeKey ? (badgeCounts[n.badgeKey as BadgeKey] ?? 0) : 0;
             return (
               <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) =>
@@ -150,7 +151,7 @@ export default function AdminLayout() {
                   <button type="button" aria-label="إغلاق" onClick={() => setMenuOpen(false)} className="grid h-11 w-11 place-items-center rounded-lg hover:bg-line/5"><X className="h-5 w-5" /></button>
                 </div>
                 <nav className="flex-1 space-y-1 overflow-y-auto px-3">
-                  {(isSuperAdmin ? NAV : NAV.filter((n) => n.to === "/admin/orders" || n.to === "/admin/settings")).map((n) => {
+                  {(isSuperAdmin ? NAV : NAV.filter((n) => n.to === "/admin/orders" || n.to === "/admin/sales" || n.to === "/admin/settings")).map((n) => {
                     const count = n.badgeKey ? (badgeCounts[n.badgeKey as BadgeKey] ?? 0) : 0;
                     return (
                       <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) =>
@@ -179,3 +180,4 @@ export default function AdminLayout() {
     </div>
   );
 }
+
