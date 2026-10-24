@@ -30,19 +30,63 @@ const adminReportRoutes: FastifyPluginAsync = async (app) => {
     for(const row of salesReturns){const unitCost=costs.get(row.orderItem.variantId.toString());if(unitCost!==undefined)returnedCost+=unitCost*row.qty;}
     cost=Math.max(0,cost-returnedCost);const grossPurchases=Number(purchaseTotal._sum.total??0),returns=Number(purchaseReturnTotal._sum.total??0);
     return { revenue: revenue.toFixed(2), costOfGoodsSold: cost.toFixed(2), grossProfit: (revenue-cost).toFixed(2), purchasesTotal:(grossPurchases-returns).toFixed(2), uncostedQty, costingMethod:"weighted_average_net_of_returns" };
-  });  app.get("/reports/purchases", async () => {
-    const [bought, returned, purchaseCount, returnCount] = await Promise.all([
-      prisma.purchase.aggregate({ where: { voidedAt: null }, _sum: { total: true }, _count: true }),
-      prisma.purchaseReturn.aggregate({ where: { purchase: { voidedAt: null } }, _sum: { total: true }, _count: true }),
-      prisma.purchase.count({ where: { voidedAt: null } }),
-      prisma.purchaseReturn.count({ where: { purchase: { voidedAt: null } } }),
+  });  app.get("/reports/purchases", async (req) => {
+    const q = z.object({ from: z.string().date().optional(), to: z.string().date().optional() }).refine(v => !v.from || !v.to || v.from <= v.to, { message: "Invalid date range" }).parse(req.query);
+    const range: { gte?: Date; lte?: Date } = {};
+    if (q.from) range.gte = new Date(`${q.from}T00:00:00.000Z`);
+    if (q.to) range.lte = new Date(`${q.to}T23:59:59.999Z`);
+    const where = Object.keys(range).length ? { createdAt: range } : {};
+    const [purchases, returns] = await Promise.all([
+      prisma.purchase.findMany({ where: { ...where, voidedAt: null }, include: { items: { include: { variant: { include: { product: true } }, warehouse: true } } }, orderBy: { createdAt: "desc" }, take: 2000 }),
+      prisma.purchaseReturn.findMany({ where: { ...where, purchase: { voidedAt: null } }, include: { purchase: { select: { invoiceNo: true } }, items: { include: { variant: { include: { product: true } }, warehouse: true } } }, orderBy: { createdAt: "desc" }, take: 2000 }),
     ]);
-    const gross = Number(bought._sum.total ?? 0), returns = Number(returned._sum.total ?? 0);
-    return { grossPurchases: gross.toFixed(2), purchaseReturns: returns.toFixed(2), netPurchases: (gross - returns).toFixed(2), purchaseCount, returnCount };
+    const gross = purchases.reduce((sum, row) => sum + Number(row.total), 0), returned = returns.reduce((sum, row) => sum + Number(row.total), 0);
+    return { summary: { grossPurchases: gross.toFixed(2), purchaseReturns: returned.toFixed(2), netPurchases: (gross - returned).toFixed(2), purchaseCount: purchases.length, returnCount: returns.length }, invoices: purchases.map(row => ({ id: row.id.toString(), kind: "purchase", number: row.invoiceNo, supplier: row.supplier, date: row.createdAt.toISOString(), total: row.total.toString(), items: row.items.map(i => ({ product: i.variant.product.name, variant: i.variant.label, qty: i.qty, unitCost: i.unitCost.toString(), total: i.lineTotal.toString(), warehouse: i.warehouse.name })) })), returns: returns.map(row => ({ id: row.id.toString(), kind: "return", number: row.returnNo, supplier: row.supplier, invoiceNo: row.purchase.invoiceNo, date: row.createdAt.toISOString(), total: row.total.toString(), items: row.items.map(i => ({ product: i.variant.product.name, variant: i.variant.label, qty: i.qty, unitCost: i.unitCost.toString(), total: i.lineTotal.toString(), warehouse: i.warehouse.name })) })) };
   });
-  app.get("/reports/accounting/trial-balance", async () => {
-    const accounts = await prisma.ledgerAccount.findMany({ where: { isActive: true }, include: { entries: { select: { debit: true, credit: true } } }, orderBy: { code: "asc" } });
-    return accounts.map(a => ({ id: a.id, code: a.code, name: a.name, type: a.type, debit: a.entries.reduce((s,e)=>s+Number(e.debit),0).toFixed(2), credit: a.entries.reduce((s,e)=>s+Number(e.credit),0).toFixed(2) }));
+  app.get("/reports/accounting/trial-balance", async (req) => {
+    const q = z.object({ from: z.string().date().optional(), to: z.string().date().optional() }).refine(v => !v.from || !v.to || v.from <= v.to, { message: "Invalid date range" }).parse(req.query);
+    const through: { lte?: Date } = {};
+    if (q.to) through.lte = new Date(`${q.to}T23:59:59.999Z`);
+    const entriesWhere = Object.keys(through).length ? { voucher: { date: through } } : {};
+    const accounts = await prisma.ledgerAccount.findMany({ where: { isActive: true }, include: { entries: { where: entriesWhere, select: { debit: true, credit: true, voucher: { select: { date: true } } } } }, orderBy: { code: "asc" } });
+    return accounts.map(a => {
+      const opening = a.entries.filter(e => q.from && e.voucher.date < new Date(`${q.from}T00:00:00.000Z`));
+      const period = a.entries.filter(e => !q.from || e.voucher.date >= new Date(`${q.from}T00:00:00.000Z`));
+      const sum = (rows: typeof a.entries, side: "debit" | "credit") => rows.reduce((total,e)=>total+Number(e[side]),0);
+      const openingNet = sum(opening,"debit")-sum(opening,"credit");
+      const closingNet = sum([...opening,...period],"debit")-sum([...opening,...period],"credit");
+      return { id: a.id.toString(), code: a.code, name: a.name, type: a.type, openingDebit: Math.max(0,openingNet).toFixed(2), openingCredit: Math.max(0,-openingNet).toFixed(2), periodDebit: sum(period,"debit").toFixed(2), periodCredit: sum(period,"credit").toFixed(2), closingDebit: Math.max(0,closingNet).toFixed(2), closingCredit: Math.max(0,-closingNet).toFixed(2) };
+    });
+  });
+  app.get("/reports/products", async (req) => {
+    const q = z.object({ from: z.string().date().optional(), to: z.string().date().optional(), q: z.string().trim().max(120).optional() }).refine(v => !v.from || !v.to || v.from <= v.to, { message: "Invalid date range" }).parse(req.query);
+    const date: { gte?: Date; lte?: Date } = {};
+    if (q.from) date.gte = new Date(`${q.from}T00:00:00.000Z`);
+    if (q.to) date.lte = new Date(`${q.to}T23:59:59.999Z`);
+    const deliveryWhere = Object.keys(date).length ? { delivery: { deliveredAt: date } } : {};
+    const returnWhere = Object.keys(date).length ? { salesReturn: { createdAt: date } } : {};
+    const [deliveries, returns] = await Promise.all([
+      prisma.deliveryItem.findMany({ where: deliveryWhere, include: { orderItem: { include: { variant: { include: { product: true } } } } } }),
+      prisma.salesReturnItem.findMany({ where: returnWhere, include: { orderItem: { include: { variant: { include: { product: true } } } } } }),
+    ]);
+    const rows = new Map<string, { product: string; variant: string; sku: string; soldQty: number; returnedQty: number; gross: number; returned: number }>();
+    for (const item of deliveries) { const v=item.orderItem.variant, id=v.id.toString(), row=rows.get(id)??{product:v.product.name,variant:v.label,sku:v.sku,soldQty:0,returnedQty:0,gross:0,returned:0};row.soldQty+=item.qty;row.gross+=Number(item.amount);rows.set(id,row); }
+    for (const item of returns) { const v=item.orderItem.variant,id=v.id.toString(),row=rows.get(id)??{product:v.product.name,variant:v.label,sku:v.sku,soldQty:0,returnedQty:0,gross:0,returned:0};row.returnedQty+=item.qty;row.returned+=Number(item.lineTotal);rows.set(id,row); }
+    return [...rows.entries()].map(([variantId,row])=>({variantId,...row,netQty:row.soldQty-row.returnedQty,netSales:(row.gross-row.returned).toFixed(2),grossSales:row.gross.toFixed(2),returns:row.returned.toFixed(2)})).filter(r=>!q.q||`${r.product} ${r.variant} ${r.sku}`.toLocaleLowerCase().includes(q.q.toLocaleLowerCase())).sort((a,b)=>Number(b.netSales)-Number(a.netSales));
+  });
+  app.get("/reports/inventory", async (req) => {
+    const q = z.object({ from: z.string().date().optional(), to: z.string().date().optional(), q: z.string().trim().max(120).optional() }).refine(v => !v.from || !v.to || v.from <= v.to, { message: "Invalid date range" }).parse(req.query);
+    const date: { gte?: Date; lte?: Date } = {};
+    if (q.from) date.gte = new Date(`${q.from}T00:00:00.000Z`);
+    if (q.to) date.lte = new Date(`${q.to}T23:59:59.999Z`);
+    const variantSearch = q.q ? { OR: [{ sku: { contains: q.q, mode: "insensitive" as const } }, { label: { contains: q.q, mode: "insensitive" as const } }, { product: { name: { contains: q.q, mode: "insensitive" as const } } }] } : undefined;
+    const search = variantSearch ? { variant: variantSearch } : {};
+    const moveSearch = variantSearch ? { variant: variantSearch } : {};
+    const [stock, movements] = await Promise.all([
+      prisma.stockLevel.findMany({ where: { ...search, warehouse: { isActive: true } }, include: { variant: { include: { product: true } }, warehouse: true }, orderBy: [{ variantId: "asc" }, { warehouseId: "asc" }], take: 5000 }),
+      prisma.stockMovement.findMany({ where: { ...(Object.keys(date).length ? { createdAt: date } : {}), ...moveSearch }, include: { variant: { include: { product: true } }, warehouse: true }, orderBy: { createdAt: "desc" }, take: 5000 }),
+    ]);
+    return { stock: stock.map(r=>({variantId:r.variantId.toString(),product:r.variant.product.name,variant:r.variant.label,sku:r.variant.sku,warehouse:r.warehouse.name,onHand:r.onHand,reserved:r.reserved,available:r.onHand-r.reserved,threshold:r.lowStockThreshold})), movements: movements.map(m=>({id:m.id.toString(),product:m.variant.product.name,variant:m.variant.label,sku:m.variant.sku,warehouse:m.warehouse.name,type:m.type,qty:m.qty,note:m.note,createdAt:m.createdAt.toISOString()})) };
   });
   app.get("/reports/sales", async (req) => {
     const q = ReportsQuery.parse(req.query);

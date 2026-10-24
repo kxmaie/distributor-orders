@@ -43,7 +43,8 @@ const AdminReturns = lazy(() => import("./pages/admin/Returns"));
 const AdminAccounting = lazy(() => import("./pages/admin/Accounting"));
 const AdminPurchasesReport = lazy(() => import("./pages/admin/PurchasesReport"));
 const AdminAccountingReport = lazy(() => import("./pages/admin/AccountingReport"));
-const AdminOtherReports = lazy(() => import("./pages/admin/OtherReports"));
+const AdminProductReport = lazy(() => import("./pages/admin/ProductReport"));
+const AdminInventoryReport = lazy(() => import("./pages/admin/InventoryReport"));
 const AdminItemMovements = lazy(() => import("./pages/admin/ItemMovements"));
 const SupplierInventory = lazy(() => import("./pages/SupplierInventory"));
 
@@ -147,7 +148,8 @@ export default function App() {
                 <Route path="reports/sales" element={<SuperAdminOnly><AdminReports /></SuperAdminOnly>} />
                 <Route path="reports/purchases" element={<SuperAdminOnly><AdminPurchasesReport /></SuperAdminOnly>} />
                 <Route path="reports/accounting" element={<SuperAdminOnly><AdminAccountingReport /></SuperAdminOnly>} />
-                <Route path="reports/other" element={<SuperAdminOnly><AdminOtherReports /></SuperAdminOnly>} />
+                <Route path="reports/products" element={<SuperAdminOnly><AdminProductReport /></SuperAdminOnly>} />
+                <Route path="reports/inventory" element={<SuperAdminOnly><AdminInventoryReport /></SuperAdminOnly>} />
                 <Route path="products" element={<SuperAdminOnly><AdminProducts /></SuperAdminOnly>} />
                 <Route path="products/:id" element={<SuperAdminOnly><AdminProductEdit /></SuperAdminOnly>} />
                 <Route path="categories" element={<SuperAdminOnly><AdminCategories /></SuperAdminOnly>} />
@@ -155,7 +157,7 @@ export default function App() {
                 <Route path="users" element={<SuperAdminOnly><AdminUsers /></SuperAdminOnly>} />
                 <Route path="discounts" element={<SuperAdminOnly><AdminDiscounts /></SuperAdminOnly>} />
                 <Route path="password-requests" element={<SuperAdminOnly><AdminPasswordRequests /></SuperAdminOnly>} />
-                <Route path="reports" element={<SuperAdminOnly><AdminReports /></SuperAdminOnly>} />
+                <Route path="reports" element={<Navigate to="/admin/reports/sales" replace />} />
                 <Route path="accounts" element={<SuperAdminOnly><AdminAccounts /></SuperAdminOnly>} />
               </Route>
               <Route path="*" element={<NotFound />} />
