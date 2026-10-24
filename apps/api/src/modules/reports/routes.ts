@@ -38,4 +38,37 @@ const adminReportRoutes: FastifyPluginAsync = async (app) => {
       prisma.purchaseReturn.count({ where: { purchase: { voidedAt: null } } }),
     ]);
     const gross = Number(bought._sum.total ?? 0), returns = Number(returned._sum.total ?? 0);
-    return { grossPurchases: gross.toFixed(2), purchaseReturns: returns.toFixed(2), netPurchases: (gross - returns).toFixed(2), purchaseCount, retu
+    return { grossPurchases: gross.toFixed(2), purchaseReturns: returns.toFixed(2), netPurchases: (gross - returns).toFixed(2), purchaseCount, returnCount };
+  });
+  app.get("/reports/accounting/trial-balance", async () => {
+    const accounts = await prisma.ledgerAccount.findMany({ where: { isActive: true }, include: { entries: { select: { debit: true, credit: true } } }, orderBy: { code: "asc" } });
+    return accounts.map(a => ({ id: a.id, code: a.code, name: a.name, type: a.type, debit: a.entries.reduce((s,e)=>s+Number(e.debit),0).toFixed(2), credit: a.entries.reduce((s,e)=>s+Number(e.credit),0).toFixed(2) }));
+  });
+  app.get("/reports/sales", async (req) => {
+    const q = ReportsQuery.parse(req.query);
+    return svc.getSalesReport(q);
+  });
+
+  app.post("/reports/ask", { config: { rateLimit: { max: 8, timeWindow: "1 minute" } } }, async (req) => {
+    const { question, from, to } = z.object({
+      question: z.string().trim().min(3).max(500),
+      from: z.string().date().optional(),
+      to: z.string().date().optional(),
+    }).parse(req.body);
+    const model = process.env.AI_GATEWAY_MODEL?.trim();
+    if (!process.env.AI_GATEWAY_API_KEY || !model) {
+      throw new HttpError(503, "AI_NOT_CONFIGURED", "AI reporting is not configured yet");
+    }
+    const report = await svc.getSalesReport({ from, to });
+    const { text } = await generateText({
+      model: gateway.languageModel(model as GatewayModelId),
+      system: "أنت مساعد تقارير لمتجر. أجب بالعربية باختصار اعتمادًا فقط على بيانات الملخص المرفقة. وضح الفترة، وقل صراحة إذا كانت البيانات لا تكفي. لا تكشف بيانات شخصية ولا تخترع أرقامًا أو أسبابًا.",
+      prompt: `سؤال المدير: ${question}\nالفترة: ${from ?? "بلا بداية محددة"} — ${to ?? "حتى الآن"}\nالبيانات المجمعة: ${JSON.stringify({ summary: report.summary, statusCounts: report.statusCounts })}`,
+      maxOutputTokens: 450,
+      temperature: 0.2,
+    });
+    return { answer: text };
+  });
+};
+
+export default adminReportRoutes;

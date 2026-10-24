@@ -105,4 +105,114 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
     .sort((a, b) => (b.totalSpend.greaterThan(a.totalSpend) ? 1 : -1))
     .slice(0, 5)
     .map((d) => ({
-      
+      id: d.id,
+      fullName: d.fullName,
+      username: d.username,
+      orderCount: d.orderCount,
+      totalSpend: money(d.totalSpend),
+    }));
+
+  // Sales Trend for last 14 days
+  const trendMap = new Map<string, { revenue: Prisma.Decimal; orders: number }>();
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86_400_000);
+    const key = d.toISOString().slice(0, 10);
+    trendMap.set(key, { revenue: new Prisma.Decimal(0), orders: 0 });
+  }
+  for (const o of recentOrdersForTrend) {
+    const key = o.createdAt.toISOString().slice(0, 10);
+    if (trendMap.has(key)) {
+      const e = trendMap.get(key)!;
+      e.revenue = e.revenue.add(o.total);
+      e.orders += 1;
+    }
+  }
+  const salesTrend = Array.from(trendMap.entries()).map(([date, data]) => ({
+    date,
+    revenue: money(data.revenue),
+    orders: data.orders,
+  }));
+
+  // Top products
+  const orderItems = await prisma.orderItem.findMany({
+    where: { order: { status: { not: "cancelled" } } },
+    select: { variantId: true, productName: true, qty: true, lineTotal: true },
+    take: 500,
+  });
+
+  const productMap = new Map<string, { id: string; name: string; qty: number; totalRevenue: Prisma.Decimal }>();
+  for (const it of orderItems) {
+    const key = it.productName;
+    const curr = productMap.get(key) || {
+      id: it.variantId.toString(),
+      name: it.productName,
+      qty: 0,
+      totalRevenue: new Prisma.Decimal(0),
+    };
+    curr.qty += it.qty;
+    curr.totalRevenue = curr.totalRevenue.add(it.lineTotal);
+    productMap.set(key, curr);
+  }
+  const topProducts = Array.from(productMap.values())
+    .sort((a, b) => b.qty - a.qty)
+    .slice(0, 5)
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      qty: p.qty,
+      totalRevenue: money(p.totalRevenue),
+    }));
+
+  return {
+    stats: {
+      totalRevenue: money(totalRev),
+      todayRevenue: money(todayRev),
+      monthRevenue: money(monthRev),
+      totalOrders,
+      newOrdersCount,
+      pendingPasswordRequests,
+      pendingRegistrations,
+      lowStockVariants,
+    },
+    salesTrend,
+    statusCounts,
+    topProducts,
+    topDistributors,
+    recentOrders: recentOrdersData.map((o) => ({
+      id: o.id.toString(),
+      orderNo: o.orderNo,
+      customerName: o.user.fullName,
+      status: o.status,
+      total: money(o.total),
+      createdAt: o.createdAt.toISOString(),
+    })),
+  };
+}
+
+export async function getSalesReport(query: SalesReportQuery) {
+  const dateRange: Prisma.DateTimeFilter = {};
+  if (query.from) dateRange.gte = new Date(`${query.from}T00:00:00.000Z`);
+  if (query.to) dateRange.lte = new Date(`${query.to}T23:59:59.999Z`);
+  const deliveryWhere: Prisma.DeliveryItemWhereInput = Object.keys(dateRange).length ? { delivery: { deliveredAt: dateRange } } : {};
+  const returnWhere: Prisma.SalesReturnItemWhereInput = Object.keys(dateRange).length ? { salesReturn: { createdAt: dateRange } } : {};
+  const orderWhere: Prisma.OrderWhereInput = Object.keys(dateRange).length ? { createdAt: dateRange } : {};
+  const [deliveries, returns, statusGroups] = await Promise.all([
+    prisma.deliveryItem.findMany({ where: deliveryWhere, include: { delivery: { select: { orderId: true } } } }),
+    prisma.salesReturnItem.findMany({ where: returnWhere, include: { salesReturn: { select: { orderId: true } } } }),
+    prisma.order.groupBy({ by: ["status"], where: orderWhere, _count: { _all: true } }),
+  ]);
+  const orderIds = [...new Set([...deliveries.map(d => d.delivery.orderId), ...returns.map(r => r.salesReturn.orderId)])];
+  const orders = orderIds.length ? await prisma.order.findMany({ where: { id: { in: orderIds } }, include: { user: { select: { fullName: true, username: true } }, warehouse: { select: { name: true } }, items: true }, orderBy: { createdAt: "desc" } }) : [];
+  const byOrder = new Map<string, Prisma.Decimal>();
+  for (const d of deliveries) { const id=d.delivery.orderId.toString(); byOrder.set(id,(byOrder.get(id)??new Prisma.Decimal(0)).add(d.amount)); }
+  for (const r of returns) { const id=r.salesReturn.orderId.toString(); byOrder.set(id,(byOrder.get(id)??new Prisma.Decimal(0)).sub(r.lineTotal)); }
+  const totalSales=[...byOrder.values()].reduce((sum,value)=>sum.add(value),new Prisma.Decimal(0));
+  const statusCounts: Record<string, number> = Object.fromEntries(statusGroups.map(g=>[g.status,g._count._all]));
+  const completedOrders=orders.filter(o=>o.status==="delivered").length;
+  const avgOrderValue=completedOrders>0?totalSales.dividedBy(completedOrders):new Prisma.Decimal(0);
+  return {
+    summary: { totalRevenue: money(totalSales), totalOrders: orders.length, completedOrders, averageOrderValue: money(avgOrderValue) },
+    statusCounts,
+    orders: orders.map(o=>({ id:o.id.toString(),orderNo:o.orderNo,customerName:o.user.fullName,warehouseName:o.warehouse.name,status:o.status,itemsCount:o.items.length,subtotal:money(o.subtotal),discountTotal:money(o.discountTotal),total:money(byOrder.get(o.id.toString())??new Prisma.Decimal(0)),createdAt:o.createdAt.toISOString() })),
+  };
+}
