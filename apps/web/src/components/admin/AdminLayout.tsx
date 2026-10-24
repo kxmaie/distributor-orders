@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
-  Boxes, ClipboardList, FolderTree, LayoutDashboard, LogOut, Menu, Moon, Package, Percent, Shield, Store, Sun, Tag, Users, Wallet, Warehouse as WarehouseIcon, X,
+  Boxes, ClipboardList, FolderTree, LayoutDashboard, LogOut, Menu, Moon, Package, Percent, Settings, Shield, Store, Sun, Tag, Users, Wallet, Warehouse as WarehouseIcon, X,
 } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -21,11 +21,13 @@ const NAV = [
   { to: "/admin/categories", label: "التصنيفات", icon: FolderTree, end: false, badgeKey: null },
   { to: "/admin/warehouses", label: "المخازن", icon: WarehouseIcon, end: false, badgeKey: null },
   { to: "/admin/stock", label: "المخزون", icon: Boxes, end: false, badgeKey: null },
+  { to: "/admin/purchases", label: "المشتريات", icon: Package, end: false, badgeKey: null },
   { to: "/admin/users", label: "المستخدمون", icon: Users, end: false, badgeKey: "pendingRegistrations" },
   { to: "/admin/discounts", label: "الخصومات", icon: Percent, end: false, badgeKey: null },
   { to: "/admin/password-requests", label: "طلبات الباسورد", icon: Shield, end: false, badgeKey: "pendingPasswordRequests" },
   { to: "/admin/reports", label: "التقارير", icon: Tag, end: false, badgeKey: null },
   { to: "/admin/accounts", label: "حسابات الموزعين", icon: Wallet, end: false, badgeKey: null },
+  { to: "/admin/settings", label: "إعدادات الطلبات والوحدات", icon: Settings, end: false, badgeKey: null },
 ] as const;
 
 type BadgeKey = "newOrdersCount" | "pendingRegistrations" | "pendingPasswordRequests";
@@ -57,7 +59,8 @@ export default function AdminLayout() {
 
 
   // Fetch dashboard counts for badges (silently in background)
-  const { data: dashData } = useAdminDashboard();
+  const isSuperAdmin = user.role === "super_admin";
+  const { data: dashData } = useAdminDashboard(isSuperAdmin);
   const badgeCounts: Record<BadgeKey, number> = {
     newOrdersCount: dashData?.stats.newOrdersCount ?? 0,
     pendingRegistrations: dashData?.stats.pendingRegistrations ?? 0,
@@ -78,7 +81,7 @@ export default function AdminLayout() {
           <p className="mt-1 truncate text-xs text-muted">{user.fullName}</p>
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto px-3">
-          {NAV.map((n) => {
+          {(isSuperAdmin ? NAV : NAV.filter((n) => n.to === "/admin/orders" || n.to === "/admin/settings")).map((n) => {
             const count = n.badgeKey ? (badgeCounts[n.badgeKey as BadgeKey] ?? 0) : 0;
             return (
               <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) =>
@@ -145,7 +148,7 @@ export default function AdminLayout() {
                   <button type="button" aria-label="إغلاق" onClick={() => setMenuOpen(false)} className="grid h-11 w-11 place-items-center rounded-lg hover:bg-line/5"><X className="h-5 w-5" /></button>
                 </div>
                 <nav className="flex-1 space-y-1 overflow-y-auto px-3">
-                  {NAV.map((n) => {
+                  {(isSuperAdmin ? NAV : NAV.filter((n) => n.to === "/admin/orders" || n.to === "/admin/settings")).map((n) => {
                     const count = n.badgeKey ? (badgeCounts[n.badgeKey as BadgeKey] ?? 0) : 0;
                     return (
                       <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) =>

@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 
 export type CartItem = {
   variantId: string; productId: string; productName: string; variantLabel: string;
-  sku: string; unit: "piece" | "meter" | "sqm"; qty: number;
+  sku: string; unit: string; qty: number;
 };
 type S = {
   items: CartItem[];

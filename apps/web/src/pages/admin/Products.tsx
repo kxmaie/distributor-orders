@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { Boxes, Edit, FileUp, FolderTree, Layers, Package, Plus, Trash2, Warehouse as WarehouseIcon } from "lucide-react";
-import { UNITS } from "@do/shared";
 import { EmptyState, ErrorBox, Modal, Skeleton, Spinner } from "../../components/ui";
 import { useAdminWarehouses } from "../../hooks/adminQueries";
 import { api, errorText } from "../../lib/api";
@@ -42,6 +41,7 @@ export default function AdminProducts() {
   const qc = useQueryClient();
 
   const cats = useQuery({ queryKey: ["admin-cats"], queryFn: () => api.get<AdminCategory[]>("/admin/categories") });
+  const units = useQuery({ queryKey: ["units"], queryFn: () => api.get<{ name: string; label: string }[]>("/units") });
   const { data: warehouses } = useAdminWarehouses();
   const list = useQuery({
     queryKey: ["admin-products", q, page],
@@ -95,6 +95,7 @@ export default function AdminProducts() {
       imageUrl: String(f.get("imageUrl") || "") || null,
       basePrice: String(f.get("basePrice")),
       unit: String(f.get("unit")),
+      piecesPerUnit: Number(f.get("piecesPerUnit") || 1),
       warehouseId: whVal ? Number(whVal) : undefined,
       initialStock: initStockVal ? Number(initStockVal) : 0,
       sku: String(f.get("sku") || "").trim() || undefined,
@@ -120,7 +121,7 @@ export default function AdminProducts() {
       const name = get(idx.name), price = get(idx.price).replace(/[^0-9.]/g, "");
       const unit = get(idx.unit) || "piece";
       const stock = Number(get(idx.stock) || 0);
-      if (!name || !category || !Number.isFinite(Number(price)) || Number(price) <= 0 || !UNITS.includes(unit as typeof UNITS[number]) || !Number.isInteger(stock) || stock < 0) { setImportError(`راجع الصف ${n + 2}: الاسم والتصنيف الموجود والسعر الموجب والوحدة والكمية الصحيحة مطلوبة.`); return; }
+      if (!name || !category || !Number.isFinite(Number(price)) || Number(price) <= 0 || !units.data?.some((u) => u.name === unit) || !Number.isInteger(stock) || stock < 0) { setImportError(`راجع الصف ${n + 2}: الاسم والتصنيف الموجود والسعر الموجب والوحدة والكمية الصحيحة مطلوبة.`); return; }
       products.push({ categoryId: category.id, name, basePrice: price, unit, initialStock: stock, sku: get(idx.sku) || undefined, variantLabel: get(idx.variant) || undefined, description: get(idx.description) || undefined, imageUrl: get(idx.image) || undefined });
     }
     setImportRows(products);
@@ -230,7 +231,7 @@ export default function AdminProducts() {
                       </td>
                       <td className="p-3.5 text-muted">{p.category.name}</td>
                       <td className="p-3.5 text-center font-mono font-bold text-primary">
-                        {money(p.basePrice)} / {UNIT_LABEL[p.unit]}
+                        {money(Number(p.basePrice) * p.piecesPerUnit)} / {UNIT_LABEL[p.unit] ?? p.unit}
                       </td>
                       <td className="p-3.5 text-center">
                         <div className="font-mono font-semibold">{p.variants.length} مقاسات</div>
@@ -321,9 +322,9 @@ export default function AdminProducts() {
             <label className="label">
               الوحدة
               <select name="unit" className="input text-xs">
-                {UNITS.map((u) => (
-                  <option key={u} value={u}>
-                    {UNIT_LABEL[u]}
+                {(units.data ?? []).map((u) => (
+                  <option key={u.name} value={u.name}>
+                    {u.label}
                   </option>
                 ))}
               </select>
@@ -337,8 +338,12 @@ export default function AdminProducts() {
 
           <div className="grid grid-cols-2 gap-3">
             <label className="label">
-              السعر الأساسي
-              <input name="basePrice" className="input font-mono" dir="ltr" required placeholder="0.00" />
+              سعر القطعة
+              <input name="basePrice" className="input font-mono" dir="ltr" required placeholder="0.00" /><span className="text-xs text-muted">سعر القطعة، والإجمالي للوحدة يساوي السعر × عدد القطع</span>
+            </label>
+            <label className="label">
+              عدد القطع في الوحدة أو الكرتونة
+              <input name="piecesPerUnit" className="input" type="number" min="1" max="100000" defaultValue="1" required />
             </label>
             <label className="label">
               صورة المنتج (اختياري)

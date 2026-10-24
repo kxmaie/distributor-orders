@@ -35,6 +35,8 @@ const AdminDiscounts = lazy(() => import("./pages/admin/Discounts"));
 const AdminPasswordRequests = lazy(() => import("./pages/admin/PasswordRequests"));
 const AdminReports = lazy(() => import("./pages/admin/Reports"));
 const AdminAccounts = lazy(() => import("./pages/admin/Accounts"));
+const AdminSettings = lazy(() => import("./pages/admin/Settings"));
+const AdminPurchases = lazy(() => import("./pages/admin/Purchases"));
 
 function Boot({ children }: { children: ReactElement }) {
   const status = useAuth((s) => s.status);
@@ -65,6 +67,16 @@ function RequireAdmin({ children }: { children: ReactElement }) {
   return children;
 }
 
+function AdminIndex() {
+  const role = useAuth((s) => s.user?.role);
+  return role === "super_admin" ? <AdminDashboard /> : <Navigate to="/admin/orders" replace />;
+}
+
+function SuperAdminOnly({ children }: { children: ReactElement }) {
+  const role = useAuth((s) => s.user?.role);
+  return role === "super_admin" ? children : <Navigate to="/admin/orders" replace />;
+}
+
 function Fall() {
   return <div className="grid min-h-[40vh] place-items-center text-primary"><Spinner /></div>;
 }
@@ -92,19 +104,21 @@ export default function App() {
                 <Route path="account" element={<Account />} />
               </Route>
               <Route path="/admin" element={<RequireAuth><RequireAdmin><AdminLayout /></RequireAdmin></RequireAuth>}>
-                <Route index element={<AdminDashboard />} />
+                <Route index element={<AdminIndex />} />
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="orders/:id" element={<AdminOrderDetails />} />
-                <Route path="stock" element={<AdminStock />} />
-                <Route path="products" element={<AdminProducts />} />
-                <Route path="products/:id" element={<AdminProductEdit />} />
-                <Route path="categories" element={<AdminCategories />} />
-                <Route path="warehouses" element={<AdminWarehouses />} />
-                <Route path="users" element={<AdminUsers />} />
-                <Route path="discounts" element={<AdminDiscounts />} />
-                <Route path="password-requests" element={<AdminPasswordRequests />} />
-                <Route path="reports" element={<AdminReports />} />
-                <Route path="accounts" element={<AdminAccounts />} />
+                <Route path="settings" element={<AdminSettings />} />
+                <Route path="stock" element={<SuperAdminOnly><AdminStock /></SuperAdminOnly>} />
+                <Route path="purchases" element={<SuperAdminOnly><AdminPurchases /></SuperAdminOnly>} />
+                <Route path="products" element={<SuperAdminOnly><AdminProducts /></SuperAdminOnly>} />
+                <Route path="products/:id" element={<SuperAdminOnly><AdminProductEdit /></SuperAdminOnly>} />
+                <Route path="categories" element={<SuperAdminOnly><AdminCategories /></SuperAdminOnly>} />
+                <Route path="warehouses" element={<SuperAdminOnly><AdminWarehouses /></SuperAdminOnly>} />
+                <Route path="users" element={<SuperAdminOnly><AdminUsers /></SuperAdminOnly>} />
+                <Route path="discounts" element={<SuperAdminOnly><AdminDiscounts /></SuperAdminOnly>} />
+                <Route path="password-requests" element={<SuperAdminOnly><AdminPasswordRequests /></SuperAdminOnly>} />
+                <Route path="reports" element={<SuperAdminOnly><AdminReports /></SuperAdminOnly>} />
+                <Route path="accounts" element={<SuperAdminOnly><AdminAccounts /></SuperAdminOnly>} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>

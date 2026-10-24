@@ -14,6 +14,7 @@ import authRoutes from "./modules/auth/routes";
 import catalogRoutes from "./modules/catalog/routes";
 import adminCatalogRoutes from "./modules/catalog/admin.routes";
 import stockRoutes from "./modules/stock/routes";
+import purchasesRoutes from "./modules/stock/purchases.routes";
 import orderRoutes from "./modules/orders/routes";
 import adminOrderRoutes from "./modules/orders/admin.routes";
 import adminUserRoutes from "./modules/users/routes";
@@ -22,6 +23,7 @@ import adminReportRoutes from "./modules/reports/routes";
 import eventsRoutes from "./modules/events/routes";
 import accountRoutes from "./modules/accounts/routes";
 import assistantRoutes from "./modules/assistant/routes";
+import settingsRoutes from "./modules/settings/routes";
 import { startWorker } from "./lib/worker";
 
 export async function buildApp() {
@@ -64,6 +66,7 @@ export async function buildApp() {
   await app.register(catalogRoutes, { prefix: "/api/v1" });
   await app.register(adminCatalogRoutes, { prefix: "/api/v1/admin" });
   await app.register(stockRoutes, { prefix: "/api/v1/admin/stock" });
+  await app.register(purchasesRoutes, { prefix: "/api/v1/admin" });
   await app.register(orderRoutes, { prefix: "/api/v1" });
   await app.register(adminOrderRoutes, { prefix: "/api/v1/admin" });
   await app.register(adminUserRoutes, { prefix: "/api/v1/admin" });
@@ -72,6 +75,7 @@ export async function buildApp() {
   await app.register(eventsRoutes, { prefix: "/api/v1" });
   await app.register(accountRoutes, { prefix: "/api/v1" });
   await app.register(assistantRoutes, { prefix: "/api/v1" });
+  await app.register(settingsRoutes, { prefix: "/api/v1" });
 
   // Start the background notification worker after the app is built
   // (skipped on Vercel: serverless functions can't run background jobs)

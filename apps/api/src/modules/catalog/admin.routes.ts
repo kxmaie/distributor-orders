@@ -11,7 +11,7 @@ import { HttpError } from "../../lib/errors";
 import { slugify } from "../../lib/slug";
 
 const adminCatalogRoutes: FastifyPluginAsync = async (app) => {
-  app.addHook("preHandler", app.requireRole("admin", "super_admin"));
+  app.addHook("preHandler", app.requireRole("super_admin"));
   const actor = (req: FastifyRequest) => BigInt(req.user.sub);
 
   app.post("/uploads/image", async (req, reply) => {
@@ -174,6 +174,7 @@ const adminCatalogRoutes: FastifyPluginAsync = async (app) => {
 
   app.post("/products", async (req, reply) => {
     const b = ProductCreate.parse(req.body);
+    if (!await prisma.productUnit.findFirst({ where: { name: b.unit, isActive: true } })) throw new HttpError(400, "INVALID_UNIT", "وحدة المنتج غير معرفة أو متوقفة");
     const actorId = actor(req);
 
     const product = await prisma.$transaction(async (tx) => {
@@ -186,6 +187,7 @@ const adminCatalogRoutes: FastifyPluginAsync = async (app) => {
           imageUrl: b.imageUrl?.trim() ?? null,
           basePrice: b.basePrice,
           unit: b.unit,
+          piecesPerUnit: b.piecesPerUnit,
         },
       });
 
@@ -273,6 +275,7 @@ const adminCatalogRoutes: FastifyPluginAsync = async (app) => {
   app.patch("/products/:id", async (req) => {
     const { id } = IdParam.parse(req.params);
     const data = ProductUpdate.parse(req.body);
+    if (data.unit && !await prisma.productUnit.findFirst({ where: { name: data.unit, isActive: true } })) throw new HttpError(400, "INVALID_UNIT", "وحدة المنتج غير معرفة أو متوقفة");
     const actorId = actor(req);
     const before = await prisma.product.findUnique({ where: { id }, select: { basePrice: true } });
     if (!before) throw new HttpError(404, "PRODUCT_NOT_FOUND");

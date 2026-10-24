@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, Boxes, Check, Edit, Package, PackageCheck, Plus, RotateCcw, Trash2, Warehouse as WarehouseIcon } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
-import { UNITS } from "@do/shared";
 import { ErrorBox, Modal, Skeleton, Spinner } from "../../components/ui";
 import { api, errorText } from "../../lib/api";
 import { UNIT_LABEL } from "../../lib/format";
@@ -32,6 +31,7 @@ export default function AdminProductEdit() {
     queryFn: () => api.get<AdminProduct>(`/admin/products/${id}`),
   });
   useEffect(() => { if (p.data) setImageUrl(p.data.imageUrl ?? ""); }, [p.data?.id, p.data?.imageUrl]);
+  const units = useQuery({ queryKey: ["units"], queryFn: () => api.get<{ name: string; label: string }[]>("/units") });
   const cats = useQuery({
     queryKey: ["admin-cats"],
     queryFn: () => api.get<AdminCategory[]>("/admin/categories"),
@@ -107,6 +107,7 @@ export default function AdminProductEdit() {
       imageUrl: String(f.get("imageUrl") || "") || null,
       basePrice: String(f.get("basePrice")),
       unit: String(f.get("unit")),
+      piecesPerUnit: Number(f.get("piecesPerUnit") || 1),
       isActive: f.get("isActive") === "on",
     });
   }
@@ -251,16 +252,16 @@ export default function AdminProductEdit() {
         <label className="label">
           الوحدة
           <select name="unit" className="input text-xs" defaultValue={prod.unit}>
-            {UNITS.map((u) => (
-              <option key={u} value={u}>
-                {UNIT_LABEL[u]}
+            {(units.data ?? []).map((u) => (
+              <option key={u.name} value={u.name}>
+                {u.label}
               </option>
             ))}
           </select>
         </label>
 
         <label className="label">
-          السعر الأساسي
+          سعر القطعة
           <input
             name="basePrice"
             className="input font-mono"
@@ -271,6 +272,15 @@ export default function AdminProductEdit() {
         </label>
 
         <label className="label">
+
+          عدد القطع في الوحدة أو الكرتونة
+
+          <input name="piecesPerUnit" className="input" type="number" min="1" max="100000" defaultValue={prod.piecesPerUnit ?? 1} required />
+
+        </label>
+
+        <label className="label">
+
           صورة المنتج (اختياري)
           <ImageUploadField value={imageUrl} onChange={setImageUrl} />
         </label>

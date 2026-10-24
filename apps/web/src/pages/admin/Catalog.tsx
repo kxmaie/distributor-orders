@@ -68,7 +68,7 @@ export default function AdminCatalog() {
   const [pDesc, setPDesc] = useState("");
   const [pImg, setPImg] = useState("");
   const [pBasePrice, setPBasePrice] = useState("");
-  const [pUnit, setPUnit] = useState<"piece" | "meter" | "sqm">("piece");
+  const [pUnit, setPUnit] = useState<string>("piece");
 
   // Category form state
   const [catName, setCatName] = useState("");

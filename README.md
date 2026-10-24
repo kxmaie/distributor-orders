@@ -91,7 +91,7 @@ Admin, under `/api/v1/admin`:
 | GET | /orders/:id | includes distributor and full history |
 | PATCH | /orders/:id/status | `{status, note?}` |
 
-Status flow: `new → confirmed → in_production → ready → delivered`; `cancelled` is allowed from any non-final status.
+Status flow: `new → confirmed → ready → delivered`; `cancelled` is allowed from any non-final status.
 
 Rules
 - Prices and discounts are computed on the server only. Discount = the best of the user's `default_discount_pct` and any applicable active `discounts` row (no stacking). Each line's discount is rounded to 2 decimals (half up).

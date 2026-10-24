@@ -5,10 +5,9 @@ import { formatOrderNo, mergeItems } from "../src/modules/orders/utils";
 describe("order status machine", () => {
   it("allows the happy path and cancellation before delivery", () => {
     expect(canTransition("new", "confirmed")).toBe(true);
-    expect(canTransition("confirmed", "in_production")).toBe(true);
-    expect(canTransition("in_production", "ready")).toBe(true);
+    expect(canTransition("confirmed", "ready")).toBe(true);
     expect(canTransition("ready", "delivered")).toBe(true);
-    for (const s of ["new", "confirmed", "in_production", "ready"] as const) expect(canTransition(s, "cancelled")).toBe(true);
+    for (const s of ["new", "confirmed", "ready"] as const) expect(canTransition(s, "cancelled")).toBe(true);
   });
   it("blocks skipping, going back, and leaving terminal states", () => {
     expect(canTransition("new", "ready")).toBe(false);

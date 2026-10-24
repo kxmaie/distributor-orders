@@ -47,7 +47,7 @@ export async function priceItems(db: Db, userId: bigint, items: { variantId: big
     include: {
       product: {
         select: {
-          id: true, name: true, basePrice: true, isActive: true, categoryId: true,
+          id: true, name: true, basePrice: true, piecesPerUnit: true, isActive: true, categoryId: true,
           category: { select: { isActive: true } },
         },
       },
@@ -72,7 +72,7 @@ export async function priceItems(db: Db, userId: bigint, items: { variantId: big
     if (!v || !v.isActive || !v.product.isActive || !v.product.category.isActive) {
       throw new HttpError(409, "ITEM_UNAVAILABLE", `Variant ${m.variantId} is not available`);
     }
-    const unitPrice = v.product.basePrice.plus(v.priceDelta);
+    const unitPrice = v.product.basePrice.plus(v.priceDelta).mul(v.product.piecesPerUnit);
     if (unitPrice.lt(0)) throw new HttpError(409, "INVALID_PRICE", `Variant ${v.sku} has an invalid price`);
 
     let pct: Dec = user.defaultDiscountPct;

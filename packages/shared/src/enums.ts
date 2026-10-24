@@ -1,10 +1,10 @@
 // Application enum values live here and are enforced by database CHECK constraints.
 // Zod validates the API boundary.
-export const ORDER_STATUSES = ["new", "confirmed", "in_production", "ready", "delivered", "cancelled"] as const;
+export const ORDER_STATUSES = ["new", "confirmed", "ready", "delivered", "cancelled"] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export const UNITS = ["piece", "meter", "sqm"] as const;
-export type Unit = (typeof UNITS)[number];
+export type Unit = string;
 
 export const MOVEMENT_TYPES = ["receipt", "adjustment", "reserve", "release", "ship"] as const;
 export type MovementType = (typeof MOVEMENT_TYPES)[number];

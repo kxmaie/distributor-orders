@@ -58,6 +58,7 @@ export const api = {
   get: <T>(path: string, query?: Opts["query"]) => request<T>(path, { query }),
   post: <T>(path: string, body?: unknown) => request<T>(path, { method: "POST", body: body ?? {} }),
   patch: <T>(path: string, body?: unknown) => request<T>(path, { method: "PATCH", body: body ?? {} }),
+  put: <T>(path: string, body?: unknown) => request<T>(path, { method: "PUT", body: body ?? {} }),
   del: <T>(path: string) => request<T>(path, { method: "DELETE" }),
 };
 
@@ -84,6 +85,8 @@ const MESSAGES: Record<string, string> = {
   VARIANT_NOT_FOUND: "المقاس غير موجود",
   WAREHOUSE_NOT_FOUND: "المخزن غير موجود",
   CONFLICT: "تعارض في البيانات، حدّث الصفحة وحاول مرة أخرى",
+  ORDER_ITEM_LIMIT: "الطلب تجاوز الحد الأقصى للأصناف المسموح به، قلل عدد الأصناف وحاول مرة أخرى",
+  ADMIN_ORDER_ACTION_FORBIDDEN: "الأدمن يقدر يعتمد الطلب أو يلغيه أو يجهزه للبيع فقط",
   AI_PROVIDER_ERROR: "خدمة المساعد واجهت مشكلة. تأكد من إعداد AI Gateway في Vercel ثم حاول مرة أخرى.",
 };
 export const errorText = (e: unknown) =>

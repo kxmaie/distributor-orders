@@ -30,7 +30,7 @@ export default function ProductCard({ p }: { p: Product }) {
           <p className="text-xs text-muted">{p.category.name}</p>
           <h3 className="line-clamp-2 font-display text-base font-bold">{p.name}</h3>
           <p className="pt-1 text-sm text-muted">
-            يبدأ من <span className="font-display text-lg font-bold text-primary">{money(from)}</span> / {UNIT_LABEL[p.unit]}
+            يبدأ من <span className="font-display text-lg font-bold text-primary">{money(from)}</span> / {p.unitLabel}{p.piecesPerUnit > 1 && <span className="block text-xs">{money(from / p.piecesPerUnit)} للقطعة · {p.piecesPerUnit} قطعة في {p.unitLabel}</span>}
           </p>
           {pct > 0 && <p className="text-xs text-muted line-through">{money(fromBase)}</p>}
         </div>

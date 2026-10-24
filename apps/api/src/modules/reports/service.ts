@@ -58,7 +58,6 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
   const statusCounts: Record<string, number> = {
     new: 0,
     confirmed: 0,
-    in_production: 0,
     ready: 0,
     delivered: 0,
     cancelled: 0,

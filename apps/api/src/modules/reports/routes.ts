@@ -4,14 +4,32 @@ import { generateText, gateway, type GatewayModelId } from "ai";
 import { z } from "zod";
 import { HttpError } from "../../lib/errors";
 import * as svc from "./service";
+import { prisma } from "../../lib/db";
 
 const adminReportRoutes: FastifyPluginAsync = async (app) => {
-  app.addHook("preHandler", app.requireRole("admin", "super_admin"));
+  app.addHook("preHandler", app.requireRole("super_admin"));
 
   app.get("/reports/dashboard", async () => {
     return svc.getDashboardSummary();
   });
 
+  app.get("/reports/profit-loss", async () => {
+    const [purchases, deliveries] = await Promise.all([
+      prisma.purchaseItem.groupBy({ by: ["variantId"], _sum: { qty: true, lineTotal: true } }),
+      prisma.deliveryItem.findMany({ include: { orderItem: { select: { variantId: true } } } }),
+    ]);
+    const costs = new Map(purchases.map((row) => [row.variantId.toString(), Number(row._sum.lineTotal ?? 0) / Math.max(1, row._sum.qty ?? 0)]));
+    const revenue = deliveries.reduce((sum, row) => sum + Number(row.amount), 0);
+    let cost = 0;
+    let uncostedQty = 0;
+    for (const row of deliveries) {
+      const unitCost = costs.get(row.orderItem.variantId.toString());
+      if (unitCost === undefined) uncostedQty += row.qty;
+      else cost += unitCost * row.qty;
+    }
+    const purchased = await prisma.purchase.aggregate({ _sum: { total: true } });
+    return { revenue: revenue.toFixed(2), costOfGoodsSold: cost.toFixed(2), grossProfit: (revenue - cost).toFixed(2), purchasesTotal: Number(purchased._sum.total ?? 0).toFixed(2), uncostedQty, costingMethod: "weighted_average" };
+  });
   app.get("/reports/sales", async (req) => {
     const q = ReportsQuery.parse(req.query);
     return svc.getSalesReport(q);

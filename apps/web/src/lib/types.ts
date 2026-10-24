@@ -7,7 +7,7 @@ export type Category = { id: number; name: string; slug: string; sortOrder: numb
 export type Variant = { id: string; sku: string; label: string; price: string; yourPrice: string; available: number; inStock: boolean };
 export type Product = {
   id: string; name: string; description: string | null; imageUrl: string | null;
-  unit: "piece" | "meter" | "sqm"; basePrice: string;
+  unit: string; unitLabel: string; piecesPerUnit: number; basePrice: string;
   category: { id: number; name: string; slug: string };
   variants: Variant[];
 };
@@ -31,7 +31,7 @@ export type OrderSummary = {
 };
 export type OrderDetail = Omit<OrderSummary, "itemCount"> & {
   notes: string | null;
-  items: { id: string; variantId: string; productId: string; sku: string; unit: "piece" | "meter" | "sqm"; productName: string; variantLabel: string; unitPrice: string; discountPct: string; qty: number; lineTotal: string }[];
+  items: { id: string; variantId: string; productId: string; sku: string; unit: string; piecesPerUnit: number; productName: string; variantLabel: string; unitPrice: string; discountPct: string; qty: number; lineTotal: string }[];
   deliveries: { id: string; trackingNumber: string | null; note: string | null; deliveredAt: string; amount: string; items: { orderItemId: string; qty: number; amount: string }[] }[];
   history: { fromStatus: string | null; toStatus: OrderStatus; createdAt: string; changedBy?: string; note?: string | null }[];
 };
@@ -66,7 +66,7 @@ export type AdminVariant = {
 };
 export type AdminProduct = {
   id: string; categoryId: number; name: string; description: string | null; imageUrl: string | null;
-  basePrice: string; unit: "piece" | "meter" | "sqm"; isActive: boolean;
+  basePrice: string; unit: string; piecesPerUnit: number; isActive: boolean;
   category: { id: number; name: string; slug: string };
   variants: AdminVariant[];
 };

@@ -18,11 +18,12 @@ import type {
 } from "../lib/types";
 
 // ----------------- Dashboard -----------------
-export const useAdminDashboard = () =>
+export const useAdminDashboard = (enabled = true) =>
   useQuery({
     queryKey: ["admin", "dashboard"],
     queryFn: () => api.get<DashboardSummary>("/admin/reports/dashboard"),
     refetchInterval: 30_000,
+    enabled,
   });
 
 // ----------------- Orders -----------------
