@@ -16,7 +16,9 @@ async function main() {
 
   await prisma.user.upsert({
     where: { username },
-    update: {},
+    // The isolated preview demo uses its configured seed password on every deploy,
+    // so rotating DEMO_SEED_ADMIN_PASSWORD also updates the existing demo account.
+    update: demo ? { passwordHash: await hashPassword(password) } : {},
     create: { username, fullName, role: "super_admin", passwordHash: await hashPassword(password) },
   });
 
