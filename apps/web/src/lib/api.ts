@@ -88,6 +88,15 @@ const MESSAGES: Record<string, string> = {
   CONFLICT: "تعارض في البيانات، حدّث الصفحة وحاول مرة أخرى",
   ORDER_ITEM_LIMIT: "الطلب تجاوز الحد الأقصى للأصناف المسموح به، قلل عدد الأصناف وحاول مرة أخرى",
   ADMIN_ORDER_ACTION_FORBIDDEN: "الأدمن يقدر يعتمد الطلب أو يلغيه أو يجهزه للبيع فقط",
+  PURCHASE_HAS_RETURNS: "لا يمكن تعديل فاتورة مرتبطة بمرتجعات مسجلة",
+  RETURN_ITEM_NOT_IN_PURCHASE: "الصنف غير تابع لفاتورة الشراء المختارة",
+  RETURN_ITEM_NOT_IN_ORDER: "الصنف غير موجود في الطلب المختار",
+  RETURN_QTY_EXCEEDED: "الكمية تتجاوز الكمية المتبقية القابلة للمرتجع",
+  RETURN_STOCK_UNAVAILABLE: "الكمية غير متاحة في المخزون أو محجوزة لطلبات أخرى",
+  ORDER_NOT_RETURNABLE: "مرتجع البيع متاح بعد تسليم الطلب فقط",
+  UNBALANCED_VOUCHER: "القيد غير متوازن؛ يجب تساوي المدين والدائن",
+  INVALID_RECEIPT_VOUCHER: "سند القبض يجب أن يزيد أصلًا ويقابله إيراد أو التزام",
+  INVALID_PAYMENT_VOUCHER: "سند الصرف يجب أن يخفض أصلًا ويقابله مصروف أو التزام",
   AI_PROVIDER_ERROR: "خدمة المساعد واجهت مشكلة. تأكد من إعداد AI Gateway في Vercel ثم حاول مرة أخرى.",
 };
 export const errorText = (e: unknown) =>

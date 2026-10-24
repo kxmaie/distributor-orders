@@ -15,6 +15,7 @@ import catalogRoutes from "./modules/catalog/routes";
 import adminCatalogRoutes from "./modules/catalog/admin.routes";
 import stockRoutes from "./modules/stock/routes";
 import purchasesRoutes from "./modules/stock/purchases.routes";
+import accountingRoutes from "./modules/accounting/routes";
 import orderRoutes from "./modules/orders/routes";
 import adminOrderRoutes from "./modules/orders/admin.routes";
 import adminUserRoutes from "./modules/users/routes";
@@ -68,6 +69,7 @@ export async function buildApp() {
   await app.register(adminCatalogRoutes, { prefix: "/api/v1/admin" });
   await app.register(stockRoutes, { prefix: "/api/v1/admin/stock" });
   await app.register(purchasesRoutes, { prefix: "/api/v1/admin" });
+  await app.register(accountingRoutes, { prefix: "/api/v1/admin" });
   await app.register(orderRoutes, { prefix: "/api/v1" });
   await app.register(adminOrderRoutes, { prefix: "/api/v1/admin" });
   await app.register(adminUserRoutes, { prefix: "/api/v1/admin" });

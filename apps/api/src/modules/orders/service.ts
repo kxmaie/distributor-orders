@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import type { z } from "zod";
 import { canTransition, type AdminOrderListQuery, type CartPriceBody, type CreateDeliveryBody, type CreateOrderBody, type OrderListQuery, type OrderStatus } from "@do/shared";
 import { prisma } from "../../lib/db";
+import { averageUnitCost, postVoucher } from "../accounting/ledger";
 import { HttpError } from "../../lib/errors";
 import { toJson } from "../../lib/json";
 import { wakeWorker } from "../../lib/worker";
@@ -430,7 +431,7 @@ export async function changeStatus(
         for (const d of order.deliveries) for (const item of d.items) {
           deliveredByItem.set(item.orderItemId.toString(), (deliveredByItem.get(item.orderItemId.toString()) ?? new Prisma.Decimal(0)).add(item.amount));
         }
-        await tx.delivery.create({
+        const directDelivery = await tx.delivery.create({
           data: {
             orderId: order.id, createdBy: actorId, note: "تسليم كامل للطلب",
             items: { create: order.items.filter((item) => order.reservations.some((r) => r.variantId === item.variantId)).map((item) => ({
@@ -438,8 +439,11 @@ export async function changeStatus(
               qty: order.reservations.find((r) => r.variantId === item.variantId)!.qty,
               amount: item.lineTotal.sub(deliveredByItem.get(item.id.toString()) ?? new Prisma.Decimal(0)),
             })) },
-          },
+          }, include: { items: true },
         });
+        let total=new Prisma.Decimal(0),cost=new Prisma.Decimal(0);
+        for(const item of directDelivery.items){total=total.add(item.amount);const source=order.items.find(x=>x.id===item.orderItemId)!;cost=cost.add((await averageUnitCost(tx,source.variantId)).mul(item.qty));}
+        if(total.gt(0)){const entries:{code:string;debit:string|Prisma.Decimal;credit:string|Prisma.Decimal}[]=[{code:"1100",debit:total,credit:"0"},{code:"4000",debit:"0",credit:total}];if(cost.gt(0))entries.push({code:"5000",debit:cost,credit:"0"},{code:"1200",debit:"0",credit:cost});await postVoucher(tx,{type:"journal",description:`فاتورة مبيعات ${order.orderNo} · ${directDelivery.id}`,actorId,entries});}
       }
     }
 
@@ -509,6 +513,8 @@ export async function recordDelivery(orderId: bigint, input: z.output<typeof Cre
       if (!reservation || item.qty > reservation.qty) throw new HttpError(409, "RESERVATION_MISSING");
     }
 
+    let deliveredAmount = new Prisma.Decimal(0);
+    let deliveredCost = new Prisma.Decimal(0);
     const delivery = await tx.delivery.create({
       data: { orderId, trackingNumber: input.trackingNumber || null, note: input.note || null, createdBy: actorId },
     });
@@ -534,8 +540,11 @@ export async function recordDelivery(orderId: bigint, input: z.output<typeof Cre
         refType: "delivery", refId: delivery.id, createdBy: actorId,
       } });
       await tx.deliveryItem.create({ data: { deliveryId: delivery.id, orderItemId: item.orderItemId, qty: item.qty, amount } });
+      deliveredAmount = deliveredAmount.add(amount);
+      deliveredCost = deliveredCost.add((await averageUnitCost(tx, orderItem.variantId)).mul(item.qty));
     }
 
+    const journalEntries: {code:string;debit:string|Prisma.Decimal;credit:string|Prisma.Decimal}[]=[{code:"1100",debit:deliveredAmount,credit:"0"},{code:"4000",debit:"0",credit:deliveredAmount}];if(deliveredCost.gt(0))journalEntries.push({code:"5000",debit:deliveredCost,credit:"0"},{code:"1200",debit:"0",credit:deliveredCost});await postVoucher(tx,{type:"journal",description:`فاتورة مبيعات ${order.orderNo} · ${delivery.id}`,actorId,entries:journalEntries});
     const complete = order.items.every((item) => (shippedQty.get(item.id.toString()) ?? 0) + (requested.get(item.id.toString()) ?? 0) >= item.qty);
     if (complete) {
       const changed = await tx.order.updateMany({ where: { id: orderId, status: "ready" }, data: { status: "delivered" } });

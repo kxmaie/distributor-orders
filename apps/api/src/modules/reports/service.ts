@@ -190,60 +190,29 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
 }
 
 export async function getSalesReport(query: SalesReportQuery) {
-  const where: Prisma.OrderWhereInput = {};
-  if (query.from || query.to) {
-    where.createdAt = {};
-    if (query.from) {
-      where.createdAt.gte = new Date(`${query.from}T00:00:00.000Z`);
-    }
-    if (query.to) {
-      where.createdAt.lte = new Date(`${query.to}T23:59:59.999Z`);
-    }
-  }
-
-  const orders = await prisma.order.findMany({
-    where,
-    include: {
-      user: { select: { fullName: true, username: true } },
-      warehouse: { select: { name: true } },
-      items: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
-
-  let totalSales = new Prisma.Decimal(0);
-  let validOrderCount = 0;
-  const statusCounts: Record<string, number> = {};
-
-  for (const o of orders) {
-    statusCounts[o.status] = (statusCounts[o.status] || 0) + 1;
-    if (o.status !== "cancelled") {
-      totalSales = totalSales.add(o.total);
-      validOrderCount += 1;
-    }
-  }
-
-  const avgOrderValue = validOrderCount > 0 ? totalSales.dividedBy(validOrderCount) : new Prisma.Decimal(0);
-
+  const dateRange: Prisma.DateTimeFilter = {};
+  if (query.from) dateRange.gte = new Date(`${query.from}T00:00:00.000Z`);
+  if (query.to) dateRange.lte = new Date(`${query.to}T23:59:59.999Z`);
+  const deliveryWhere: Prisma.DeliveryItemWhereInput = Object.keys(dateRange).length ? { delivery: { deliveredAt: dateRange } } : {};
+  const returnWhere: Prisma.SalesReturnItemWhereInput = Object.keys(dateRange).length ? { salesReturn: { createdAt: dateRange } } : {};
+  const orderWhere: Prisma.OrderWhereInput = Object.keys(dateRange).length ? { createdAt: dateRange } : {};
+  const [deliveries, returns, statusGroups] = await Promise.all([
+    prisma.deliveryItem.findMany({ where: deliveryWhere, include: { delivery: { select: { orderId: true } } } }),
+    prisma.salesReturnItem.findMany({ where: returnWhere, include: { salesReturn: { select: { orderId: true } } } }),
+    prisma.order.groupBy({ by: ["status"], where: orderWhere, _count: { _all: true } }),
+  ]);
+  const orderIds = [...new Set([...deliveries.map(d => d.delivery.orderId), ...returns.map(r => r.salesReturn.orderId)])];
+  const orders = orderIds.length ? await prisma.order.findMany({ where: { id: { in: orderIds } }, include: { user: { select: { fullName: true, username: true } }, warehouse: { select: { name: true } }, items: true }, orderBy: { createdAt: "desc" } }) : [];
+  const byOrder = new Map<string, Prisma.Decimal>();
+  for (const d of deliveries) { const id=d.delivery.orderId.toString(); byOrder.set(id,(byOrder.get(id)??new Prisma.Decimal(0)).add(d.amount)); }
+  for (const r of returns) { const id=r.salesReturn.orderId.toString(); byOrder.set(id,(byOrder.get(id)??new Prisma.Decimal(0)).sub(r.lineTotal)); }
+  const totalSales=[...byOrder.values()].reduce((sum,value)=>sum.add(value),new Prisma.Decimal(0));
+  const statusCounts: Record<string, number> = Object.fromEntries(statusGroups.map(g=>[g.status,g._count._all]));
+  const completedOrders=orders.filter(o=>o.status==="delivered").length;
+  const avgOrderValue=completedOrders>0?totalSales.dividedBy(completedOrders):new Prisma.Decimal(0);
   return {
-    summary: {
-      totalRevenue: money(totalSales),
-      totalOrders: orders.length,
-      completedOrders: validOrderCount,
-      averageOrderValue: money(avgOrderValue),
-    },
+    summary: { totalRevenue: money(totalSales), totalOrders: orders.length, completedOrders, averageOrderValue: money(avgOrderValue) },
     statusCounts,
-    orders: orders.map((o) => ({
-      id: o.id.toString(),
-      orderNo: o.orderNo,
-      customerName: o.user.fullName,
-      warehouseName: o.warehouse.name,
-      status: o.status,
-      itemsCount: o.items.length,
-      subtotal: money(o.subtotal),
-      discountTotal: money(o.discountTotal),
-      total: money(o.total),
-      createdAt: o.createdAt.toISOString(),
-    })),
+    orders: orders.map(o=>({ id:o.id.toString(),orderNo:o.orderNo,customerName:o.user.fullName,warehouseName:o.warehouse.name,status:o.status,itemsCount:o.items.length,subtotal:money(o.subtotal),discountTotal:money(o.discountTotal),total:money(byOrder.get(o.id.toString())??new Prisma.Decimal(0)),createdAt:o.createdAt.toISOString() })),
   };
 }

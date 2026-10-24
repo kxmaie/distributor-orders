@@ -39,6 +39,12 @@ const AdminAccounts = lazy(() => import("./pages/admin/Accounts"));
 const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 const AdminPurchases = lazy(() => import("./pages/admin/Purchases"));
 const AdminCompanyProfile = lazy(() => import("./pages/admin/CompanyProfile"));
+const AdminReturns = lazy(() => import("./pages/admin/Returns"));
+const AdminAccounting = lazy(() => import("./pages/admin/Accounting"));
+const AdminPurchasesReport = lazy(() => import("./pages/admin/PurchasesReport"));
+const AdminAccountingReport = lazy(() => import("./pages/admin/AccountingReport"));
+const AdminOtherReports = lazy(() => import("./pages/admin/OtherReports"));
+const AdminItemMovements = lazy(() => import("./pages/admin/ItemMovements"));
 const SupplierInventory = lazy(() => import("./pages/SupplierInventory"));
 
 function Boot({ children }: { children: ReactElement }) {
@@ -129,11 +135,19 @@ export default function App() {
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="orders/:id" element={<AdminOrderDetails />} />
                 <Route path="sales" element={<AdminSales />} />
+                <Route path="sales/returns" element={<SuperAdminOnly><AdminReturns kind="sales" /></SuperAdminOnly>} />
                 <Route path="sales/:id" element={<AdminOrderDetails />} />
                 <Route path="settings" element={<AdminSettings />} />
                 <Route path="company" element={<SuperAdminOnly><AdminCompanyProfile /></SuperAdminOnly>} />
                 <Route path="stock" element={<SuperAdminOnly><AdminStock /></SuperAdminOnly>} />
                 <Route path="purchases" element={<SuperAdminOnly><AdminPurchases /></SuperAdminOnly>} />
+                <Route path="purchases/returns" element={<SuperAdminOnly><AdminReturns kind="purchase" /></SuperAdminOnly>} />
+                <Route path="accounting" element={<SuperAdminOnly><AdminAccounting /></SuperAdminOnly>} />
+                <Route path="stock/movements" element={<SuperAdminOnly><AdminItemMovements /></SuperAdminOnly>} />
+                <Route path="reports/sales" element={<SuperAdminOnly><AdminReports /></SuperAdminOnly>} />
+                <Route path="reports/purchases" element={<SuperAdminOnly><AdminPurchasesReport /></SuperAdminOnly>} />
+                <Route path="reports/accounting" element={<SuperAdminOnly><AdminAccountingReport /></SuperAdminOnly>} />
+                <Route path="reports/other" element={<SuperAdminOnly><AdminOtherReports /></SuperAdminOnly>} />
                 <Route path="products" element={<SuperAdminOnly><AdminProducts /></SuperAdminOnly>} />
                 <Route path="products/:id" element={<SuperAdminOnly><AdminProductEdit /></SuperAdminOnly>} />
                 <Route path="categories" element={<SuperAdminOnly><AdminCategories /></SuperAdminOnly>} />
@@ -158,4 +172,3 @@ export default function App() {
     </MotionConfig>
   );
 }
-
