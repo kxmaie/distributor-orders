@@ -41,7 +41,7 @@ export async function login(username: string, password: string, meta: Meta) {
 
   if (!user) {
     await dummyVerify(password);
-    throw new HttpError(401, "INVALID_CREDENTIALS");
+    throw new HttpError(401, "USER_NOT_REGISTERED", "اسم المستخدم غير مسجل");
   }
   if (user.lockedUntil && user.lockedUntil > new Date()) {
     throw new HttpError(423, "ACCOUNT_LOCKED", "Too many failed attempts. Try again later.");
@@ -58,7 +58,7 @@ export async function login(username: string, password: string, meta: Meta) {
     await prisma.auditLog.create({
       data: { actorId: user.id, action: lock ? "login.locked" : "login.failed", entity: "user", entityId: user.id.toString(), ip: meta.ip },
     });
-    throw new HttpError(401, "INVALID_CREDENTIALS");
+    throw new HttpError(401, "WRONG_PASSWORD", "كلمة المرور غير صحيحة");
   }
 
   if (!user.isActive) {
