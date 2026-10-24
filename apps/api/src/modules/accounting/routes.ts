@@ -26,14 +26,43 @@ const plugin: FastifyPluginAsync = async (app) => {
    return tx.purchaseReturn.findUniqueOrThrow({where:{id:r.id},include:{items:{include:{variant:{include:{product:true}},warehouse:true}}}});
   });return reply.code(201).send(row);
  }); app.get("/returns/sales",async()=>prisma.salesReturn.findMany({include:{order:{include:{user:true}},items:{include:{variant:{include:{product:true}},warehouse:true}}},orderBy:{createdAt:"desc"},take:500}));
- app.get("/returns/sales/source/:id",async(req)=>{const {id}=z.object({id:z.string().regex(/^\d+$/).transform(BigInt)}).parse(req.params);const order=await prisma.order.findFirst({where:{id,status:"delivered"},include:{items:{include:{variant:{include:{product:true}},deliveries:true},orderBy:{id:"asc"}},warehouse:true,user:{select:{fullName:true,phone:true}}}});if(!order)throw new HttpError(404,"ORDER_NOT_RETURNABLE");const items=await Promise.all(order.items.map(async item=>{const delivered=item.deliveries.reduce((sum,d)=>sum+d.qty,0);const previous=await prisma.salesReturnItem.aggregate({where:{orderItemId:item.id},_sum:{qty:true}});const returnedQty=previous._sum.qty??0;return {...item,deliveredQty:delivered,returnedQty,returnableQty:Math.max(0,delivered-returnedQty)}}));return {...order,items}});
+ app.get("/returns/sales/source/:id",async(req)=>{
+  const {id}=z.object({id:z.string().regex(/^\d+$/).transform(BigInt)}).parse(req.params);
+  const order=await prisma.order.findFirst({where:{id,status:"delivered"},include:{items:{include:{variant:{include:{product:true}},deliveries:true},orderBy:{id:"asc"}},warehouse:true,user:{select:{fullName:true,phone:true}}}});
+  if(!order)throw new HttpError(404,"ORDER_NOT_RETURNABLE");
+  const items=await Promise.all(order.items.map(async item=>{
+   const deliveredQty=item.deliveries.reduce((sum,d)=>sum+d.qty,0);
+   const deliveredTotal=item.deliveries.reduce((sum,d)=>sum.add(d.amount),new Prisma.Decimal(0));
+   const previous=await prisma.salesReturnItem.aggregate({where:{orderItemId:item.id},_sum:{qty:true,lineTotal:true}});
+   const returnedQty=previous._sum.qty??0;
+   const returnedAmount=new Prisma.Decimal(previous._sum.lineTotal??0);
+   const returnableQty=Math.max(0,deliveredQty-returnedQty);
+   const returnableAmount=deliveredTotal.sub(returnedAmount);
+   return {...item,deliveredQty,returnedQty,returnableQty,returnableAmount:returnableAmount.toFixed(2),returnUnitPrice:deliveredQty?deliveredTotal.div(deliveredQty).toFixed(2):"0.00"};
+  }));
+  return {...order,items};
+ });
  app.post("/returns/sales",async(req,reply)=>{
   const input=z.object({orderId:z.string().regex(/^\d+$/).transform(BigInt),note:z.string().max(500).optional(),items:z.array(z.object({orderItemId:z.string().regex(/^\d+$/).transform(BigInt),qty:z.number().int().min(1)})).min(1).max(100)}).parse(req.body);if(new Set(input.items.map(x=>x.orderItemId.toString())).size!==input.items.length)throw new HttpError(400,"DUPLICATE_RETURN_ITEM");const actor=BigInt(req.user.sub);
   const row=await prisma.$transaction(async tx=>{
    for(const id of input.items.map(x=>x.orderItemId).sort((a,b)=>a<b?-1:a>b?1:0))await tx.$queryRaw`SELECT id FROM order_items WHERE id=${id} FOR UPDATE`;
    const order=await tx.order.findUnique({where:{id:input.orderId},include:{items:{include:{deliveries:{include:{delivery:true}}}}}});if(!order||order.status!=="delivered")throw new HttpError(409,"ORDER_NOT_RETURNABLE","المرتجع متاح للطلبات المسلّمة فقط");
    const lines=[] as {source:typeof order.items[number];qty:number;price:Prisma.Decimal;amount:Prisma.Decimal}[];let total=new Prisma.Decimal(0);
-   for(const x of input.items){const source=order.items.find(i=>i.id===x.orderItemId);if(!source)throw new HttpError(400,"RETURN_ITEM_NOT_IN_ORDER");const delivered=source.deliveries.reduce((n,d)=>n+d.qty,0);const previous=await tx.salesReturnItem.aggregate({where:{orderItemId:source.id},_sum:{qty:true}});if(x.qty>delivered-(previous._sum.qty??0))throw new HttpError(409,"RETURN_QTY_EXCEEDED","الكمية تتجاوز الكمية المسلّمة المتبقية");const unitPrice=source.lineTotal.div(source.qty);const amount=unitPrice.mul(x.qty);lines.push({source,qty:x.qty,price:unitPrice,amount});total=total.add(amount);}
+   for(const x of input.items){
+    const source=order.items.find(i=>i.id===x.orderItemId);
+    if(!source)throw new HttpError(400,"RETURN_ITEM_NOT_IN_ORDER");
+    const deliveredQty=source.deliveries.reduce((sum,d)=>sum+d.qty,0);
+    const deliveredTotal=source.deliveries.reduce((sum,d)=>sum.add(d.amount),new Prisma.Decimal(0));
+    const previous=await tx.salesReturnItem.aggregate({where:{orderItemId:source.id},_sum:{qty:true,lineTotal:true}});
+    const returnedQty=previous._sum.qty??0;
+    if(x.qty>deliveredQty-returnedQty)throw new HttpError(409,"RETURN_QTY_EXCEEDED","الكمية تتجاوز الكمية المسلّمة المتبقية");
+    const remainingQty=deliveredQty-returnedQty;
+    const remainingAmount=deliveredTotal.sub(previous._sum.lineTotal??0);
+    const amount=x.qty===remainingQty?remainingAmount:deliveredTotal.mul(x.qty).div(deliveredQty).toDecimalPlaces(2,Prisma.Decimal.ROUND_HALF_UP);
+    const unitPrice=amount.div(x.qty).toDecimalPlaces(2,Prisma.Decimal.ROUND_HALF_UP);
+    lines.push({source,qty:x.qty,price:unitPrice,amount});
+    total=total.add(amount);
+   }
    const r=await tx.salesReturn.create({data:{returnNo:`SR-${Date.now()}`,orderId:order.id,total,note:input.note,createdBy:actor}});
    for(const l of lines){await tx.salesReturnItem.create({data:{returnId:r.id,orderItemId:l.source.id,variantId:l.source.variantId,warehouseId:order.warehouseId,qty:l.qty,unitPrice:l.price,lineTotal:l.amount}});await tx.stockLevel.upsert({where:{variantId_warehouseId:{variantId:l.source.variantId,warehouseId:order.warehouseId}},create:{variantId:l.source.variantId,warehouseId:order.warehouseId,onHand:l.qty},update:{onHand:{increment:l.qty}}});await tx.stockMovement.create({data:{variantId:l.source.variantId,warehouseId:order.warehouseId,type:"receipt",qty:l.qty,refType:"sales_return",refId:r.id,note:`مرتجع مبيعات ${r.returnNo}`,createdBy:actor}});}
    let returnedCost=new Prisma.Decimal(0);for(const l of lines)returnedCost=returnedCost.add((await averageUnitCost(tx,l.source.variantId)).mul(l.qty));const entries: {code:string;debit:string|Prisma.Decimal;credit:string|Prisma.Decimal}[]=[{code:"4100",debit:total,credit:"0"},{code:"1100",debit:"0",credit:total}];if(returnedCost.gt(0))entries.push({code:"1200",debit:returnedCost,credit:"0"},{code:"5000",debit:"0",credit:returnedCost});await postVoucher(tx,{type:"journal",description:`مرتجع مبيعات ${r.returnNo}`,actorId:actor,entries});
