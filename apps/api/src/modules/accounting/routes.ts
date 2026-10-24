@@ -72,5 +72,49 @@ const plugin: FastifyPluginAsync = async (app) => {
  app.post("/accounting/accounts",async(req,reply)=>{const b=z.object({code:z.string().min(1).max(30),name:z.string().min(1).max(120),type:z.enum(["asset","liability","equity","revenue","expense"]),parentId:z.string().regex(/^\d+$/).optional()}).parse(req.body);return reply.code(201).send(await prisma.ledgerAccount.create({data:{...b,parentId:b.parentId?BigInt(b.parentId):undefined}}));});
  app.get("/accounting/vouchers",async()=>prisma.journalVoucher.findMany({include:{entries:{include:{account:true}}},orderBy:{date:"desc"},take:500}));
  app.post("/accounting/vouchers",async(req,reply)=>{const b=z.object({type:z.enum(["receipt","payment","journal"]),description:z.string().min(1).max(500),entries:z.array(z.object({accountId:z.string().regex(/^\d+$/).transform(BigInt),debit:z.string().regex(/^\d+(\.\d{1,2})?$/),credit:z.string().regex(/^\d+(\.\d{1,2})?$/),memo:z.string().max(300).optional()}).refine(e=>(Number(e.debit)>0)!==(Number(e.credit)>0),{message:"Each journal line must have exactly one non-zero side"})).min(2).max(20)}).parse(req.body);const dr=b.entries.reduce((s,x)=>s+Number(x.debit),0),cr=b.entries.reduce((s,x)=>s+Number(x.credit),0);if(Math.abs(dr-cr)>.005||dr<=0)throw new HttpError(400,"UNBALANCED_VOUCHER","يجب تساوي إجمالي المدين والدائن");const accountTypes=await prisma.ledgerAccount.findMany({where:{id:{in:b.entries.map(e=>e.accountId)}},select:{id:true,type:true}});if(accountTypes.length!==new Set(b.entries.map(e=>e.accountId.toString())).size)throw new HttpError(400,"INVALID_LEDGER_ACCOUNT","يوجد حساب غير موجود أو غير مكرر بشكل صحيح");const types=new Map(accountTypes.map(a=>[a.id.toString(),a.type]));if(b.type==="receipt"&&(!b.entries.some(e=>Number(e.debit)>0&&types.get(e.accountId.toString())==="asset")||!b.entries.some(e=>Number(e.credit)>0&&types.get(e.accountId.toString())!=="asset")))throw new HttpError(400,"INVALID_RECEIPT_VOUCHER","سند القبض يجب أن يزيد أصلًا ويقابل التزامًا أو إيرادًا");if(b.type==="payment"&&(!b.entries.some(e=>Number(e.credit)>0&&types.get(e.accountId.toString())==="asset")||!b.entries.some(e=>Number(e.debit)>0&&types.get(e.accountId.toString())!=="asset")))throw new HttpError(400,"INVALID_PAYMENT_VOUCHER","سند الصرف يجب أن يخفض أصلًا ويقابل مصروفًا أو التزامًا");const row=await prisma.journalVoucher.create({data:{voucherNo:`JV-${Date.now()}`,type:b.type,description:b.description,createdBy:BigInt(req.user.sub),entries:{create:b.entries.map(e=>({...e}))}},include:{entries:{include:{account:true}}}});return reply.code(201).send(row);});
- app.get("/stock/item-movements/:variantId",async(req)=>{const {variantId}=z.object({variantId:z.string().regex(/^\d+$/).transform(BigInt)}).parse(req.params);return prisma.stockMovement.findMany({where:{variantId},include:{warehouse:true},orderBy:{createdAt:"desc"},take:500});});
+ app.get("/accounting/reset-preview",async()=>{
+  const [vouchers,entries,totals]=await Promise.all([prisma.journalVoucher.count(),prisma.journalEntry.count(),prisma.journalEntry.aggregate({_sum:{debit:true,credit:true}})]);
+  return {vouchers,entries,debit:totals._sum.debit?.toFixed(2)??"0.00",credit:totals._sum.credit?.toFixed(2)??"0.00",scope:"journal_vouchers_and_entries_only"};
+ });
+ app.post("/accounting/reset",async(req)=>{
+  const input=z.object({confirmation:z.literal("مسح القيود المحاسبية نهائيًا"),reason:z.string().trim().min(10).max(300)}).parse(req.body);
+  const actor=BigInt(req.user.sub);
+  return prisma.$transaction(async tx=>{
+   await tx.$executeRaw`LOCK TABLE journal_vouchers IN ACCESS EXCLUSIVE MODE`;
+   const [voucherCount,entryCount]=await Promise.all([tx.journalVoucher.count(),tx.journalEntry.count()]);
+   await tx.journalVoucher.deleteMany({});
+   await tx.auditLog.create({data:{actorId:actor,action:"accounting_ledger_reset",entity:"journal_vouchers",meta:JSON.stringify({voucherCount,entryCount,reason:input.reason,scope:"journal_vouchers_and_entries_only"}),ip:req.ip}});
+   return {deletedVouchers:voucherCount,deletedEntries:entryCount};
+  },{timeout:30000});
+ });
+ app.get("/accounting/year-close",async()=>prisma.journalVoucher.findMany({where:{voucherNo:{startsWith:"JV-CLOSE-"}},select:{id:true,voucherNo:true,date:true,description:true,createdAt:true},orderBy:{date:"desc"},take:100}));
+ app.post("/accounting/year-close",async(req,reply)=>{
+  const {year}=z.object({year:z.number().int().min(1900).max(9998)}).parse(req.body);
+  if(year>=new Date().getUTCFullYear())throw new HttpError(400,"FISCAL_YEAR_NOT_FINISHED","يمكن إقفال سنة مالية مكتملة فقط");
+  const actor=BigInt(req.user.sub),voucherNo=`JV-CLOSE-${year}`,closeDate=new Date(Date.UTC(year,11,31));
+  const row=await prisma.$transaction(async tx=>{
+   if(await tx.journalVoucher.findUnique({where:{voucherNo}}))throw new HttpError(409,"FISCAL_YEAR_ALREADY_CLOSED","السنة المالية مقفلة بالفعل");
+   const grouped=await tx.journalEntry.groupBy({by:["accountId"],where:{account:{type:{in:["revenue","expense"]}},voucher:{date:{lte:closeDate}}},_sum:{debit:true,credit:true}});
+   const accounts=await tx.ledgerAccount.findMany({where:{id:{in:grouped.map(x=>x.accountId)}},select:{id:true,code:true,type:true}});
+   const accountMap=new Map(accounts.map(a=>[a.id.toString(),a]));
+   const closingEntries:{accountId:bigint;debit:Prisma.Decimal;credit:Prisma.Decimal;memo:string}[]=[];
+   let netIncome=new Prisma.Decimal(0);
+   for(const balance of grouped){
+    const account=accountMap.get(balance.accountId.toString());if(!account)continue;
+    const net=new Prisma.Decimal(balance._sum.debit??0).sub(balance._sum.credit??0);if(net.isZero())continue;
+    netIncome=netIncome.add(net);
+    closingEntries.push({accountId:account.id,debit:net.isNegative()?net.abs():new Prisma.Decimal(0),credit:net.isPositive()?net:new Prisma.Decimal(0),memo:`إقفال ${account.code} ${year}`});
+   }
+   if(!closingEntries.length)throw new HttpError(409,"NO_PROFIT_LOSS_BALANCES","لا توجد أرصدة إيرادات أو مصروفات لإقفالها");
+   let retained=await tx.ledgerAccount.findUnique({where:{code:"3100"}});
+   if(retained&&retained.type!=="equity")throw new HttpError(409,"RETAINED_EARNINGS_ACCOUNT_INVALID","الحساب 3100 موجود بنوع غير حقوق الملكية");
+   if(!retained)retained=await tx.ledgerAccount.create({data:{code:"3100",name:"الأرباح المحتجزة",type:"equity"}});
+   if(netIncome.isPositive())closingEntries.push({accountId:retained.id,debit:new Prisma.Decimal(0),credit:netIncome,memo:`صافي أرباح حتى ${year}`});
+   if(netIncome.isNegative())closingEntries.push({accountId:retained.id,debit:netIncome.abs(),credit:new Prisma.Decimal(0),memo:`صافي خسائر حتى ${year}`});
+   const debit=closingEntries.reduce((sum,e)=>sum.add(e.debit),new Prisma.Decimal(0)),credit=closingEntries.reduce((sum,e)=>sum.add(e.credit),new Prisma.Decimal(0));
+   if(!debit.equals(credit))throw new HttpError(500,"UNBALANCED_YEAR_CLOSE","تعذر إنشاء قيد إقفال متوازن");
+   return tx.journalVoucher.create({data:{voucherNo,type:"journal",date:closeDate,description:`إقفال السنة المالية ${year} وترحيل صافي النتيجة إلى الأرباح المحتجزة`,createdBy:actor,entries:{create:closingEntries}},include:{entries:{include:{account:true}}}});
+  },{isolationLevel:Prisma.TransactionIsolationLevel.Serializable,timeout:30000});
+  return reply.code(201).send(row);
+ }); app.get("/stock/item-movements/:variantId",async(req)=>{const {variantId}=z.object({variantId:z.string().regex(/^\d+$/).transform(BigInt)}).parse(req.params);return prisma.stockMovement.findMany({where:{variantId},include:{warehouse:true},orderBy:{createdAt:"desc"},take:500});});
 };export default plugin;
