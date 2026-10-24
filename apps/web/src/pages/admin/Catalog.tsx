@@ -1,4 +1,486 @@
-YªçŠx-®éÜj×¢ëiºÚ+Š§j[h‘éÜ¢éí×mûÑ:-jZ.¶›­–)Ş³V–×÷'B²Ö÷F–öâÒg&öÒ&g&ÖW"ÖÖ÷F–öâ#°¦–×÷'B°¢&÷†W2À¢6†V6²À¢VF—BÀ¢föÆFW%G&VRÀ¢Æ–W'2À¢ÇW2À¢6V&6‚À¢G&6ƒ"À¢v&V†÷W6R2v&V†÷W6T–6öâÀ¢‚À§Òg&öÒ&ÇV6–FR×&V7B#°¦–×÷'B²W6U7FFRÒg&öÒ'&V7B#°¦–×÷'B²V×G•7FFRÂW'&÷$&÷‚Â6¶VÆWFöâÒg&öÒ"ââòââö6ö×öæVçG2÷V’#°¦–×÷'B°¢W6TFÖ–ä6FÆöt6FVv÷&–W2À¢W6TFÖ–ä6FÆöu&öGV7G2À¢W6TFÖ–åv&V†÷W6W2À¢W6T6FÆöt×WFF–öç2À§Òg&öÒ"ââòââö†öö·2öFÖ–åVW&–W2#°¦–×÷'B²f÷&ÖD7W'&Væ7’Òg&öÒ"ââòââöÆ–"öf÷&ÖB#°¦–×÷'BG—R²FÖ–ä6FVv÷'’ÂFÖ–å&öGV7BÂFÖ–åf&–çBÂv&V†÷W6RÒg&öÒ"ââòââöÆ–"÷G—W2#°¦–×÷'B²W6UT’Òg&öÒ"ââòââ÷7F÷&R÷V’#° ¦W‡÷'BFVfVÇBgVæ7F–öâFÖ–ä6FÆör‚’°¢6öç7BW6‚ÒW6UT’‚‡2’Óâ2çW6‚“°¢6öç7B·F"Â6WEF%ÒÒW6U7FFSÂ'&öGV7G2"Â&6FVv÷&–W2"Â'v&V†÷W6W2#â‚'&öGV7G2"“° ¢òòf–ÇFW'2f÷"&öGV7G0¢6öç7B·6V&6‚Â6WE6V&6…ÒÒW6U7FFSÇ7G&–æsâ‚""“°¢6öç7B¶6FVv÷'”f–ÇFW"Â6WD6FVv÷'”f–ÇFW%ÒÒW6U7FFSÇ7G&–æsâ‚""“°¢6öç7B·vRÂ6WEvUÒÒW6U7FFSÆçVÖ&W#âƒ“° ¢òòVW&–W0¢6öç7B²FF¢6FVv÷&–W2Â—4ÆöF–æs¢6DÆöF–ærÒÒW6TFÖ–ä6FÆöt6FVv÷&–W2‚“°¢6öç7B²FF¢v&V†÷W6W2Â—4ÆöF–æs¢v„ÆöF–ærÒÒW6TFÖ–åv&V†÷W6W2‚“°¢6öç7B°¢FF¢&öGV7G4FFÀ¢—4ÆöF–æs¢&öDÆöF–ærÀ¢W'&÷#¢&öDW'&÷"À¢&VfWF6ƒ¢&VfWF6…&öGV7G2À¢ÒÒW6TFÖ–ä6FÆöu&öGV7G2‡°¢6FVv÷'“¢6FVv÷'”f–ÇFW"ÇÂVæFVf–æVBÀ¢¢6V&6‚çG&–Ò‚’ÇÂVæFVf–æVBÀ¢vRÀ¢vU6—¦S¢"À¢Ò“° ¢6öç7B×WFF–öç2ÒW6T6FÆöt×WFF–öç2‚“° ¢òòÖöFÂ7FFW0¢6öç7B·&öGV7DÖöFÄ÷VâÂ6WE&öGV7DÖöFÄ÷VåÒÒW6U7FFSÆ&ööÆVãâ†fÇ6R“°¢6öç7B¶VF—F–æu&öGV7BÂ6WDVF—F–æu&öGV7EÒÒW6U7FFSÄFÖ–å&öGV7BÂçVÆÃâ†çVÆÂ“° ¢6öç7B¶6FVv÷'”ÖöFÄ÷VâÂ6WD6FVv÷'”ÖöFÄ÷VåÒÒW6U7FFSÆ&ööÆVãâ†fÇ6R“°¢6öç7B¶VF—F–æt6FVv÷'’Â6WDVF—F–æt6FVv÷'•ÒÒW6U7FFSÄFÖ–ä6FVv÷'’ÂçVÆÃâ†çVÆÂ“° ¢6öç7B·v&V†÷W6TÖöFÄ÷VâÂ6WEv&V†÷W6TÖöFÄ÷VåÒÒW6U7FFSÆ&ööÆVãâ†fÇ6R“°¢6öç7B¶VF—F–æuv&V†÷W6RÂ6WDVF—F–æuv&V†÷W6UÒÒW6U7FFSÅv&V†÷W6RÂçVÆÃâ†çVÆÂ“° ¢6öç7B·f&–çG4ÖöFÄ÷VâÂ6WEf&–çG4ÖöFÄ÷VåÒÒW6U7FFSÆ&ööÆVãâ†fÇ6R“°¢6öç7B·6VÆV7FVE&öGV7Df÷%f&–çG2Â6WE6VÆV7FVE&öGV7Df÷%f&–çG5ÒÒW6U7FFSÄFÖ–å&öGV7BÂçVÆÃâ†çVÆÂ“° ¢òò&öGV7Bf÷&Ò7FFP¢6öç7B·æÖRÂ6WEæÖUÒÒW6U7FFR‚""“°¢6öç7B·6FVv÷'’Â6WE6FVv÷'•ÒÒW6U7FFSÆçVÖ&W#âƒ“°¢6öç7B·FW62Â6WEFW65ÒÒW6U7FFR‚""“°¢6öç7B·–ÖrÂ6WE–ÖuÒÒW6U7FFR‚""“°¢6öç7B·&6U&–6RÂ6WE&6U&–6UÒÒW6U7FFR‚""“°¢6öç7B·Væ—BÂ6WEVæ—EÒÒW6U7FFSÇ7G&–æsâ‚'–V6R"“° ¢òò6FVv÷'’f÷&Ò7FFP¢6öç7B¶6DæÖRÂ6WD6DæÖUÒÒW6U7FFR‚""“°¢6öç7B¶6E6ÇVrÂ6WD6E6ÇVuÒÒW6U7FFR‚""“°¢6öç7B¶6E6÷'BÂ6WD6E6÷'EÒÒW6U7FFRƒ“° ¢òòv&V†÷W6Rf÷&Ò7FFP¢6öç7B·v„æÖRÂ6WEv„æÖUÒÒW6U7FFR‚""“° ¢òòf&–çBf÷&Ò7FFP¢6öç7B·f%6·RÂ6WEf%6·UÒÒW6U7FFR‚""“°¢6öç7B·f$Æ&VÂÂ6WEf$Æ&VÅÒÒW6U7FFR‚""“°¢6öç7B·f%&–6TFVÇFÂ6WEf%&–6TFVÇFÒÒW6U7FFR‚#"“° ¢6öç7B÷VäæWu&öGV7BÒ‚’Óâ°¢6WDVF—F–æu&öGV7B†çVÆÂ“°¢6WEæÖR‚""“°¢6WE6FVv÷'’†6FVv÷&–W3òå³Óòæ–Bóò“°¢6WEFW62‚""“°¢6WE–Ör‚""“°¢6WE&6U&–6R‚""“°¢6WEVæ—B‚'–V6R"“°¢6WE&öGV7DÖöFÄ÷Vâ‡G'VR“°¢Ó° ¢6öç7B÷VäVF—E&öGV7BÒ‡¢FÖ–å&öGV7B’Óâ°¢6WDVF—F–æu&öGV7B‡“°¢6WEæÖR‡ææÖR“°¢6WE6FVv÷'’‡æ6FVv÷'”–B“°¢6WEFW62‡æFW67&—F–öâÇÂ""“°¢6WE–Ör‡æ–ÖvUW&ÂÇÂ""“°¢6WE&6U&–6R‡æ&6U&–6R“°¢6WEVæ—B‡çVæ—B“°¢6WE&öGV7DÖöFÄ÷Vâ‡G'VR“°¢Ó° ¢6öç7B†æFÆU6fU&öGV7BÒ7–æ2†S¢&V7Bäf÷&ÔWfVçB’Óâ°¢Rç&WfVçDFVfVÇB‚“°¢G'’°¢–b†VF—F–æu&öGV7B’°¢v—B×WFF–öç2çWFFU&öGV7Bæ×WFFT7–æ2‡°¢–C¢VF—F–æu&öGV7Bæ–BÀ¢æÖS¢æÖRÀ¢6FVv÷'”–C¢6FVv÷'’À¢FW67&—F–öã¢FW62çG&–Ò‚’ÇÂçVÆÂÀ¢–ÖvUW&Ã¢–ÖrçG&–Ò‚’ÇÂçVÆÂÀ¢&6U&–6S¢&6U&–6RÀ¢Væ—C¢Væ—BÀ¢Ò“°¢W6‚‚-Š­˜RŠ­ŠİŠı˜­Š²Š˜­Š}˜mŠ}Š¢Š}˜M˜]˜mŠ­ŠÂŠ˜mŠÍŠ}ŠÒ"Â'7V66W72"“°¢ÒVÇ6R°¢v—B×WFF–öç2æ7&VFU&öGV7Bæ×WFFT7–æ2‡°¢æÖS¢æÖRÀ¢6FVv÷'”–C¢6FVv÷'’À¢FW67&—F–öã¢FW62çG&–Ò‚’ÇÂçVÆÂÀ¢–ÖvUW&Ã¢–ÖrçG&–Ò‚’ÇÂçVÆÂÀ¢&6U&–6S¢&6U&–6RÀ¢Væ—C¢Væ—BÀ¢Ò“°¢W6‚‚-Š­˜RŠ]˜m‹MŠ}ŠŠ}˜M˜]˜mŠ­ŠÂŠ˜mŠÍŠ}ŠÒ"Â'7V66W72"“°¢Ğ¢6WE&öGV7DÖöFÄ÷Vâ†fÇ6R“°¢Ò6F6‚°¢W6‚‚-˜‹M˜BŠİ˜‹‚Š}˜M˜]˜mŠ­ŠÍˆÂŠ­Š=˜=Šò˜]˜b‹]ŠİŠ’Š}˜MŠ˜­Š}˜mŠ}Š¢Š}˜M˜]ŠıŠí˜MŠ’"Â&FævW""“°¢Ğ¢Ó° ¢6öç7B†æFÆU6fT6FVv÷'’Ò7–æ2†S¢&V7Bäf÷&ÔWfVçB’Óâ°¢Rç&WfVçDFVfVÇB‚“°¢G'’°¢–b†VF—F–æt6FVv÷'’’°¢v—B×WFF–öç2çWFFT6FVv÷'’æ×WFFT7–æ2‡°¢–C¢VF—F–æt6FVv÷'’æ–BÀ¢æÖS¢6DæÖRÀ¢6ÇVs¢6E6ÇVrÇÂVæFVf–æVBÀ¢6÷'D÷&FW#¢6E6÷'BÀ¢Ò“°¢W6‚‚-Š­˜RŠ­‹Šı˜­˜BŠ}˜MŠ­‹]˜m˜­˜Š˜mŠÍŠ}ŠÒ"Â'7V66W72"“°¢ÒVÇ6R°¢v—B×WFF–öç2æ7&VFT6FVv÷'’æ×WFFT7–æ2‡°¢æÖS¢6DæÖRÀ¢6ÇVs¢6E6ÇVrÇÂVæFVf–æVBÀ¢6÷'D÷&FW#¢6E6÷'BÀ¢Ò“°¢W6‚‚-Š­˜RŠ]˜m‹MŠ}ŠŠ}˜MŠ­‹]˜m˜­˜Š˜mŠÍŠ}ŠÒ"Â'7V66W72"“°¢Ğ¢6WD6FVv÷'”ÖöFÄ÷Vâ†fÇ6R“°¢Ò6F6‚°¢W6‚‚-˜‹M˜BŠİ˜‹‚Š}˜MŠ­‹]˜m˜­˜"Â&FævW""“°¢Ğ¢Ó° ¢6öç7B†æFÆU6fUv&V†÷W6RÒ7–æ2†S¢&V7Bäf÷&ÔWfVçB’Óâ°¢Rç&WfVçDFVfVÇB‚“°¢G'’°¢–b†VF—F–æuv&V†÷W6R’°¢v—B×WFF–öç2çWFFUv&V†÷W6Ræ×WFFT7–æ2‡°¢–C¢VF—F–æuv&V†÷W6Ræ–BÀ¢æÖS¢v„æÖRÀ¢Ò“°¢W6‚‚-Š­˜RŠ­‹Šı˜­˜BŠ˜­Š}˜mŠ}Š¢Š}˜M˜]Ší‹-˜b"Â'7V66W72"“°¢ÒVÇ6R°¢v—B×WFF–öç2æ7&VFUv&V†÷W6Ræ×WFFT7–æ2‡²æÖS¢v„æÖRÒ“°¢W6‚‚-Š­˜]Š¢Š]‹mŠ}˜Š’Š}˜M˜]Ší‹-˜bŠ˜mŠÍŠ}ŠÒ"Â'7V66W72"“°¢Ğ¢6WEv&V†÷W6TÖöFÄ÷Vâ†fÇ6R“°¢Ò6F6‚°¢W6‚‚-˜‹M˜BŠİ˜‹‚Š}˜M˜]Ší‹-˜b"Â&FævW""“°¢Ğ¢Ó° ¢6öç7B†æFÆTFEf&–çBÒ7–æ2†S¢&V7Bäf÷&ÔWfVçB’Óâ°¢Rç&WfVçDFVfVÇB‚“°¢–b‚6VÆV7FVE&öGV7Df÷%f&–çG2’&WGW&ã°¢G'’°¢v—B×WFF–öç2æ7&VFUf&–çBæ×WFFT7–æ2‡°¢&öGV7D–C¢6VÆV7FVE&öGV7Df÷%f&–çG2æ–BÀ¢6·S¢f%6·RçG&–Ò‚’À¢Æ&VÃ¢f$Æ&VÂçG&–Ò‚’À¢&–6TFVÇF¢f%&–6TFVÇFçG&–Ò‚’ÇÂ#"À¢Ò“°¢W6‚‚-Š­˜]Š¢Š]‹mŠ}˜Š’Š}˜M˜]˜-Š}‹2Š˜mŠÍŠ}ŠÒ"Â'7V66W72"“°¢6WEf%6·R‚""“°¢6WEf$Æ&VÂ‚""“°¢6WEf%&–6TFVÇF‚#"“°¢Ò6F6‚°¢W6‚‚-˜‹M˜BŠ]‹mŠ}˜Š’Š}˜M˜]˜-Š}‹=ˆÂŠ­Š=˜=Šò˜]˜b‹Šı˜RŠ­˜=‹Š}‹Š}˜M˜4µR"Â&FævW""“°¢Ğ¢Ó° ¢&WGW&â€¢ÆF—b6Æ74æÖSÒ'76R×’Ób#à¢²ò¢†VFW"bF'2¢÷Ğ¢ÆF—b6Æ74æÖSÒ&fÆW‚fÆW‚Ö6öÂ6Ó¦fÆW‚×&÷r6Ó¦—FV×2Ö6VçFW"§W7F–g’Ö&WGvVVâvÓB#à¢ÆF—cà¢Æƒ6Æ74æÖSÒ'FW‡BÓ'†ÂföçBÖF—7Æ’föçBÖW‡G&&öÆB#íŠ]ŠıŠ}‹Š’Š}˜M˜=Š­Š}˜M˜ŠÂ˜Š}˜M˜]˜mŠ­ŠÍŠ}Š£Âöƒà¢Ç6Æ74æÖSÒ'FW‡B×6ÒFW‡BÖ×WFVB#íŠ]‹mŠ}˜Š’˜Š­‹Šı˜­˜BŠ}˜M˜]˜mŠ­ŠÍŠ}Š­ˆÂŠ}˜M˜]˜-Š}‹=Š}Š­ˆÂŠ}˜MŠ­‹]˜m˜­˜Š}Š­ˆÂ˜Š}˜M˜]ŠíŠ}‹-˜cÂ÷à¢ÂöF—cà ¢ÆF—b6Æ74æÖSÒ&fÆW‚—FV×2Ö6VçFW"vÓ"#à¢·F"ÓÓÒ'&öGV7G2"bb€¢Æ'WGFöâöä6Æ–6³×¶÷VäæWu&öGV7GÒ6Æ74æÖSÒ&'Fâ×&–Ö'’FW‡B×‡2‚Ó2ãR’Ó"#à¢ÅÇW26Æ74æÖSÒ&‚ÓBrÓB"óà¢Ç7ãíŠ]‹mŠ}˜Š’˜]˜mŠ­ŠÃÂ÷7ãà¢Âö'WGFöãà¢—Ğ¢·F"ÓÓÒ&6FVv÷&–W2"bb€¢Æ'WGFöà¢öä6Æ–6³×²‚’Óâ°¢6WDVF—F–æt6FVv÷'’†çVÆÂ“°¢6WD6DæÖR‚""“°¢6WD6E6ÇVr‚""“°¢6WD6E6÷'Bƒ“°¢6WD6FVv÷'”ÖöFÄ÷Vâ‡G'VR“°¢×Ğ¢6Æ74æÖSÒ&'Fâ×&–Ö'’FW‡B×‡2‚Ó2ãR’Ó" ¢à¢ÅÇW26Æ74æÖSÒ&‚ÓBrÓB"óà¢Ç7ãíŠ]‹mŠ}˜Š’Š­‹]˜m˜­˜Â÷7ãà¢Âö'WGFöãà¢—Ğ¢·F"ÓÓÒ'v&V†÷W6W2"bb€¢Æ'WGFöà¢öä6Æ–6³×²‚’Óâ°¢6WDVF—F–æuv&V†÷W6R†çVÆÂ“°¢6WEv„æÖR‚""“°¢6WEv&V†÷W6TÖöFÄ÷Vâ‡G'VR“°¢×Ğ¢6Æ74æÖSÒ&'Fâ×&–Ö'’FW‡B×‡2‚Ó2ãR’Ó" ¢à¢ÅÇW26Æ74æÖSÒ&‚ÓBrÓB"óà¢Ç7ãíŠ]‹mŠ}˜Š’˜]Ší‹-˜cÂ÷7ãà¢Âö'WGFöãà¢—Ğ¢ÂöF—cà¢ÂöF—cà ¢²ò¢F"7v—F6†W"¢÷Ğ¢ÆF—b6Æ74æÖSÒ&fÆW‚—FV×2Ö6VçFW"Ó&r×7W&f6S"óc&÷&FW"&÷&FW"ÖÆ–æRó&÷VæFVB×†ÂFW‡B×‡2föçB×6VÖ–&öÆBrÖf—B#à¢Æ'WGFöà¢öä6Æ–6³×²‚’Óâ°¢6WEF"‚'&öGV7G2"“°¢6WEvRƒ“°¢×Ğ¢6Æ74æÖS×¶fÆW‚—FV×2Ö6VçFW"vÓãR‚ÓB’Ó"&÷VæFVBÖÆrG&ç6—F–öâG°¢F"ÓÓÒ'&öGV7G2"ò&&r×&–Ö'’FW‡B×&–Ö'’Öfr6†F÷r×6Ò"¢'FW‡BÖ×WFVB†÷fW#§FW‡BÖ–æ² ¢ÖĞ¢à¢ÄÆ–W'26Æ74æÖSÒ&‚ÓBrÓB"óà¢Ç7ãíŠ}˜M˜]˜mŠ­ŠÍŠ}Š£Â÷7ãà¢Âö'WGFöãà¢Æ'WGFöà¢öä6Æ–6³×²‚’Óâ°¢6WEF"‚&6FVv÷&–W2"“°¢6WEvRƒ“°¢×Ğ¢6Æ74æÖS×¶fÆW‚—FV×2Ö6VçFW"vÓãR‚ÓB’Ó"&÷VæFVBÖÆrG&ç6—F–öâG°¢F"ÓÓÒ&6FVv÷&–W2"ò&&r×&–Ö'’FW‡B×&–Ö'’Öfr6†F÷r×6Ò"¢'FW‡BÖ×WFVB†÷fW#§FW‡BÖ–æ² ¢ÖĞ¢à¢ÄföÆFW%G&VR6Æ74æÖSÒ&‚ÓBrÓB"óà¢Ç7ãíŠ}˜MŠ­‹]˜m˜­˜Š}Š¢‡¶6FVv÷&–W3òæÆVæwF‚óòÒ“Â÷7ãà¢Âö'WGFöãà¢Æ'WGFöà¢öä6Æ–6³×²‚’Óâ°¢6WEF"‚'v&V†÷W6W2"“°¢6WEvRƒ“°¢×Ğ¢6Æ74æÖS×¶fÆW‚—FV×2Ö6VçFW"vÓãR‚ÓB’Ó"&÷VæFVBÖÆrG&ç6—F–öâG°¢F"ÓÓÒ'v&V†÷W6W2"ò&&r×&–Ö'’FW‡B×&–Ö'’Öfr6†F÷r×6Ò"¢'FW‡BÖ×WFVB†÷fW#§FW‡BÖ–æ² ¢ÖĞ¢à¢Åv&V†÷W6T–6öâ6Æ74æÖSÒ&‚ÓBrÓB"óà¢Ç7ãíŠ}˜M˜]ŠíŠ}‹-˜b‡·v&V†÷W6W3òæÆVæwF‚óòÒ“Â÷7ãà¢Âö'WGFöãà¢ÂöF—cà ¢²ò¢ÓÓÓÓÓÓÓÓÓÓÓÓÓÓÓÓÒ$ôET5E2D"ÓÓÓÓÓÓÓÓÓÓÓÓÓÓÓÓÒ¢÷Ğ¢·F"ÓÓÒ'&öGV7G2"bb€¢ÆF—b6Æ74æÖSÒ'76R×’ÓB#à¢²ò¢f–ÇFW'2¢÷Ğ¢ÆF—b6Æ74æÖSÒ&6&BÓBw&–Bw&–BÖ6öÇ2Ó6Ó¦w&–BÖ6öÇ2Ó2vÓ2#à¢ÆF—b6Æ74æÖSÒ'&VÆF—fR6Ó¦6öÂ×7âÓ"#à¢Å6V&6‚6Æ74æÖSÒ&'6öÇWFR7F'BÓ2F÷Ó2‚ÓBrÓBFW‡BÖ×WFVB"óà¢Æ–çW@¢G—SÒ'FW‡B ¢Æ6V†öÆFW#Ò-ŠŠİŠ²ŠŠ}‹=˜RŠ}˜M˜]˜mŠ­ŠÂŠ=˜‚Š}˜M˜‹]˜âââ ¢fÇVS×·6V&6‡Ğ¢öä6†ævS×²†R’Óâ°¢6WE6V&6‚†RçF&vWBçfÇVR“°¢6WEvRƒ“°¢×Ğ¢6Æ74æÖSÒ&–çWB2Ó’FW‡B×‡2 ¢óà¢ÂöF—cà¢ÆF—cà¢Ç6VÆV7@¢fÇVS×¶6FVv÷'”f–ÇFW'Ğ¢öä6†ævS×²†R’Óâ°¢6WD6FVv÷'”f–ÇFW"†RçF&vWBçfÇVR“°¢6WEvRƒ“°¢×Ğ¢6Æ74æÖSÒ&–çWBFW‡B×‡2 ¢à¢Æ÷F–öâfÇVSÒ"#íŠÍ˜]˜­‹’Š}˜MŠ­‹]˜m˜­˜Š}Š¢ââãÂö÷F–öãà¢¶6FVv÷&–W3òæÖ‚†2’Óâ€¢Æ÷F–öâ¶W“×¶2æ–GÒfÇVS×¶2æ–GÓà¢¶2ææÖWĞ¢Âö÷F–öãà¢’—Ğ¢Â÷6VÆV7Cà¢ÂöF—cà¢ÂöF—cà ¢·&öDÆöF–ærbb€¢ÆF—b6Æ74æÖSÒ'76R×’Ó2#à¢µ²ââä'&’ƒb•ÒæÖ‚…òÂ’’Óâ€¢Å6¶VÆWFöâ¶W“×¶—Ò6Æ74æÖSÒ&‚Ób"óà¢’—Ğ¢ÂöF—cà¢—Ğ ¢·&öDW'&÷"bbÄW'&÷$&÷‚FW‡CÒ-˜‹M˜BŠ­Šİ˜]˜­˜BŠ}˜M˜]˜mŠ­ŠÍŠ}Š¢"öå&WG'“×²‚’Óâ&VfWF6…&öGV7G2‚—ÒóçĞ ¢²&öDÆöF–ærbb&öDW'&÷"bb&öGV7G4FFbb€¢ÆF—b6Æ74æÖSÒ&6&B÷fW&fÆ÷rÖ†–FFVâ#à¢ÆF—b6Æ74æÖSÒ&÷fW&fÆ÷r×‚ÖWFò#à¢ÇF&ÆR6Æ74æÖSÒ'rÖgVÆÂFW‡B×‡2FW‡B×7F'B#à¢ÇF†VB6Æ74æÖSÒ&&r×7W&f6S"ócFW‡BÖ×WFVB&÷&FW"Ö"&÷&FW"ÖÆ–æRó#à¢ÇG#à¢ÇF‚6Æ74æÖSÒ'Ó2ãRFW‡B×7F'BföçB×6VÖ–&öÆB#íŠ}˜M˜]˜mŠ­ŠÃÂ÷Fƒà¢ÇF‚6Æ74æÖSÒ'Ó2ãRFW‡B×7F'BföçB×6VÖ–&öÆB#íŠ}˜MŠ­‹]˜m˜­˜Â÷Fƒà¢ÇF‚6Æ74æÖSÒ'Ó2ãRFW‡BÖ6VçFW"föçB×6VÖ–&öÆB#íŠ}˜M‹=‹‹Š}˜MŠ=‹=Š}‹=˜£Â÷Fƒà¢ÇF‚6Æ74æÖSÒ'Ó2ãRFW‡BÖ6VçFW"föçB×6VÖ–&öÆB#íŠ}˜M˜ŠİŠıŠ“Â÷Fƒà¢ÇF‚6Æ74æÖSÒ'Ó2ãRFW‡BÖ6VçFW"föçB×6VÖ–&öÆB#íŠ}˜M˜]˜-Š}‹=Š}Š¢…f&–çG2“Â÷Fƒà¢ÇF‚6Æ74æÖSÒ'Ó2ãRFW‡BÖ6VçFW"föçB×6VÖ–&öÆB#íŠ}˜MŠİŠ}˜MŠ“Â÷Fƒà¢ÇF‚6Æ74æÖSÒ'Ó2ãRFW‡BÖVæBföçB×6VÖ–&öÆB#íŠ}˜MŠ]ŠÍ‹Š}ŠŠ}Š£Â÷Fƒà¢Â÷G#à¢Â÷F†VCà¢ÇF&öG’6Æ74æÖSÒ&F—f–FR×’F—f–FRÖÆ–æRó#à¢·&öGV7G4FFæ—FV×2æÖ‚‡&öB’Óâ€¢ÇG"¶W“×·&öBæ–GÒ6Æ74æÖSÒ&†÷fW#¦&rÖÆ–æRóRG&ç6—F–öâ#à¢ÇFB6Æ74æÖSÒ'Ó2ãR#à¢ÆF—b6Æ74æÖSÒ&föçBÖ&öÆBFW‡BÖ–æ²#ç·&öBææÖWÓÂöF—cà¢·&öBæFW67&—F–öâbb€¢ÆF—b6Æ74æÖSÒ'FW‡BÕ³…ÒFW‡BÖ×WFVBG'Væ6FRÖ‚×r×‡2#ç·&öBæFW67&—F–öçÓÂöF—cà¢—Ğ¢Â÷FCà¢ÇFB6Æ74æÖSÒ'Ó2ãRFW‡BÖ×WFVB#ç·&öBæ6FVv÷'’ææÖWÓÂ÷FCà¢ÇFB6Æ74æÖSÒ'Ó2ãRFW‡BÖ6VçFW"föçBÖ&öÆBFW‡B×&–Ö'’föçBÖÖöæò#à¢¶f÷&ÖD7W'&Væ7’‡&öBæ&6U&–6R—Ğ¢Â÷FCà¢ÇFB6Æ74æÖSÒ'Ó2ãRFW‡BÖ6VçFW"FW‡BÖ×WFVB#à¢·&öBçVæ—BÓÓÒ'–V6R"ò-˜-‹}‹Š’"¢&öBçVæ—BÓÓÒ&ÖWFW""ò-˜]Š­‹"¢-˜\+"'Ğ¢Â÷FCà¢ÇFB6Æ74æÖSÒ'Ó2ãRFW‡BÖ6VçFW"#à¢Æ'WGFöà¢öä6Æ–6³×²‚’Óâ°¢6WE6VÆV7FVE&öGV7Df÷%f&–çG2‡&öB“°¢6WEf&–çG4ÖöFÄ÷Vâ‡G'VR“°¢×Ğ¢6Æ74æÖSÒ&–æÆ–æRÖfÆW‚—FV×2Ö6VçFW"vÓföçB×6VÖ–&öÆBFW‡B×&–Ö'’†÷fW#§VæFW&Æ–æR ¢à¢Ç7ãç·&öBçf&–çG2æÆVæwF‡Ò˜]˜-Š}‹=Š}Š£Â÷7ãà¢Âö'WGFöãà¢Â÷FCà¢ÇFB6Æ74æÖSÒ'Ó2ãRFW‡BÖ6VçFW"#à¢Ç7à¢6Æ74æÖS×¶‚Ó"’ÓãR&÷VæFVBÖgVÆÂFW‡BÕ³…ÒföçBÖ&öÆBG°¢&öBæ—47F—fRò&&r×7V66W72óRFW‡B×7V66W72"¢&&rÖFævW"óRFW‡BÖFævW" ¢ÖĞ¢à¢·&öBæ—47F—fRò-˜m‹M‹r"¢-˜]‹‹}˜B'Ğ¢Â÷7ãà¢Â÷FCà¢ÇFB6Æ74æÖSÒ'Ó2ãRFW‡BÖVæB#à¢ÆF—b6Æ74æÖSÒ&–æÆ–æRÖfÆW‚—FV×2Ö6VçFW"vÓ#à¢Æ'WGFöà¢öä6Æ–6³×²‚’Óâ÷VäVF—E&öGV7B‡&öB—Ğ¢6Æ74æÖSÒ&'FâÖv†÷7BÓãR‚ÓrrÓrFW‡BÖ×WFVB†÷fW#§FW‡BÖ–æ² ¢F—FÆSÒ-Š­‹Šı˜­˜BŠ}˜M˜]˜mŠ­ŠÂ ¢à¢ÄVF—B6Æ74æÖSÒ&‚Ó2ãRrÓ2ãR"óà¢Âö'WGFöãà¢·&öBæ—47F—fRbb€¢Æ'WGFöà¢öä6Æ–6³×¶7–æ2‚’Óâ°¢–b†6öæf—&Ò†˜}˜BŠ=˜mŠ¢˜]Š­Š=˜=Šò˜]˜bŠ­‹‹}˜­˜BŠ}˜M˜]˜mŠ­ŠÂ"G·&öBææÖWÒ-‰ö’’°¢v—B×WFF–öç2æFVÆWFU&öGV7Bæ×WFFT7–æ2‡&öBæ–B“°¢W6‚‚-Š­˜RŠ­‹‹}˜­˜BŠ}˜M˜]˜mŠ­ŠÂ"Â&–æfò"“°¢Ğ¢×Ğ¢6Æ74æÖSÒ&'FâÖv†÷7BÓãR‚ÓrrÓrFW‡BÖ×WFVB†÷fW#§FW‡BÖFævW" ¢F—FÆSÒ-Š­‹‹}˜­˜B ¢à¢ÅG&6ƒ"6Æ74æÖSÒ&‚Ó2ãRrÓ2ãR"óà¢Âö'WGFöãà¢—Ğ¢ÂöF—cà¢Â÷FCà¢Â÷G#à¢’—Ğ¢Â÷F&öG“à¢Â÷F&ÆSà¢ÂöF—cà ¢²ò¢v–æF–öâ¢÷Ğ¢ÆF—b6Æ74æÖSÒ'Ó2&÷&FW"×B&÷&FW"ÖÆ–æRófÆW‚—FV×2Ö6VçFW"§W7F–g’Ö&WGvVVâFW‡B×‡2FW‡BÖ×WFVB#à¢Ç7ãà¢Š]ŠÍ˜]Š}˜M˜¢Š}˜M˜]˜mŠ­ŠÍŠ}Š£¢Ç7G&öær6Æ74æÖSÒ'FW‡BÖ–æ²#ç·&öGV7G4FFçF÷FÇÓÂ÷7G&öæsà¢Â÷7ãà¢ÆF—b6Æ74æÖSÒ&fÆW‚—FV×2Ö6VçFW"vÓ"#à¢Æ'WGFöà¢F—6&ÆVC×·vRÃÒĞ¢öä6Æ–6³×²‚’Óâ6WEvR‚‡’ÓâÖF‚æÖ‚ƒÂÒ’—Ğ¢6Æ74æÖSÒ&'FâÖv†÷7BFW‡B×‡2‚Ó2’Ó‚Ó‚F—6&ÆVC¦÷6—G’ÓC ¢à¢Š}˜M‹=Š}Š˜ ¢Âö'WGFöãà¢Ç7â6Æ74æÖSÒ&föçB×6VÖ–&öÆBFW‡BÖ–æ²#à¢‹]˜ŠİŠ’·vWÒ˜]˜b´ÖF‚æ6V–Â‡&öGV7G4FFçF÷FÂò&öGV7G4FFçvU6—¦R’ÇÂĞ¢Â÷7ãà¢Æ'WGFöà¢F—6&ÆVC×·vR¢&öGV7G4FFçvU6—¦RãÒ&öGV7G4FFçF÷FÇĞ¢öä6Æ–6³×²‚’Óâ6WEvR‚‡’Óâ²—Ğ¢6Æ74æÖSÒ&'FâÖv†÷7BFW‡B×‡2‚Ó2’Ó‚Ó‚F—6&ÆVC¦÷6—G’ÓC ¢à¢Š}˜MŠ­Š}˜M˜ ¢Âö'WGFöãà¢ÂöF—cà¢ÂöF—cà¢ÂöF—cà¢—Ğ¢ÂöF—cà¢—Ğ ¢²ò¢ÓÓÓÓÓÓÓÓÓÓÓÓÓÓÓÓÒ4DTtõ$”U2D"ÓÓÓÓÓÓÓÓÓÓÓÓÓÓÓÓÒ¢÷Ğ¢·F"ÓÓÒ&6FVv÷&–W2"bb€¢ÆF—b6Æ74æÖSÒ&6&B÷fW&fÆ÷rÖ†–FFVâ#à¢ÇF&ÆR6Æ74æÖSÒ'rÖgVÆÂFW‡B×‡2FW‡B×7F'B#à¢ÇF†VB6Æ74æÖSÒ&&r×7W&f6S"ócFW‡BÖ×WFVB&÷&FW"Ö"&÷&FW"ÖÆ–æRó#à¢ÇG#à¢ÇF‚6Æ74æÖSÒ'Ó2ãRFW‡B×7F'BföçB×6VÖ–&öÆB#íŠ}‹=˜RŠ}˜MŠ­‹]˜m˜­˜Â÷Fƒà¢ÇF‚6Æ74æÖSÒ'Ó2ãRFW‡B×7F'BföçB×6VÖ–&öÆB#íŠ}˜M˜]‹‹˜Š}˜M˜MŠ}Š­˜­˜m˜¢…6ÇVr“Â÷Fƒà¢ÇF‚6Æ74æÖSÒ'Ó2ãRFW‡BÖ6VçFW"föçB×6VÖ–&öÆB#íŠ}˜MŠ­‹Š­˜­ŠƒÂ÷Fƒà¢ÇF‚6Æ74æÖSÒ'Ó2ãRFW‡BÖ6VçFW"föçB×6VÖ–&öÆB#íŠ}˜MŠİŠ}˜MŠ“Â÷Fƒà¢ÇF‚6Æ74æÖSÒ'Ó2ãRFW‡BÖVæBföçB×6VÖ–&öÆB#íŠ}˜MŠ]ŠÍ‹Š}ŠŠ}Š£Â÷Fƒà¢Â÷G#à¢Â÷F†VCà¢ÇF&öG’6Æ74æÖSÒ&F—f–FR×’F—f–FRÖÆ–æRó#à¢¶6ûÒÚ$z{-®éÜj×       setCatSort(cat.sortOrder);
+import { motion } from "framer-motion";
+import {
+  Boxes,
+  Check,
+  Edit,
+  FolderTree,
+  Layers,
+  Plus,
+  Search,
+  Trash2,
+  Warehouse as WarehouseIcon,
+  X,
+} from "lucide-react";
+import { useState } from "react";
+import { EmptyState, ErrorBox, Skeleton } from "../../components/ui";
+import {
+  useAdminCatalogCategories,
+  useAdminCatalogProducts,
+  useAdminWarehouses,
+  useCatalogMutations,
+} from "../../hooks/adminQueries";
+import { formatCurrency } from "../../lib/format";
+import type { AdminCategory, AdminProduct, AdminVariant, Warehouse } from "../../lib/types";
+import { useUI } from "../../store/ui";
+
+export default function AdminCatalog() {
+  const push = useUI((s) => s.push);
+  const [tab, setTab] = useState<"products" | "categories" | "warehouses">("products");
+
+  // Filters for products
+  const [search, setSearch] = useState<string>("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const [page, setPage] = useState<number>(1);
+
+  // Queries
+  const { data: categories, isLoading: catLoading } = useAdminCatalogCategories();
+  const { data: warehouses, isLoading: whLoading } = useAdminWarehouses();
+  const {
+    data: productsData,
+    isLoading: prodLoading,
+    error: prodError,
+    refetch: refetchProducts,
+  } = useAdminCatalogProducts({
+    category: categoryFilter || undefined,
+    q: search.trim() || undefined,
+    page,
+    pageSize: 12,
+  });
+
+  const mutations = useCatalogMutations();
+
+  // Modal states
+  const [productModalOpen, setProductModalOpen] = useState<boolean>(false);
+  const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(null);
+
+  const [categoryModalOpen, setCategoryModalOpen] = useState<boolean>(false);
+  const [editingCategory, setEditingCategory] = useState<AdminCategory | null>(null);
+
+  const [warehouseModalOpen, setWarehouseModalOpen] = useState<boolean>(false);
+  const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(null);
+
+  const [variantsModalOpen, setVariantsModalOpen] = useState<boolean>(false);
+  const [selectedProductForVariants, setSelectedProductForVariants] = useState<AdminProduct | null>(null);
+
+  // Product form state
+  const [pName, setPName] = useState("");
+  const [pCategory, setPCategory] = useState<number>(1);
+  const [pDesc, setPDesc] = useState("");
+  const [pImg, setPImg] = useState("");
+  const [pBasePrice, setPBasePrice] = useState("");
+  const [pUnit, setPUnit] = useState<string>("piece");
+
+  // Category form state
+  const [catName, setCatName] = useState("");
+  const [catSlug, setCatSlug] = useState("");
+  const [catSort, setCatSort] = useState(0);
+
+  // Warehouse form state
+  const [whName, setWhName] = useState("");
+
+  // Variant form state
+  const [varSku, setVarSku] = useState("");
+  const [varLabel, setVarLabel] = useState("");
+  const [varPriceDelta, setVarPriceDelta] = useState("0");
+
+  const openNewProduct = () => {
+    setEditingProduct(null);
+    setPName("");
+    setPCategory(categories?.[0]?.id ?? 1);
+    setPDesc("");
+    setPImg("");
+    setPBasePrice("");
+    setPUnit("piece");
+    setProductModalOpen(true);
+  };
+
+  const openEditProduct = (p: AdminProduct) => {
+    setEditingProduct(p);
+    setPName(p.name);
+    setPCategory(p.categoryId);
+    setPDesc(p.description || "");
+    setPImg(p.imageUrl || "");
+    setPBasePrice(p.basePrice);
+    setPUnit(p.unit);
+    setProductModalOpen(true);
+  };
+
+  const handleSaveProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingProduct) {
+        await mutations.updateProduct.mutateAsync({
+          id: editingProduct.id,
+          name: pName,
+          categoryId: pCategory,
+          description: pDesc.trim() || null,
+          imageUrl: pImg.trim() || null,
+          basePrice: pBasePrice,
+          unit: pUnit,
+        });
+        push("ØªÙ… ØªØ­Ø¯ÙŠØ« Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ù†ØªØ¬ Ø¨Ù†Ø¬Ø§Ø­", "success");
+      } else {
+        await mutations.createProduct.mutateAsync({
+          name: pName,
+          categoryId: pCategory,
+          description: pDesc.trim() || null,
+          imageUrl: pImg.trim() || null,
+          basePrice: pBasePrice,
+          unit: pUnit,
+        });
+        push("ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ù…Ù†ØªØ¬ Ø¨Ù†Ø¬Ø§Ø­", "success");
+      }
+      setProductModalOpen(false);
+    } catch {
+      push("ÙØ´Ù„ Ø­ÙØ¸ Ø§Ù„Ù…Ù†ØªØ¬ØŒ ØªØ£ÙƒØ¯ Ù…Ù† ØµØ­Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø¯Ø®Ù„Ø©", "danger");
+    }
+  };
+
+  const handleSaveCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingCategory) {
+        await mutations.updateCategory.mutateAsync({
+          id: editingCategory.id,
+          name: catName,
+          slug: catSlug || undefined,
+          sortOrder: catSort,
+        });
+        push("ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„ØªØµÙ†ÙŠÙ Ø¨Ù†Ø¬Ø§Ø­", "success");
+      } else {
+        await mutations.createCategory.mutateAsync({
+          name: catName,
+          slug: catSlug || undefined,
+          sortOrder: catSort,
+        });
+        push("ØªÙ… Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„ØªØµÙ†ÙŠÙ Ø¨Ù†Ø¬Ø§Ø­", "success");
+      }
+      setCategoryModalOpen(false);
+    } catch {
+      push("ÙØ´Ù„ Ø­ÙØ¸ Ø§Ù„ØªØµÙ†ÙŠÙ", "danger");
+    }
+  };
+
+  const handleSaveWarehouse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingWarehouse) {
+        await mutations.updateWarehouse.mutateAsync({
+          id: editingWarehouse.id,
+          name: whName,
+        });
+        push("ØªÙ… ØªØ¹Ø¯ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…Ø®Ø²Ù†", "success");
+      } else {
+        await mutations.createWarehouse.mutateAsync({ name: whName });
+        push("ØªÙ…Øª Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ø®Ø²Ù† Ø¨Ù†Ø¬Ø§Ø­", "success");
+      }
+      setWarehouseModalOpen(false);
+    } catch {
+      push("ÙØ´Ù„ Ø­ÙØ¸ Ø§Ù„Ù…Ø®Ø²Ù†", "danger");
+    }
+  };
+
+  const handleAddVariant = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProductForVariants) return;
+    try {
+      await mutations.createVariant.mutateAsync({
+        productId: selectedProductForVariants.id,
+        sku: varSku.trim(),
+        label: varLabel.trim(),
+        priceDelta: varPriceDelta.trim() || "0",
+      });
+      push("ØªÙ…Øª Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ù‚Ø§Ø³ Ø¨Ù†Ø¬Ø§Ø­", "success");
+      setVarSku("");
+      setVarLabel("");
+      setVarPriceDelta("0");
+    } catch {
+      push("ÙØ´Ù„ Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…Ù‚Ø§Ø³ØŒ ØªØ£ÙƒØ¯ Ù…Ù† Ø¹Ø¯Ù… ØªÙƒØ±Ø§Ø± Ø§Ù„Ù€ SKU", "danger");
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header & Tabs */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-display font-extrabold">Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„ÙƒØªØ§Ù„ÙˆØ¬ ÙˆØ§Ù„Ù…Ù†ØªØ¬Ø§Øª</h1>
+          <p className="text-sm text-muted">Ø¥Ø¶Ø§ÙØ© ÙˆØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ù…Ù†ØªØ¬Ø§ØªØŒ Ø§Ù„Ù…Ù‚Ø§Ø³Ø§ØªØŒ Ø§Ù„ØªØµÙ†ÙŠÙØ§ØªØŒ ÙˆØ§Ù„Ù…Ø®Ø§Ø²Ù†</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {tab === "products" && (
+            <button onClick={openNewProduct} className="btn-primary text-xs px-3.5 py-2">
+              <Plus className="h-4 w-4" />
+              <span>Ø¥Ø¶Ø§ÙØ© Ù…Ù†ØªØ¬</span>
+            </button>
+          )}
+          {tab === "categories" && (
+            <button
+              onClick={() => {
+                setEditingCategory(null);
+                setCatName("");
+                setCatSlug("");
+                setCatSort(0);
+                setCategoryModalOpen(true);
+              }}
+              className="btn-primary text-xs px-3.5 py-2"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Ø¥Ø¶Ø§ÙØ© ØªØµÙ†ÙŠÙ</span>
+            </button>
+          )}
+          {tab === "warehouses" && (
+            <button
+              onClick={() => {
+                setEditingWarehouse(null);
+                setWhName("");
+                setWarehouseModalOpen(true);
+              }}
+              className="btn-primary text-xs px-3.5 py-2"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Ø¥Ø¶Ø§ÙØ© Ù…Ø®Ø²Ù†</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Tab Switcher */}
+      <div className="flex items-center p-1 bg-surface2/60 border border-line/10 rounded-xl text-xs font-semibold w-fit">
+        <button
+          onClick={() => {
+            setTab("products");
+            setPage(1);
+          }}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-lg transition ${
+            tab === "products" ? "bg-primary text-primary-fg shadow-sm" : "text-muted hover:text-ink"
+          }`}
+        >
+          <Layers className="h-4 w-4" />
+          <span>Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª</span>
+        </button>
+        <button
+          onClick={() => {
+            setTab("categories");
+            setPage(1);
+          }}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-lg transition ${
+            tab === "categories" ? "bg-primary text-primary-fg shadow-sm" : "text-muted hover:text-ink"
+          }`}
+        >
+          <FolderTree className="h-4 w-4" />
+          <span>Ø§Ù„ØªØµÙ†ÙŠÙØ§Øª ({categories?.length ?? 0})</span>
+        </button>
+        <button
+          onClick={() => {
+            setTab("warehouses");
+            setPage(1);
+          }}
+          className={`flex items-center gap-1.5 px-4 py-2 rounded-lg transition ${
+            tab === "warehouses" ? "bg-primary text-primary-fg shadow-sm" : "text-muted hover:text-ink"
+          }`}
+        >
+          <WarehouseIcon className="h-4 w-4" />
+          <span>Ø§Ù„Ù…Ø®Ø§Ø²Ù† ({warehouses?.length ?? 0})</span>
+        </button>
+      </div>
+
+      {/* ================= PRODUCTS TAB ================= */}
+      {tab === "products" && (
+        <div className="space-y-4">
+          {/* Filters */}
+          <div className="card p-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="relative sm:col-span-2">
+              <Search className="absolute start-3 top-3 h-4 w-4 text-muted" />
+              <input
+                type="text"
+                placeholder="Ø¨Ø­Ø« Ø¨Ø§Ø³Ù… Ø§Ù„Ù…Ù†ØªØ¬ Ø£Ùˆ Ø§Ù„ÙˆØµÙ..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                className="input ps-9 text-xs"
+              />
+            </div>
+            <div>
+              <select
+                value={categoryFilter}
+                onChange={(e) => {
+                  setCategoryFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="input text-xs"
+              >
+                <option value="">Ø¬Ù…ÙŠØ¹ Ø§Ù„ØªØµÙ†ÙŠÙØ§Øª...</option>
+                {categories?.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {prodLoading && (
+            <div className="space-y-3">
+              {[...Array(6)].map((_, i) => (
+                <Skeleton key={i} className="h-16" />
+              ))}
+            </div>
+          )}
+
+          {prodError && <ErrorBox text="ÙØ´Ù„ ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª" onRetry={() => refetchProducts()} />}
+
+          {!prodLoading && !prodError && productsData && (
+            <div className="card overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-start">
+                  <thead className="bg-surface2/60 text-muted border-b border-line/10">
+                    <tr>
+                      <th className="p-3.5 text-start font-semibold">Ø§Ù„Ù…Ù†ØªØ¬</th>
+                      <th className="p-3.5 text-start font-semibold">Ø§Ù„ØªØµÙ†ÙŠÙ</th>
+                      <th className="p-3.5 text-center font-semibold">Ø§Ù„Ø³Ø¹Ø± Ø§Ù„Ø£Ø³Ø§Ø³ÙŠ</th>
+                      <th className="p-3.5 text-center font-semibold">Ø§Ù„ÙˆØ­Ø¯Ø©</th>
+                      <th className="p-3.5 text-center font-semibold">Ø§Ù„Ù…Ù‚Ø§Ø³Ø§Øª (Variants)</th>
+                      <th className="p-3.5 text-center font-semibold">Ø§Ù„Ø­Ø§Ù„Ø©</th>
+                      <th className="p-3.5 text-end font-semibold">Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-line/10">
+                    {productsData.items.map((prod) => (
+                      <tr key={prod.id} className="hover:bg-line/5 transition">
+                        <td className="p-3.5">
+                          <div className="font-bold text-ink">{prod.name}</div>
+                          {prod.description && (
+                            <div className="text-[11px] text-muted truncate max-w-xs">{prod.description}</div>
+                          )}
+                        </td>
+                        <td className="p-3.5 text-muted">{prod.category.name}</td>
+                        <td className="p-3.5 text-center font-bold text-primary font-mono">
+                          {formatCurrency(prod.basePrice)}
+                        </td>
+                        <td className="p-3.5 text-center text-muted">
+                          {prod.unit === "piece" ? "Ù‚Ø·Ø¹Ø©" : prod.unit === "meter" ? "Ù…ØªØ±" : "Ù…Â²"}
+                        </td>
+                        <td className="p-3.5 text-center">
+                          <button
+                            onClick={() => {
+                              setSelectedProductForVariants(prod);
+                              setVariantsModalOpen(true);
+                            }}
+                            className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
+                          >
+                            <span>{prod.variants.length} Ù…Ù‚Ø§Ø³Ø§Øª</span>
+                          </button>
+                        </td>
+                        <td className="p-3.5 text-center">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              prod.isActive ? "bg-success/15 text-success" : "bg-danger/15 text-danger"
+                            }`}
+                          >
+                            {prod.isActive ? "Ù†Ø´Ø·" : "Ù…Ø¹Ø·Ù„"}
+                          </span>
+                        </td>
+                        <td className="p-3.5 text-end">
+                          <div className="inline-flex items-center gap-1">
+                            <button
+                              onClick={() => openEditProduct(prod)}
+                              className="btn-ghost p-1.5 h-7 w-7 text-muted hover:text-ink"
+                              title="ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ù…Ù†ØªØ¬"
+                            >
+                              <Edit className="h-3.5 w-3.5" />
+                            </button>
+                            {prod.isActive && (
+                              <button
+                                onClick={async () => {
+                                  if (confirm(`Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† ØªØ¹Ø·ÙŠÙ„ Ø§Ù„Ù…Ù†ØªØ¬ "${prod.name}"ØŸ`)) {
+                                    await mutations.deleteProduct.mutateAsync(prod.id);
+                                    push("ØªÙ… ØªØ¹Ø·ÙŠÙ„ Ø§Ù„Ù…Ù†ØªØ¬", "info");
+                                  }
+                                }}
+                                className="btn-ghost p-1.5 h-7 w-7 text-muted hover:text-danger"
+                                title="ØªØ¹Ø·ÙŠÙ„"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              <div className="p-3 border-t border-line/10 flex items-center justify-between text-xs text-muted">
+                <span>
+                  Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª: <strong className="text-ink">{productsData.total}</strong>
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    disabled={page <= 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    className="btn-ghost text-xs px-3 py-1 h-8 disabled:opacity-40"
+                  >
+                    Ø§Ù„Ø³Ø§Ø¨Ù‚
+                  </button>
+                  <span className="font-semibold text-ink">
+                    ØµÙØ­Ø© {page} Ù…Ù† {Math.ceil(productsData.total / productsData.pageSize) || 1}
+                  </span>
+                  <button
+                    disabled={page * productsData.pageSize >= productsData.total}
+                    onClick={() => setPage((p) => p + 1)}
+                    className="btn-ghost text-xs px-3 py-1 h-8 disabled:opacity-40"
+                  >
+                    Ø§Ù„ØªØ§Ù„ÙŠ
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ================= CATEGORIES TAB ================= */}
+      {tab === "categories" && (
+        <div className="card overflow-hidden">
+          <table className="w-full text-xs text-start">
+            <thead className="bg-surface2/60 text-muted border-b border-line/10">
+              <tr>
+                <th className="p-3.5 text-start font-semibold">Ø§Ø³Ù… Ø§Ù„ØªØµÙ†ÙŠÙ</th>
+                <th className="p-3.5 text-start font-semibold">Ø§Ù„Ù…Ø¹Ø±Ù Ø§Ù„Ù„Ø§ØªÙŠÙ†ÙŠ (Slug)</th>
+                <th className="p-3.5 text-center font-semibold">Ø§Ù„ØªØ±ØªÙŠØ¨</th>
+                <th className="p-3.5 text-center font-semibold">Ø§Ù„Ø­Ø§Ù„Ø©</th>
+                <th className="p-3.5 text-end font-semibold">Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line/10">
+              {categories?.map((cat) => (
+                <tr key={cat.id} className="hover:bg-line/5 transition">
+                  <td className="p-3.5 font-bold text-ink">{cat.name}</td>
+                  <td className="p-3.5 font-mono text-muted">{cat.slug}</td>
+                  <td className="p-3.5 text-center font-mono">{cat.sortOrder}</td>
+                  <td className="p-3.5 text-center">
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        cat.isActive ? "bg-success/15 text-success" : "bg-danger/15 text-danger"
+                      }`}
+                    >
+                      {cat.isActive ? "Ù†Ø´Ø·" : "Ù…Ø¹Ø·Ù„"}
+                    </span>
+                  </td>
+                  <td className="p-3.5 text-end">
+                    <div className="inline-flex items-center gap-1">
+                      <button
+                        onClick={() => {
+                          setEditingCategory(cat);
+                          setCatName(cat.name);
+                          setCatSlug(cat.slug);
+                          setCatSort(cat.sortOrder);
                           setCategoryModalOpen(true);
                         }}
                         className="btn-ghost p-1.5 h-7 w-7 text-muted hover:text-ink"
