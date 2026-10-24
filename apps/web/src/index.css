@@ -105,3 +105,21 @@ h1, h2, h3, .font-display { font-family: Montserrat, Cairo, "IBM Plex Sans Arabi
   .purchase-invoice-paper h1 { border-bottom: 2px solid #079697; padding-bottom: 10px; }
   body.print-order-invoice .order-invoice .card { color: #182946 !important; background: #fff !important; border-color: #cbd5e1 !important; }
 }
+
+@media print {
+  body.print-order-modal * { visibility: hidden !important; }
+  body.print-order-modal .order-modal-document,
+  body.print-order-modal .order-modal-document * { visibility: visible !important; }
+  body.print-order-modal .order-modal-document {
+    position: fixed !important; inset: 0 !important; z-index: 9999 !important;
+    width: 100% !important; max-width: none !important; max-height: none !important;
+    overflow: visible !important; margin: 0 !important; padding: 0 !important; transform: none !important;
+    border: 0 !important; border-radius: 0 !important; box-shadow: none !important;
+    color: #182946 !important; background: #fff !important;
+  }
+  body.print-order-modal .order-modal-document > div { color: #182946 !important; background: #fff !important; border-color: #cbd5e1 !important; }
+  body.print-order-modal .order-modal-document table { color: #182946 !important; }
+  body.print-order-modal .order-modal-document th { color: #475569 !important; background: #f1f5f9 !important; }
+  body.print-order-modal .order-modal-document td { color: #182946 !important; border-color: #cbd5e1 !important; }
+}
+
