@@ -9,6 +9,42 @@ import { prisma } from "../../lib/db";
 const adminReportRoutes: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", app.requireRole("super_admin"));
 
+  app.get("/reports/audit-log", async (req) => {
+    const q = z.object({ from: z.string().date().optional(), to: z.string().date().optional(), q: z.string().trim().max(120).optional(), page: z.coerce.number().int().min(1).default(1), pageSize: z.coerce.number().int().min(1).max(100).default(50) })
+      .refine((value) => !value.from || !value.to || value.from <= value.to, { message: "Invalid date range" }).parse(req.query);
+    const createdAt: { gte?: Date; lte?: Date } = {};
+    if (q.from) createdAt.gte = new Date(`${q.from}T00:00:00.000Z`);
+    if (q.to) createdAt.lte = new Date(`${q.to}T23:59:59.999Z`);
+    const actorIds = q.q
+      ? (await prisma.user.findMany({ where: { OR: [{ fullName: { contains: q.q, mode: "insensitive" } }, { username: { contains: q.q, mode: "insensitive" } }] }, select: { id: true } })).map((user) => user.id)
+      : [];
+    const where = {
+      ...(Object.keys(createdAt).length ? { createdAt } : {}),
+      ...(q.q ? { OR: [
+        { action: { contains: q.q, mode: "insensitive" as const } },
+        { entity: { contains: q.q, mode: "insensitive" as const } },
+        { entityId: { contains: q.q, mode: "insensitive" as const } },
+        { meta: { contains: q.q, mode: "insensitive" as const } },
+        ...(actorIds.length ? [{ actorId: { in: actorIds } }] : []),
+      ] } : {}),
+    };
+    const [logs, total] = await Promise.all([
+      prisma.auditLog.findMany({ where, orderBy: [{ createdAt: "desc" }, { id: "desc" }], skip: (q.page - 1) * q.pageSize, take: q.pageSize }),
+      prisma.auditLog.count({ where }),
+    ]);
+    const users = await prisma.user.findMany({ where: { id: { in: [...new Set(logs.map((row) => row.actorId).filter((id): id is bigint => id !== null))] } }, select: { id: true, fullName: true, username: true } });
+    const actors = new Map(users.map((user) => [user.id.toString(), { fullName: user.fullName, username: user.username }]));
+    return {
+      items: logs.map((row) => {
+        let meta: unknown = row.meta;
+        if (row.meta) { try { meta = JSON.parse(row.meta); } catch { /* retain legacy plain-text metadata */ } }
+        return { id: row.id.toString(), actor: row.actorId ? actors.get(row.actorId.toString()) ?? null : null, action: row.action, entity: row.entity, entityId: row.entityId, meta, ip: row.ip, createdAt: row.createdAt.toISOString() };
+      }),
+      total,
+      page: q.page,
+      pageSize: q.pageSize,
+    };
+  });
   app.get("/reports/dashboard", async () => {
     return svc.getDashboardSummary();
   });
