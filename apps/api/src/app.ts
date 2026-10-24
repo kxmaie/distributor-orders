@@ -27,6 +27,8 @@ import assistantRoutes from "./modules/assistant/routes";
 import settingsRoutes from "./modules/settings/routes";
 import companyRoutes from "./modules/settings/company.routes";
 import { startWorker } from "./lib/worker";
+import { runWithTenant } from "./lib/tenant-context";
+import { resolveTenant } from "./lib/tenant-registry";
 
 export async function buildApp() {
   const app = Fastify({ logger: config.NODE_ENV !== "test", trustProxy: true });
@@ -41,6 +43,27 @@ export async function buildApp() {
   await app.register(jwt, { secret: config.JWT_SECRET });
   await app.register(rateLimit, { global: true, max: 200, timeWindow: "1 minute" });
   await app.register(authPlugin);
+
+  if (config.TENANCY_MODE === "multi") {
+    app.addHook("onRequest", (req, _reply, done) => {
+      if (req.method === "OPTIONS" || req.url.split("?")[0] === "/health") return done();
+      const tenantSlug = req.headers["x-tenant-slug"];
+      if (typeof tenantSlug !== "string") return done(new HttpError(400, "TENANT_REQUIRED", "حدد مساحة العمل أولاً"));
+      resolveTenant(tenantSlug).then((tenant) => {
+        if (!tenant) return done(new HttpError(404, "TENANT_NOT_FOUND", "مساحة العمل غير موجودة أو غير مفعلة"));
+        Object.assign(req, { tenantRelease: tenant.release });
+        runWithTenant(tenant, () => done());
+      }).catch((error) => done(error instanceof Error ? error : new Error("Tenant lookup failed")));
+    });
+    app.addHook("onResponse", (req, _reply, done) => {
+      (req as typeof req & { tenantRelease?: () => void }).tenantRelease?.();
+      done();
+    });
+    app.addHook("onError", (req, _reply, error, done) => {
+      (req as typeof req & { tenantRelease?: () => void }).tenantRelease?.();
+      done(error);
+    });
+  }
 
   // Demo environments are deliberately read-only. Keep authentication/session
   // endpoints available, but reject every business write at the API boundary.
@@ -98,7 +121,7 @@ export async function buildApp() {
 
   // Start the background notification worker after the app is built
   // (skipped on Vercel: serverless functions can't run background jobs)
-  if (config.NODE_ENV !== "test" && !process.env.VERCEL) startWorker();
+  if (config.NODE_ENV !== "test" && !process.env.VERCEL && config.TENANCY_MODE === "single") startWorker();
 
   return app;
 }

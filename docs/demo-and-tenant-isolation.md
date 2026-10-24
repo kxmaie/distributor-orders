@@ -1,44 +1,31 @@
-# Demo environment and customer database isolation
+# Demo and tenant isolation
 
-## Demo environment
+## Current single-customer deployment
 
-The demo must use a dedicated PostgreSQL database and a separate Vercel deployment. Never point the demo at the production database.
+`TENANCY_MODE` defaults to `single`; without changing the production environment, the API continues to use `DATABASE_URL` as it does today. `DEMO_MODE=true` rejects business writes at the API boundary. A demo must use its own API deployment and its own seeded database; do not enable `DEMO_MODE` on the existing production API.
 
-API project settings:
-- Root directory: `apps/api`
-- `DATABASE_URL`: connection URL for the dedicated demo database
-- `DEMO_MODE=true`
-- `JWT_SECRET`: a new random secret, different from production
-- `CORS_ORIGIN`: the demo website origin
-- `SEED_ADMIN_USERNAME`, `SEED_ADMIN_PASSWORD`: private demo login credentials
+## Tenant routing foundation
 
-Web project settings:
-- Root directory: `apps/web`
-- `VITE_API_BASE_URL`: demo API origin plus `/api/v1`
-- `VITE_DEMO_MODE=true`
+Multi-tenant API mode is opt-in and requires:
 
-After provisioning the empty demo database, run the existing Prisma migrations and seed the sample catalog:
+- `TENANCY_MODE=multi`
+- `CONTROL_DATABASE_URL`: a dedicated control-plane PostgreSQL database, separate from every customer database
+- `TENANT_ENCRYPTION_KEY`: 32 random bytes encoded as 64 hex characters; keep it as a Vercel secret and back it up securely
+- `X-Tenant-Slug` on every API request; the frontend can set `VITE_TENANT_SLUG` for a customer-specific deployment
 
-```powershell
-npm run migrate:deploy -w @do/api
-$env:DEMO_MODE = "true"
-npm run seed -w @do/api
-```
+Apply `apps/api/prisma/control/001_platform_tenants.sql` to the control database. This registry contains only tenant routing metadata and an AES-256-GCM encrypted database URL. Application modules continue importing the shared Prisma proxy, which routes through request-scoped async context. A signed access token is bound to the resolved tenant ID, so changing the tenant header cannot reuse another tenant's session. The API caps idle tenant clients at 12 per instance and returns a retryable capacity error instead of opening unlimited pools. The background worker stays disabled in multi mode until it is made tenant-aware.
 
-Run these commands with the demo database URL and demo seed credentials loaded in the local environment. Do not use production credentials. The seed operation is idempotent for its sample category, products, variants, and stock.
+To register a customer database after the provider has created it and the app migrations have been applied:
 
-The API enforces demo read-only behavior server-side; hiding or disabling buttons in the browser is not a security boundary. When the demo frontend and API use separate Vercel hosts, demo refresh cookies use `SameSite=None; Secure` with credentialed CORS. Authentication and session endpoints remain available, while business writes return `403 DEMO_READ_ONLY`. The UI displays a demo banner. Demo customers should use temporary credentials shared privately, not a reusable public password.
+1. Set `CONTROL_DATABASE_URL`, `TENANT_ENCRYPTION_KEY`, `TENANT_SLUG`, `TENANT_NAME`, `TENANT_DATABASE_URL`, and a valid `DATABASE_URL` in a trusted local environment file. Never paste database URLs or keys into chat or commit them.
+2. Run `npm run migrate:deploy -w @do/api` with `DATABASE_URL` temporarily set to `TENANT_DATABASE_URL`, then seed the tenant database with a unique initial super-admin account.
+3. Run `npx tsx apps/api/scripts/register-tenant.ts` from the repository root. Registration refuses to overwrite an existing slug and does not create or delete database resources.
+4. Configure the API's `CONTROL_DATABASE_URL`, `TENANT_ENCRYPTION_KEY`, `TENANCY_MODE=multi`, then deploy the API and set the matching frontend `VITE_TENANT_SLUG`.
 
-## Separate database per customer
+`DATABASE_URL` remains required by Prisma's generated client even in multi mode, but the request hook fails closed if a request has no registered tenant. Keep it pointed to a non-customer control database in multi mode. Health checks and CORS preflight requests are exempt from tenant resolution.
 
-The codebase currently connects to one PostgreSQL database through `DATABASE_URL`. This demo foundation does not yet implement customer provisioning or tenant-aware database routing.
+## Provider limits and production cutover
 
-The production design should have:
-1. A platform control database for tenant records, subscriptions, database references, provisioning status, and audit history.
-2. One PostgreSQL database per customer, with a separate connection pool and credentials.
-3. Tenant resolution and authorization in the API before any business query; a session must be bound to one tenant.
-4. Encrypted database credentials stored server-side, never returned to the browser or written to logs.
-5. Automated migrations, backup/restore, health checks, suspend/resume, and a safe first-tenant data migration.
-6. A platform-owner role separate from each customer's own super-admin role.
+The connected Prisma Postgres installation is on the **Free** plan: up to 50 databases, 2 GB total storage, and 100,000 monthly database operations. Current spend shown is 0. These are shared installation limits, not per-customer allowances. The separate `distributor-demo-db` resource was provisioned on `free` and is not connected to any Vercel project. The demo database still needs app migrations, seed data, and a dedicated demo API project before it can be shown. If provisioning needs a paid plan or exceeds included quota, stop and get the owner's approval before upgrading.
 
-The current production database must remain the existing single tenant until this routing and migration path is implemented and verified. Creating a demo deployment is independent of migrating or changing production data.
+This branch is a routing foundation, not a complete SaaS console: tenant provisioning, owner-facing customer controls, subscription management, backups/restores, and automated per-tenant migration orchestration are still outstanding. Do not switch the production API to multi mode until the separate control DB exists, the current production database is safely migrated as a tenant, every database is backed up and migrated, tenant registration and login have been exercised in preview, and a rollback is prepared. No production database or Vercel environment variable was changed by this foundation.

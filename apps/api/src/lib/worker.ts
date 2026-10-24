@@ -14,7 +14,7 @@
  * transaction commits) runs a batch almost immediately, so toasts / the bell don't wait for the poll.
  */
 import { prisma } from "./db";
-import { broadcast } from "./sse";
+import { broadcast, tenantUserKey } from "./sse";
 import { send as sendQueueMessage } from "@vercel/queue";
 import { waitUntil } from "@vercel/functions";
 import { isWhatsAppConfigured, PermanentError, sendWhatsApp } from "./whatsapp";
@@ -36,7 +36,7 @@ let warnedUnconfigured = false;
 function deliverInApp(recipient: string, payloadJson: string): void {
   let data: unknown;
   try { data = JSON.parse(payloadJson); } catch { data = payloadJson; }
-  broadcast(recipient, (data as { type?: string })?.type ?? "notification", data);
+  broadcast(tenantUserKey(recipient), (data as { type?: string })?.type ?? "notification", data);
 }
 
 export async function processOneBatch(): Promise<void> {

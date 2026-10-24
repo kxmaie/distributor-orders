@@ -2,11 +2,12 @@ import fp from "fastify-plugin";
 import type { FastifyRequest } from "fastify";
 import type { Role } from "@do/shared";
 import { HttpError } from "../lib/errors";
+import { currentTenant } from "../lib/tenant-context";
 
 declare module "@fastify/jwt" {
   interface FastifyJWT {
-    payload: { sub: string; role: Role };
-    user: { sub: string; role: Role };
+    payload: { sub: string; role: Role; tenantId?: string };
+    user: { sub: string; role: Role; tenantId?: string };
   }
 }
 declare module "fastify" {
@@ -23,6 +24,8 @@ export default fp(async (app) => {
     } catch {
       throw new HttpError(401, "UNAUTHORIZED");
     }
+    const tenant = currentTenant();
+    if (tenant && req.user.tenantId !== tenant.id) throw new HttpError(401, "TENANT_SESSION_MISMATCH");
   };
   app.decorate("authenticate", authenticate);
   app.decorate("requireRole", (...roles: Role[]) => async (req: FastifyRequest) => {
