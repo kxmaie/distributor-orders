@@ -37,6 +37,7 @@ const AdminReports = lazy(() => import("./pages/admin/Reports"));
 const AdminAccounts = lazy(() => import("./pages/admin/Accounts"));
 const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 const AdminPurchases = lazy(() => import("./pages/admin/Purchases"));
+const AdminCompanyProfile = lazy(() => import("./pages/admin/CompanyProfile"));
 const SupplierInventory = lazy(() => import("./pages/SupplierInventory"));
 
 function Boot({ children }: { children: ReactElement }) {
@@ -127,6 +128,7 @@ export default function App() {
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="orders/:id" element={<AdminOrderDetails />} />
                 <Route path="settings" element={<AdminSettings />} />
+                <Route path="company" element={<SuperAdminOnly><AdminCompanyProfile /></SuperAdminOnly>} />
                 <Route path="stock" element={<SuperAdminOnly><AdminStock /></SuperAdminOnly>} />
                 <Route path="purchases" element={<SuperAdminOnly><AdminPurchases /></SuperAdminOnly>} />
                 <Route path="products" element={<SuperAdminOnly><AdminProducts /></SuperAdminOnly>} />

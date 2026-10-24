@@ -26,11 +26,12 @@ export type Priced = {
 export type OrderUser = { id: string; username: string; fullName: string; phone?: string | null };
 export type OrderSummary = {
   id: string; orderNo: string; status: OrderStatus; warehouse: { id: number; name: string };
-  itemCount: number; subtotal: string; discountTotal: string; total: string; createdAt: string; updatedAt: string;
+  itemCount: number; subtotal: string; discountTotal: string; adminDiscount?: string; total: string; createdAt: string; updatedAt: string;
   user?: OrderUser;
 };
 export type OrderDetail = Omit<OrderSummary, "itemCount"> & {
   notes: string | null;
+  adminDiscount: string;
   items: { id: string; variantId: string; productId: string; sku: string; unit: string; piecesPerUnit: number; productName: string; variantLabel: string; unitPrice: string; discountPct: string; qty: number; lineTotal: string }[];
   deliveries: { id: string; trackingNumber: string | null; note: string | null; deliveredAt: string; amount: string; items: { orderItemId: string; qty: number; amount: string }[] }[];
   history: { fromStatus: string | null; toStatus: OrderStatus; createdAt: string; changedBy?: string; note?: string | null }[];
@@ -100,3 +101,5 @@ export type PasswordRequest = {
 
 export type { DashboardSummary } from "@do/shared";
 
+
+export type CompanyProfile = { name: string; address: string | null; taxNumber: string | null; commercialRegister: string | null; phone: string | null; logoUrl: string | null };

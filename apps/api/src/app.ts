@@ -24,6 +24,7 @@ import eventsRoutes from "./modules/events/routes";
 import accountRoutes from "./modules/accounts/routes";
 import assistantRoutes from "./modules/assistant/routes";
 import settingsRoutes from "./modules/settings/routes";
+import companyRoutes from "./modules/settings/company.routes";
 import { startWorker } from "./lib/worker";
 
 export async function buildApp() {
@@ -76,6 +77,7 @@ export async function buildApp() {
   await app.register(accountRoutes, { prefix: "/api/v1" });
   await app.register(assistantRoutes, { prefix: "/api/v1" });
   await app.register(settingsRoutes, { prefix: "/api/v1" });
+  await app.register(companyRoutes, { prefix: "/api/v1" });
 
   // Start the background notification worker after the app is built
   // (skipped on Vercel: serverless functions can't run background jobs)

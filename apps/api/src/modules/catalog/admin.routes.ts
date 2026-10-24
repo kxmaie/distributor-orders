@@ -23,7 +23,7 @@ const adminCatalogRoutes: FastifyPluginAsync = async (app) => {
         body: req.body as HandleUploadBody,
         request: req.raw,
         onBeforeGenerateToken: async (pathname) => {
-          if (!/^products\/[^/]+$/.test(pathname)) {
+          if (!/^(products|company)\/[^/]+$/.test(pathname)) {
             throw new HttpError(400, "INVALID_UPLOAD_PATH");
           }
           return {

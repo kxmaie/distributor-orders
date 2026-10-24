@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
-  Boxes, ClipboardList, FolderTree, LayoutDashboard, LogOut, Menu, Moon, Package, Percent, Settings, Shield, Store, Sun, Tag, Users, Wallet, Warehouse as WarehouseIcon, X,
+  Boxes, Building2, ClipboardList, FolderTree, LayoutDashboard, LogOut, Menu, Moon, Package, Percent, Settings, Shield, Sparkles, Store, Sun, Tag, Users, Wallet, Warehouse as WarehouseIcon, X,
 } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -28,6 +28,7 @@ const NAV = [
   { to: "/admin/reports", label: "التقارير", icon: Tag, end: false, badgeKey: null },
   { to: "/admin/accounts", label: "حسابات الموزعين", icon: Wallet, end: false, badgeKey: null },
   { to: "/admin/settings", label: "إعدادات الطلبات والوحدات", icon: Settings, end: false, badgeKey: null },
+  { to: "/admin/company", label: "بيانات المنشأة", icon: Building2, end: false, badgeKey: null },
 ] as const;
 
 type BadgeKey = "newOrdersCount" | "pendingRegistrations" | "pendingPasswordRequests";
@@ -123,6 +124,7 @@ export default function AdminLayout() {
               <Logo className="h-8" />
             </div>
             <div className="ms-auto flex items-center gap-2">
+              <button type="button" aria-label="فتح المساعد الذكي" title="المساعد الذكي" onClick={() => window.dispatchEvent(new Event("assistant:toggle"))} className="grid h-11 w-11 place-items-center rounded-xl text-muted hover:bg-primary/10 hover:text-primary"><Sparkles className="h-5 w-5" /></button>
               <NotificationBell />
               <button aria-label="تغيير المظهر" onClick={toggleTheme} className="grid h-11 w-11 place-items-center rounded-xl text-muted hover:bg-line/5">
                 {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}

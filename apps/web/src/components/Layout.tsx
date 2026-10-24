@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ClipboardList, Home, LayoutGrid, Moon, ShoppingCart, Sun, User, Wallet } from "lucide-react";
+import { ClipboardList, Home, LayoutGrid, Moon, ShoppingCart, Sparkles, Sun, User, Wallet } from "lucide-react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../store/auth";
 import { cartCount, useCart } from "../store/cart";
@@ -39,6 +39,7 @@ export default function Layout() {
             ))}
           </nav>
           <div className="flex items-center gap-2">
+            {role !== "supplier" && <button type="button" aria-label="فتح المساعد الذكي" title="المساعد الذكي" onClick={() => window.dispatchEvent(new Event("assistant:toggle"))} className="grid h-11 w-11 place-items-center rounded-xl text-muted hover:bg-primary/10 hover:text-primary"><Sparkles className="h-5 w-5" /></button>}
             {role && (role === "admin" || role === "super_admin") && (
               <NavLink to="/admin" className="hidden rounded-lg px-3 py-2 text-sm font-medium text-primary md:inline">لوحة الأدمن</NavLink>
             )}

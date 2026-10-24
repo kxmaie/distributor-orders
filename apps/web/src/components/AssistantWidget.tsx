@@ -1,7 +1,7 @@
 import { upload } from "@vercel/blob/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, ArrowUp, Check, FileSpreadsheet, ImagePlus, LoaderCircle, Paperclip, Sparkles, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api, ApiError, errorText } from "../lib/api";
 import { formatCurrency } from "../lib/format";
 import { useAuth } from "../store/auth";
@@ -52,6 +52,12 @@ export default function AssistantWidget() {
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (!user || user.role === "supplier") return;
+    const toggle = () => setOpen((value) => !value);
+    window.addEventListener("assistant:toggle", toggle);
+    return () => window.removeEventListener("assistant:toggle", toggle);
+  }, [user?.id, user?.role]);
   if (!user || user.role === "supplier") return null;
 
   async function send() {
@@ -118,9 +124,7 @@ export default function AssistantWidget() {
   const isAdmin = user.role !== "distributor";
   return (
     <>
-      <button type="button" onClick={() => setOpen((v) => !v)} className="fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] end-4 z-[55] flex h-14 items-center gap-2 rounded-full bg-primary px-4 text-white shadow-soft transition hover:scale-[1.03] md:bottom-6" aria-label="افتح المساعد الذكي">
-        <Sparkles className="h-5 w-5" /><span className="text-sm font-bold">مساعدك الذكي</span>
-      </button>
+
       <AnimatePresence>
         {open && <motion.section dir="rtl" initial={{ opacity: 0, y: 18, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 14 }} className="fixed inset-x-3 bottom-[calc(9.5rem+env(safe-area-inset-bottom))] z-[56] flex max-h-[min(76dvh,700px)] flex-col overflow-hidden rounded-2xl border border-line/15 bg-bg shadow-soft sm:inset-x-auto sm:end-5 sm:w-[min(440px,calc(100vw-2rem))] md:bottom-24">
           <header className="flex items-center gap-3 border-b border-line/10 bg-primary/5 p-4">
