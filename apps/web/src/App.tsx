@@ -45,6 +45,7 @@ const AdminPurchasesReport = lazy(() => import("./pages/admin/PurchasesReport"))
 const AdminAccountingReport = lazy(() => import("./pages/admin/AccountingReport"));
 const AdminProductReport = lazy(() => import("./pages/admin/ProductReport"));
 const AdminInventoryReport = lazy(() => import("./pages/admin/InventoryReport"));
+const AdminReturnsReport = lazy(() => import("./pages/admin/ReturnsReport"));
 const AdminItemMovements = lazy(() => import("./pages/admin/ItemMovements"));
 const SupplierInventory = lazy(() => import("./pages/SupplierInventory"));
 
@@ -147,6 +148,8 @@ export default function App() {
                 <Route path="stock/movements" element={<SuperAdminOnly><AdminItemMovements /></SuperAdminOnly>} />
                 <Route path="reports/sales" element={<SuperAdminOnly><AdminReports /></SuperAdminOnly>} />
                 <Route path="reports/purchases" element={<SuperAdminOnly><AdminPurchasesReport /></SuperAdminOnly>} />
+                <Route path="reports/returns/sales" element={<SuperAdminOnly><AdminReturnsReport kind="sales" /></SuperAdminOnly>} />
+                <Route path="reports/returns/purchases" element={<SuperAdminOnly><AdminReturnsReport kind="purchases" /></SuperAdminOnly>} />
                 <Route path="reports/accounting" element={<SuperAdminOnly><AdminAccountingReport /></SuperAdminOnly>} />
                 <Route path="reports/products" element={<SuperAdminOnly><AdminProductReport /></SuperAdminOnly>} />
                 <Route path="reports/inventory" element={<SuperAdminOnly><AdminInventoryReport /></SuperAdminOnly>} />

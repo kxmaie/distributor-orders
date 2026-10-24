@@ -72,6 +72,8 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
     select: { createdAt: true, total: true, userId: true, user: { select: { fullName: true, username: true } } },
   });
 
+  const salesReturns = await prisma.salesReturn.findMany({ select: { total: true, createdAt: true, order: { select: { userId: true } } } });
+
   let totalRev = new Prisma.Decimal(0);
   let todayRev = new Prisma.Decimal(0);
   let monthRev = new Prisma.Decimal(0);
@@ -101,6 +103,14 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
     distributorMap.set(uKey, curr);
   }
 
+  for (const row of salesReturns) {
+    totalRev = totalRev.sub(row.total);
+    if (row.createdAt >= startOfToday) todayRev = todayRev.sub(row.total);
+    if (row.createdAt >= startOfMonth) monthRev = monthRev.sub(row.total);
+    const distributor = distributorMap.get(row.order.userId.toString());
+    if (distributor) distributor.totalSpend = distributor.totalSpend.sub(row.total);
+  }
+
   const topDistributors = Array.from(distributorMap.values())
     .sort((a, b) => (b.totalSpend.greaterThan(a.totalSpend) ? 1 : -1))
     .slice(0, 5)
@@ -126,6 +136,11 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
       e.revenue = e.revenue.add(o.total);
       e.orders += 1;
     }
+  }
+  for (const row of salesReturns) {
+    const key = row.createdAt.toISOString().slice(0, 10);
+    const day = trendMap.get(key);
+    if (day) day.revenue = day.revenue.sub(row.total);
   }
   const salesTrend = Array.from(trendMap.entries()).map(([date, data]) => ({
     date,
