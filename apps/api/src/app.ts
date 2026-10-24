@@ -35,8 +35,23 @@ export async function buildApp() {
   const app = Fastify({ logger: config.NODE_ENV !== "test", trustProxy: true });
 
   await app.register(helmet);
+  const configuredCorsOrigins = new Set(
+    (config.DEMO_MODE && config.DEMO_CORS_ORIGIN ? config.DEMO_CORS_ORIGIN : config.CORS_ORIGIN)
+      .split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+  );
+  // Vercel gives every preview deployment its own hostname. The web app and API
+  // are separate Vercel projects, so exact CORS env values cannot cover previews.
+  // Restrict this exception to this app's team-scoped preview hostnames; keep
+  // production and custom domains on the explicit allowlist above.
+  const isProjectPreviewOrigin = (origin: string) =>
+    /^https:\/\/distributor-orders-[a-z0-9-]+-momo-c550\.vercel\.app$/i.test(origin);
   await app.register(cors, {
-    origin: (config.DEMO_MODE && config.DEMO_CORS_ORIGIN ? config.DEMO_CORS_ORIGIN : config.CORS_ORIGIN).split(","),
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, false);
+      callback(null, configuredCorsOrigins.has(origin) || isProjectPreviewOrigin(origin));
+    },
     credentials: true,
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
   });
