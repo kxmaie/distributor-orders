@@ -6,7 +6,7 @@ import { api, ApiError, errorText } from "../lib/api";
 import { formatCurrency } from "../lib/format";
 import { useAuth } from "../store/auth";
 
-type ProductProposal = { name: string; categoryId: number; basePrice: string; unit: "piece" | "meter" | "sqm"; description?: string; sku?: string; variantLabel?: string; initialStock?: number; imageUrl?: string; imageRef?: string };
+type ProductProposal = { name: string; categoryId: number; basePrice: string; unit: "piece" | "carton" | "meter" | "sqm"; description?: string; sku?: string; variantLabel?: string; initialStock?: number; imageUrl?: string; imageRef?: string };
 type Action =
   | { type: "none" }
   | { type: "create_order"; items: { variantId: string; productName: string; variantLabel: string; qty: number }[]; notes?: string }
@@ -52,7 +52,7 @@ export default function AssistantWidget() {
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLInputElement>(null);
-  if (!user) return null;
+  if (!user || user.role === "supplier") return null;
 
   async function send() {
     const prompt = draft.trim();

@@ -187,7 +187,7 @@ const adminCatalogRoutes: FastifyPluginAsync = async (app) => {
           imageUrl: b.imageUrl?.trim() ?? null,
           basePrice: b.basePrice,
           unit: b.unit,
-          piecesPerUnit: b.piecesPerUnit,
+          piecesPerUnit: b.unit === "carton" ? b.piecesPerUnit : 1,
         },
       });
 
@@ -277,11 +277,13 @@ const adminCatalogRoutes: FastifyPluginAsync = async (app) => {
     const data = ProductUpdate.parse(req.body);
     if (data.unit && !await prisma.productUnit.findFirst({ where: { name: data.unit, isActive: true } })) throw new HttpError(400, "INVALID_UNIT", "وحدة المنتج غير معرفة أو متوقفة");
     const actorId = actor(req);
-    const before = await prisma.product.findUnique({ where: { id }, select: { basePrice: true } });
+    const before = await prisma.product.findUnique({ where: { id }, select: { basePrice: true, unit: true } });
     if (!before) throw new HttpError(404, "PRODUCT_NOT_FOUND");
 
     // Extract stock-related fields before updating the product
     const { warehouseId: stockWhId, stockAdjust, ...productData } = data;
+    const finalUnit = productData.unit ?? before.unit;
+    if (finalUnit !== "carton") productData.piecesPerUnit = 1;
 
     const row = await prisma.product.update({ where: { id }, data: productData });
     const meta: Record<string, unknown> = { ...productData };

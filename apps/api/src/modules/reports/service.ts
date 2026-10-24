@@ -27,7 +27,7 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
     prisma.order.count(),
     prisma.order.count({ where: { status: "new" } }),
     prisma.passwordRequest.count({ where: { status: "pending" } }),
-    prisma.user.count({ where: { isActive: false, role: "distributor" } }),
+    prisma.user.count({ where: { isActive: false, registrationRejectedAt: null, role: { in: ["distributor", "supplier"] } } }),
     prisma.order.groupBy({
       by: ["status"],
       _count: { _all: true },

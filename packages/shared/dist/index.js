@@ -81,7 +81,7 @@ module.exports = __toCommonJS(index_exports);
 
 // src/auth.ts
 var import_zod = require("zod");
-var RoleSchema = import_zod.z.enum(["distributor", "admin", "super_admin"]);
+var RoleSchema = import_zod.z.enum(["distributor", "supplier", "admin", "super_admin"]);
 var PASSWORD_MIN_LENGTH = 12;
 var LoginBody = import_zod.z.object({
   username: import_zod.z.string().trim().min(3).max(60),
@@ -91,7 +91,8 @@ var RegisterBody = import_zod.z.object({
   username: import_zod.z.string().trim().min(3).max(60),
   password: import_zod.z.string().min(PASSWORD_MIN_LENGTH).max(200),
   fullName: import_zod.z.string().trim().min(2).max(120),
-  phone: import_zod.z.string().trim().min(5).max(20).optional()
+  phone: import_zod.z.string().trim().min(5).max(20),
+  role: import_zod.z.enum(["distributor", "supplier"])
 });
 var PasswordRequestBody = import_zod.z.object({
   username: import_zod.z.string().trim().min(3).max(60),
@@ -109,7 +110,7 @@ var WhatsAppConsentBody = import_zod.z.object({ enabled: import_zod.z.boolean() 
 
 // src/enums.ts
 var ORDER_STATUSES = ["new", "confirmed", "ready", "delivered", "cancelled"];
-var UNITS = ["piece", "meter", "sqm"];
+var UNITS = ["piece", "carton", "meter", "sqm"];
 var MOVEMENT_TYPES = ["receipt", "adjustment", "reserve", "release", "ship"];
 var RESERVATION_STATUSES = ["active", "released", "fulfilled"];
 var PASSWORD_REQUEST_STATUSES = ["pending", "resolved", "rejected"];

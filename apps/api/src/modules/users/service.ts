@@ -60,7 +60,8 @@ export async function listUsers(q: UserListQueryInput) {
 export async function listPendingUsers(q: UserListQueryInput) {
   const where: Prisma.UserWhereInput = {
     isActive: false,
-    role: "distributor",
+    role: { in: ["distributor", "supplier"] },
+    registrationRejectedAt: null,
   };
   if (q.q) {
     where.OR = [
@@ -89,6 +90,7 @@ export async function approveUser(id: bigint, input: UserApproveInput, actorId: 
   const existing = await prisma.user.findUnique({ where: { id } });
   if (!existing) throw new HttpError(404, "USER_NOT_FOUND", "المستخدم غير موجود");
   if (existing.isActive) throw new HttpError(400, "ALREADY_ACTIVE", "الحساب مفعّل بالفعل");
+  if (existing.registrationRejectedAt) throw new HttpError(400, "REGISTRATION_REJECTED", "تم رفض طلب التسجيل بالفعل");
 
   const updated = await prisma.user.update({
     where: { id },
@@ -103,14 +105,14 @@ export async function approveUser(id: bigint, input: UserApproveInput, actorId: 
   return updated;
 }
 
-/** Reject & permanently delete a pending distributor registration */
+/** Mark rejected without deleting an account that may have audit/history references. */
 export async function rejectUser(id: bigint, actorId: bigint, ip?: string) {
   const existing = await prisma.user.findUnique({ where: { id } });
   if (!existing) throw new HttpError(404, "USER_NOT_FOUND", "المستخدم غير موجود");
   if (existing.isActive) throw new HttpError(400, "CANNOT_REJECT_ACTIVE", "لا يمكن رفض حساب مفعّل");
+  if (existing.registrationRejectedAt) throw new HttpError(400, "REGISTRATION_REJECTED", "تم رفض طلب التسجيل بالفعل");
 
-  // Hard delete — pending user has no orders or history yet
-  await prisma.user.delete({ where: { id } });
+  await prisma.user.update({ where: { id }, data: { registrationRejectedAt: new Date() } });
   await audit(actorId, "user.reject", "user", id, { username: existing.username }, ip);
 }
 

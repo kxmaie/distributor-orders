@@ -84,7 +84,7 @@ export default function OrderDetails() {
               <li key={i.id} className="card flex items-center justify-between gap-3 p-4">
                 <div>
                   <p className="font-semibold">{i.productName}</p>
-                  <p className="text-sm text-muted">{i.variantLabel} · {i.qty} × {money(i.unitPrice)}{i.piecesPerUnit > 1 && ` · ${i.piecesPerUnit} قطعة/وحدة` }{Number(i.discountPct) > 0 && ` · خصم ${Number(i.discountPct)}%`}</p>
+                  <p className="text-sm text-muted">{i.variantLabel} · {i.qty} × {money(i.unitPrice)}{i.piecesPerUnit > 1 && ` · ${i.piecesPerUnit} قطعة في الكرتونة` }{Number(i.discountPct) > 0 && ` · خصم ${Number(i.discountPct)}%`}</p>
                   {(deliveredQty.get(i.id) ?? 0) > 0 && <p className="mt-1 text-xs text-success">تم تسليم {deliveredQty.get(i.id)} من {i.qty}</p>}
                 </div>
                 <p className="font-display font-bold text-primary">{money(i.lineTotal)}</p>

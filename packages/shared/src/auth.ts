@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const RoleSchema = z.enum(["distributor", "admin", "super_admin"]);
+export const RoleSchema = z.enum(["distributor", "supplier", "admin", "super_admin"]);
 export type Role = z.infer<typeof RoleSchema>;
 
 export const PASSWORD_MIN_LENGTH = 12;
@@ -15,7 +15,8 @@ export const RegisterBody = z.object({
   username: z.string().trim().min(3).max(60),
   password: z.string().min(PASSWORD_MIN_LENGTH).max(200),
   fullName: z.string().trim().min(2).max(120),
-  phone: z.string().trim().min(5).max(20).optional(),
+  phone: z.string().trim().min(5).max(20),
+  role: z.enum(["distributor", "supplier"]),
 });
 export type RegisterBody = z.infer<typeof RegisterBody>;
 

@@ -1,6 +1,6 @@
 import type { OrderStatus } from "@do/shared";
 
-export type Role = "distributor" | "admin" | "super_admin";
+export type Role = "distributor" | "supplier" | "admin" | "super_admin";
 export type User = { id: string; username: string; fullName: string; phone: string | null; whatsappOptInAt: string | null; role: Role };
 
 export type Category = { id: number; name: string; slug: string; sortOrder: number };

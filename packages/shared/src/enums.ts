@@ -3,7 +3,7 @@
 export const ORDER_STATUSES = ["new", "confirmed", "ready", "delivered", "cancelled"] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
-export const UNITS = ["piece", "meter", "sqm"] as const;
+export const UNITS = ["piece", "carton", "meter", "sqm"] as const;
 export type Unit = string;
 
 export const MOVEMENT_TYPES = ["receipt", "adjustment", "reserve", "release", "ship"] as const;

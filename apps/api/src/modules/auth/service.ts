@@ -62,6 +62,7 @@ export async function login(username: string, password: string, meta: Meta) {
   }
 
   if (!user.isActive) {
+    if (user.registrationRejectedAt) throw new HttpError(403, "ACCOUNT_REJECTED", "تم رفض طلب التسجيل. تواصل مع الإدارة إذا كنت تعتقد أن هذا خطأ.");
     throw new HttpError(403, "ACCOUNT_PENDING", "حسابك قيد المراجعة من قبل الإدارة، سيتم تفعيله قريباً");
   }
 
@@ -157,7 +158,7 @@ export async function register(input: RegisterBody, ip?: string) {
       passwordHash,
       fullName,
       phone,
-      role: "distributor",
+      role: input.role,
       defaultDiscountPct: 0,
       isActive: false, // Inactive pending admin approval
     },

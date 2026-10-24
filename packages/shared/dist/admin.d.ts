@@ -5,18 +5,18 @@ export declare const UserListQuery: z.ZodObject<{
     pageSize: z.ZodDefault<z.ZodNumber>;
 } & {
     q: z.ZodOptional<z.ZodString>;
-    role: z.ZodOptional<z.ZodEnum<["distributor", "admin", "super_admin"]>>;
+    role: z.ZodOptional<z.ZodEnum<["distributor", "supplier", "admin", "super_admin"]>>;
     active: z.ZodOptional<z.ZodEnum<["true", "false"]>>;
     pending: z.ZodOptional<z.ZodEnum<["true", "false"]>>;
 }, "strip", z.ZodTypeAny, {
     page: number;
     pageSize: number;
-    role?: "distributor" | "admin" | "super_admin" | undefined;
+    role?: "distributor" | "supplier" | "admin" | "super_admin" | undefined;
     active?: "true" | "false" | undefined;
     pending?: "true" | "false" | undefined;
     q?: string | undefined;
 }, {
-    role?: "distributor" | "admin" | "super_admin" | undefined;
+    role?: "distributor" | "supplier" | "admin" | "super_admin" | undefined;
     active?: "true" | "false" | undefined;
     pending?: "true" | "false" | undefined;
     page?: number | undefined;
@@ -36,13 +36,13 @@ export declare const UserCreate: z.ZodObject<{
     password: z.ZodString;
     fullName: z.ZodString;
     phone: z.ZodOptional<z.ZodEffects<z.ZodUnion<[z.ZodString, z.ZodNull]>, string | null, string | null>>;
-    role: z.ZodDefault<z.ZodEnum<["distributor", "admin", "super_admin"]>>;
+    role: z.ZodDefault<z.ZodEnum<["distributor", "supplier", "admin", "super_admin"]>>;
     defaultDiscountPct: z.ZodDefault<z.ZodEffects<z.ZodEffects<z.ZodEffects<z.ZodUnion<[z.ZodNumber, z.ZodString]>, string, string | number>, string, string | number>, string, string | number>>;
 }, "strip", z.ZodTypeAny, {
     username: string;
     password: string;
     fullName: string;
-    role: "distributor" | "admin" | "super_admin";
+    role: "distributor" | "supplier" | "admin" | "super_admin";
     defaultDiscountPct: string;
     phone?: string | null | undefined;
 }, {
@@ -50,13 +50,13 @@ export declare const UserCreate: z.ZodObject<{
     password: string;
     fullName: string;
     phone?: string | null | undefined;
-    role?: "distributor" | "admin" | "super_admin" | undefined;
+    role?: "distributor" | "supplier" | "admin" | "super_admin" | undefined;
     defaultDiscountPct?: string | number | undefined;
 }>;
 export declare const UserUpdate: z.ZodObject<{
     fullName: z.ZodOptional<z.ZodString>;
     phone: z.ZodOptional<z.ZodEffects<z.ZodUnion<[z.ZodString, z.ZodNull]>, string | null, string | null>>;
-    role: z.ZodOptional<z.ZodEnum<["distributor", "admin", "super_admin"]>>;
+    role: z.ZodOptional<z.ZodEnum<["distributor", "supplier", "admin", "super_admin"]>>;
     defaultDiscountPct: z.ZodOptional<z.ZodEffects<z.ZodEffects<z.ZodEffects<z.ZodUnion<[z.ZodNumber, z.ZodString]>, string, string | number>, string, string | number>, string, string | number>>;
     isActive: z.ZodOptional<z.ZodBoolean>;
     password: z.ZodOptional<z.ZodString>;
@@ -65,7 +65,7 @@ export declare const UserUpdate: z.ZodObject<{
     password?: string | undefined;
     fullName?: string | undefined;
     phone?: string | null | undefined;
-    role?: "distributor" | "admin" | "super_admin" | undefined;
+    role?: "distributor" | "supplier" | "admin" | "super_admin" | undefined;
     isActive?: boolean | undefined;
     defaultDiscountPct?: string | undefined;
     unlock?: true | undefined;
@@ -73,7 +73,7 @@ export declare const UserUpdate: z.ZodObject<{
     password?: string | undefined;
     fullName?: string | undefined;
     phone?: string | null | undefined;
-    role?: "distributor" | "admin" | "super_admin" | undefined;
+    role?: "distributor" | "supplier" | "admin" | "super_admin" | undefined;
     isActive?: boolean | undefined;
     defaultDiscountPct?: string | number | undefined;
     unlock?: true | undefined;

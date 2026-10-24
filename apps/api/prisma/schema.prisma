@@ -18,9 +18,10 @@ model User {
   fullName           String    @map("full_name") @db.VarChar(120)
   phone              String?   @db.VarChar(30)
   whatsappOptInAt    DateTime? @map("whatsapp_opt_in_at")
-  role               String    @default("distributor") @db.VarChar(20) // distributor | admin | super_admin
+  role               String    @default("distributor") @db.VarChar(20) // distributor | supplier | admin | super_admin
   defaultDiscountPct Decimal   @default(0) @map("default_discount_pct") @db.Decimal(5, 2)
   isActive           Boolean   @default(true) @map("is_active")
+  registrationRejectedAt DateTime? @map("registration_rejected_at")
   failedLogins       Int       @default(0) @map("failed_logins")
   lockedUntil        DateTime? @map("locked_until")
   createdAt          DateTime  @default(now()) @map("created_at")

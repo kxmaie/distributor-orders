@@ -14,6 +14,7 @@ export default function AdminProductEdit() {
   const push = useUI((s) => s.push);
   const qc = useQueryClient();
   const [imageUrl, setImageUrl] = useState("");
+  const [editUnit, setEditUnit] = useState("piece");
 
   // Modals state
   const [varOpen, setVarOpen] = useState(false);
@@ -30,7 +31,7 @@ export default function AdminProductEdit() {
     queryKey: ["admin-product", id],
     queryFn: () => api.get<AdminProduct>(`/admin/products/${id}`),
   });
-  useEffect(() => { if (p.data) setImageUrl(p.data.imageUrl ?? ""); }, [p.data?.id, p.data?.imageUrl]);
+  useEffect(() => { if (p.data) { setImageUrl(p.data.imageUrl ?? ""); setEditUnit(p.data.unit); } }, [p.data?.id, p.data?.imageUrl, p.data?.unit]);
   const units = useQuery({ queryKey: ["units"], queryFn: () => api.get<{ name: string; label: string }[]>("/units") });
   const cats = useQuery({
     queryKey: ["admin-cats"],
@@ -100,14 +101,15 @@ export default function AdminProductEdit() {
   function onSaveProduct(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
+    const selectedUnit = String(f.get("unit"));
     saveProduct.mutate({
       categoryId: Number(f.get("categoryId")),
       name: String(f.get("name")),
       description: String(f.get("description") || "") || null,
       imageUrl: String(f.get("imageUrl") || "") || null,
       basePrice: String(f.get("basePrice")),
-      unit: String(f.get("unit")),
-      piecesPerUnit: Number(f.get("piecesPerUnit") || 1),
+      unit: selectedUnit,
+      piecesPerUnit: selectedUnit === "carton" ? Number(f.get("piecesPerUnit") || 1) : 1,
       isActive: f.get("isActive") === "on",
     });
   }
@@ -251,7 +253,7 @@ export default function AdminProductEdit() {
 
         <label className="label">
           الوحدة
-          <select name="unit" className="input text-xs" defaultValue={prod.unit}>
+          <select name="unit" className="input text-xs" value={editUnit} onChange={(e) => setEditUnit(e.target.value)}>
             {(units.data ?? []).map((u) => (
               <option key={u.name} value={u.name}>
                 {u.label}
@@ -271,13 +273,7 @@ export default function AdminProductEdit() {
           />
         </label>
 
-        <label className="label">
-
-          عدد القطع في الوحدة أو الكرتونة
-
-          <input name="piecesPerUnit" className="input" type="number" min="1" max="100000" defaultValue={prod.piecesPerUnit ?? 1} required />
-
-        </label>
+        {editUnit === "carton" && <label className="label">عدد القطع في الكرتونة<input name="piecesPerUnit" className="input" type="number" min="1" max="100000" defaultValue={prod.piecesPerUnit > 1 ? prod.piecesPerUnit : 100} required /></label>}
 
         <label className="label">
 

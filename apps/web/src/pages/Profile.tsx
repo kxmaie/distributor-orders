@@ -8,7 +8,7 @@ import { useCart } from "../store/cart";
 import { useUI } from "../store/ui";
 import { InstallButton } from "../components/PWAPrompts";
 
-const ROLE = { distributor: "موزع", admin: "أدمن", super_admin: "مدير النظام" } as const;
+const ROLE = { distributor: "موزع", supplier: "مورد", admin: "أدمن", super_admin: "مدير النظام" } as const;
 
 export default function Profile() {
   const user = useAuth((s) => s.user)!;
@@ -49,7 +49,7 @@ export default function Profile() {
           <div key={k} className="flex items-center justify-between p-4"><dt className="text-muted">{k}</dt><dd className="font-semibold" dir={ltr ? "ltr" : undefined}>{v}</dd></div>
         ))}
       </dl>
-      <section className="card space-y-3 p-4">
+      {user.role !== "supplier" && <section className="card space-y-3 p-4">
         <div>
           <h2 className="font-semibold">إشعارات واتساب</h2>
           <p className="mt-1 text-sm text-muted">تُرسل تحديثات الطلبات إلى رقم الهاتف المسجل في حسابك. تقدر توقفها في أي وقت.</p>
@@ -59,9 +59,9 @@ export default function Profile() {
           <input type="checkbox" checked={Boolean(user.whatsappOptInAt)} disabled={!user.phone || whatsAppBusy} onChange={(event) => void setWhatsAppOptIn(event.target.checked)} className="h-4 w-4 accent-primary" />
           أوافق على استلام رسائل واتساب عن الطلبات
         </label>
-      </section>
+      </section>}
       <div className="grid gap-3">
-        {user.role !== "distributor" && (
+        {(user.role === "admin" || user.role === "super_admin") && (
           <Link to="/admin" className="btn-primary"><LayoutDashboard className="h-4 w-4" /> لوحة الأدمن</Link>
         )}
         <button className="btn-ghost" onClick={toggleTheme}>{theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />} {theme === "dark" ? "المظهر الفاتح" : "المظهر الداكن"}</button>

@@ -17,6 +17,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useState } from "react";
+import { errorText } from "../../lib/api";
 import { EmptyState, ErrorBox, Skeleton } from "../../components/ui";
 import {
   useAdminPasswordRequests,
@@ -33,6 +34,7 @@ import { useUI } from "../../store/ui";
 
 const ROLE_LABEL: Record<Role, string> = {
   distributor: "موزع",
+  supplier: "مورد",
   admin: "مسؤول (Admin)",
   super_admin: "سوبر أدمن",
 };
@@ -180,12 +182,12 @@ export default function AdminUsers() {
   };
 
   const handleRejectUser = async (u: AdminUser) => {
-    if (!confirm(`هل تريد رفض وحذف طلب تسجيل "${u.fullName}" نهائياً؟`)) return;
+    if (!confirm(`هل تريد رفض طلب تسجيل "${u.fullName}"؟`)) return;
     try {
       await rejectUser.mutateAsync(u.id);
-      push("تم رفض طلب التسجيل وحذف الحساب", "info");
-    } catch {
-      push("فشل رفض طلب التسجيل", "danger");
+      push("تم رفض طلب التسجيل", "info");
+    } catch (e) {
+      push(`فشل رفض الطلب: ${errorText(e)}`, "danger");
     }
   };
 
@@ -335,6 +337,7 @@ export default function AdminUsers() {
                           <td className="p-3.5">
                             <div className="font-bold text-ink">{u.fullName}</div>
                             <div className="text-[11px] text-muted font-mono">@{u.username}</div>
+                          <div className="text-[11px] text-primary">{ROLE_LABEL[u.role]}</div>
                           </td>
                           <td className="p-3.5 text-center">
                             <span
@@ -477,6 +480,7 @@ export default function AdminUsers() {
                         <td className="p-3.5">
                           <div className="font-bold text-ink">{u.fullName}</div>
                           <div className="text-[11px] text-muted font-mono">@{u.username}</div>
+                          <div className="text-[11px] text-primary">{ROLE_LABEL[u.role]}</div>
                         </td>
                         <td className="p-3.5 text-muted">{u.phone || "—"}</td>
                         <td className="p-3.5 text-center text-muted">{formatDate(u.createdAt)}</td>
@@ -493,7 +497,7 @@ export default function AdminUsers() {
                             <button
                               onClick={() => handleRejectUser(u)}
                               className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-danger/15 text-danger hover:bg-danger/25 transition text-xs font-semibold"
-                              title="رفض وحذف الطلب"
+                              title="رفض الطلب"
                             >
                               <UserX className="h-3.5 w-3.5" />
                               رفض
@@ -762,7 +766,7 @@ export default function AdminUsers() {
             className="card w-full max-w-sm p-6 bg-surface shadow-2xl space-y-4"
           >
             <div className="flex items-center justify-between pb-2 border-b border-line/10">
-              <h2 className="text-base font-bold text-ink">قبول طلب تسجيل موزع</h2>
+              <h2 className="text-base font-bold text-ink">قبول طلب تسجيل مستخدم</h2>
               <button
                 onClick={() => setApproveModalOpen(false)}
                 className="h-7 w-7 rounded-lg grid place-items-center text-muted hover:text-ink"

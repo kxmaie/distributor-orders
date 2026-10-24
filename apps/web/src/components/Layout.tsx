@@ -22,6 +22,7 @@ export default function Layout() {
   const setOpen = useCart((s) => s.setOpen);
   const { theme, toggleTheme } = useUI();
   const role = useAuth((s) => s.user?.role);
+  const navItems = role === "supplier" ? [{ to: "/supplier/inventory", label: "المخزون", icon: LayoutGrid, end: false }, { to: "/profile", label: "ملفي", icon: User, end: false }] : NAV;
 
   return (
     <div className="min-h-dvh pb-24 md:pb-0">
@@ -31,20 +32,20 @@ export default function Layout() {
             <Logo className="h-10" />
           </NavLink>
           <nav className="hidden items-center gap-1 md:flex">
-            {NAV.map((n) => (
+            {navItems.map((n) => (
               <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => `rounded-lg px-4 py-2 text-sm font-medium transition ${isActive ? "bg-primary/15 text-primary" : "text-muted hover:text-ink"}`}>
                 {n.label}
               </NavLink>
             ))}
           </nav>
           <div className="flex items-center gap-2">
-            {role && role !== "distributor" && (
+            {role && (role === "admin" || role === "super_admin") && (
               <NavLink to="/admin" className="hidden rounded-lg px-3 py-2 text-sm font-medium text-primary md:inline">لوحة الأدمن</NavLink>
             )}
             <button aria-label="تغيير المظهر" onClick={toggleTheme} className="grid h-11 w-11 place-items-center rounded-xl text-muted hover:bg-line/5 hover:text-ink">
               {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
-            <button aria-label="السلة" onClick={() => setOpen(true)} className="relative grid h-11 w-11 place-items-center rounded-xl bg-primary/15 text-primary hover:bg-primary/25">
+            {role !== "supplier" && <button aria-label="السلة" onClick={() => setOpen(true)} className="relative grid h-11 w-11 place-items-center rounded-xl bg-primary/15 text-primary hover:bg-primary/25">
               <ShoppingCart className="h-5 w-5" />
               {count > 0 && (
                 <motion.span key={count} initial={{ scale: 0.4 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 500, damping: 15 }}
@@ -52,7 +53,7 @@ export default function Layout() {
                   {count > 99 ? "99+" : count}
                 </motion.span>
               )}
-            </button>
+            </button>}
           </div>
         </div>
       </header>
@@ -64,8 +65,8 @@ export default function Layout() {
       </main>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line/10 bg-bg/95 md:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
-        <ul className="mx-auto grid max-w-md grid-cols-5">
-          {NAV.map((n) => (
+        <ul className={`mx-auto grid max-w-md ${role === "supplier" ? "grid-cols-2" : "grid-cols-5"}`}>
+          {navItems.map((n) => (
             <li key={n.to}>
               <NavLink to={n.to} end={n.end} className={({ isActive }) => `flex min-h-16 flex-col items-center justify-center gap-1 text-xs ${isActive ? "text-primary" : "text-muted"}`}>
                 <n.icon className="h-5 w-5" /> {n.label}
@@ -74,7 +75,7 @@ export default function Layout() {
           ))}
         </ul>
       </nav>
-      <CartDrawer />
+      {role !== "supplier" && <CartDrawer />}
       <InstallBanner />
     </div>
   );
