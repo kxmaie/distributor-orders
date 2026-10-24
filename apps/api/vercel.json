@@ -2,18 +2,25 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "cd ../.. && npm install",
-  "buildCommand": "cd ../.. && npm run build -w @do/shared && npm run generate -w @do/api && if [ \"$VERCEL_ENV\" = \"production\" ]; then npm run migrate:deploy -w @do/api; fi && npm run build -w @do/api && npm run build:vercel -w @do/api",
+  "buildCommand": "cd ../.. && npm run build -w @do/shared && npm run generate -w @do/api && if [ \"$VERCEL_ENV\" = \"production\" ]; then npm run migrate:deploy -w @do/api; elif [ \"$DEMO_MODE\" = \"true\" ]; then : \"${DEMO_DATABASE_URL:?DEMO_DATABASE_URL is required for demo previews}\"; export DATABASE_URL=\"$DEMO_DATABASE_URL\"; npm run migrate:deploy -w @do/api && npm run seed -w @do/api; fi && npm run build -w @do/api && npm run build:vercel -w @do/api",
   "functions": {
     "api/index.js": {
       "includeFiles": "../../packages/shared/dist/index.js"
     },
     "api/whatsapp-notifications.ts": {
       "experimentalTriggers": [
-        { "type": "queue/v2beta", "topic": "whatsapp-notifications", "retryAfterSeconds": 60 }
+        {
+          "type": "queue/v2beta",
+          "topic": "whatsapp-notifications",
+          "retryAfterSeconds": 60
+        }
       ]
     }
   },
   "rewrites": [
-    { "source": "/(.*)", "destination": "/api/index" }
+    {
+      "source": "/(.*)",
+      "destination": "/api/index"
+    }
   ]
 }

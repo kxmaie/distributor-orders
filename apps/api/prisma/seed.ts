@@ -6,9 +6,10 @@ import { hashPassword } from "../src/lib/password";
 const prisma = new PrismaClient();
 
 async function main() {
-  const username = process.env.SEED_ADMIN_USERNAME?.trim().toLowerCase();
-  const password = process.env.SEED_ADMIN_PASSWORD;
-  const fullName = process.env.SEED_ADMIN_FULLNAME ?? "Super Admin";
+  const demo = process.env.DEMO_MODE === "true";
+  const username = (demo ? process.env.DEMO_SEED_ADMIN_USERNAME : process.env.SEED_ADMIN_USERNAME)?.trim().toLowerCase();
+  const password = demo ? process.env.DEMO_SEED_ADMIN_PASSWORD : process.env.SEED_ADMIN_PASSWORD;
+  const fullName = (demo ? process.env.DEMO_SEED_ADMIN_FULLNAME : process.env.SEED_ADMIN_FULLNAME) ?? (demo ? "Demo Admin" : "Super Admin");
   if (!username || !password) throw new Error("Set SEED_ADMIN_USERNAME and SEED_ADMIN_PASSWORD");
   if (password.length < PASSWORD_MIN_LENGTH || password.startsWith("CHANGE_ME"))
     throw new Error(`SEED_ADMIN_PASSWORD must be a real password (>= ${PASSWORD_MIN_LENGTH} chars)`);

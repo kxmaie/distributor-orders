@@ -9,6 +9,11 @@ const Env = z.object({
   DATABASE_URL: z.string().min(1),
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 chars"),
   DEMO_MODE: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
+  DEMO_DATABASE_URL: emptyToUndef(z.string().url().optional()),
+  DEMO_CORS_ORIGIN: emptyToUndef(z.string().optional()),
+  DEMO_SEED_ADMIN_USERNAME: emptyToUndef(z.string().min(1).optional()),
+  DEMO_SEED_ADMIN_PASSWORD: emptyToUndef(z.string().optional()),
+  DEMO_SEED_ADMIN_FULLNAME: emptyToUndef(z.string().optional()),
   TENANCY_MODE: z.enum(["single", "multi"]).default("single"),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().default(3000),
@@ -35,6 +40,9 @@ const Env = z.object({
 });
 
 export const config = Env.parse(process.env);
+if (config.DEMO_MODE && config.NODE_ENV === "production" && !config.DEMO_DATABASE_URL) {
+  throw new Error("DEMO_MODE requires a dedicated DEMO_DATABASE_URL");
+}
 export const isProd = config.NODE_ENV === "production";
 
 export const ACCESS_TTL = "15m";

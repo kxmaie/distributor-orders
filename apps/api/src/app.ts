@@ -35,7 +35,7 @@ export async function buildApp() {
 
   await app.register(helmet);
   await app.register(cors, {
-    origin: config.CORS_ORIGIN.split(","),
+    origin: (config.DEMO_MODE && config.DEMO_CORS_ORIGIN ? config.DEMO_CORS_ORIGIN : config.CORS_ORIGIN).split(","),
     credentials: true,
     methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
   });
