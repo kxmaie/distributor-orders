@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
-  Boxes, Building2, ClipboardList, FolderTree, LayoutDashboard, LogOut, Menu, Moon, Package, Percent, Settings, Shield, Sparkles, Store, Sun, Users, Wallet, Warehouse as WarehouseIcon, X, ReceiptText, TrendingUp, ShoppingBag, RotateCcw,
+  Boxes, Building2, ClipboardList, FolderTree, History, LayoutDashboard, LogOut, Menu, Moon, Package, Percent, Settings, Shield, Sparkles, Store, Sun, Users, Wallet, Warehouse as WarehouseIcon, X, ReceiptText, TrendingUp, ShoppingBag, RotateCcw,
 } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -23,7 +23,7 @@ const NAV_GROUPS = [
   { key:"accounting",label:"المحاسبة",icon:Wallet,superAdminOnly:true,items:[{to:"/admin/accounting",label:"شجرة الحسابات والسندات",icon:Wallet}] },
   { key:"reports",label:"التقارير",icon:TrendingUp,superAdminOnly:true,items:[{to:"/admin/reports/sales",label:"تقارير المبيعات",icon:ReceiptText},{to:"/admin/reports/returns/sales",label:"مرتجعات المبيعات",icon:RotateCcw},{to:"/admin/reports/purchases",label:"تقارير المشتريات",icon:Package},{to:"/admin/reports/returns/purchases",label:"مرتجعات المشتريات",icon:RotateCcw},{to:"/admin/reports/products",label:"تقارير المنتجات",icon:ShoppingBag},{to:"/admin/reports/inventory",label:"تقارير المخزون",icon:Boxes},{to:"/admin/reports/accounting",label:"تقارير المحاسبة",icon:Wallet}] },
   { key:"settings",label:"إعدادات الطلبات والوحدات",icon:Settings,items:[{to:"/admin/settings",label:"إعدادات الطلبات والوحدات",icon:Settings}] },
-  { key:"management",label:"الإدارة",icon:Settings,superAdminOnly:true,items:[{to:"/admin/products",label:"المنتجات",icon:Package},{to:"/admin/categories",label:"التصنيفات",icon:FolderTree},{to:"/admin/warehouses",label:"المخازن",icon:WarehouseIcon},{to:"/admin/users",label:"المستخدمون",icon:Users,badgeKey:"pendingRegistrations"},{to:"/admin/discounts",label:"الخصومات",icon:Percent},{to:"/admin/password-requests",label:"طلبات الباسورد",icon:Shield,badgeKey:"pendingPasswordRequests"},{to:"/admin/accounts",label:"حسابات الموزعين",icon:Wallet},{to:"/admin/company",label:"بيانات المنشأة",icon:Building2}] },
+  { key:"management",label:"الإدارة",icon:Settings,superAdminOnly:true,items:[{to:"/admin/products",label:"المنتجات",icon:Package},{to:"/admin/categories",label:"التصنيفات",icon:FolderTree},{to:"/admin/warehouses",label:"المخازن",icon:WarehouseIcon},{to:"/admin/users",label:"المستخدمون",icon:Users,badgeKey:"pendingRegistrations"},{to:"/admin/discounts",label:"الخصومات",icon:Percent},{to:"/admin/password-requests",label:"طلبات الباسورد",icon:Shield,badgeKey:"pendingPasswordRequests"},{to:"/admin/accounts",label:"حسابات الموزعين",icon:Wallet},{to:"/admin/audit",label:"سجل التغييرات",icon:History},{to:"/admin/company",label:"بيانات المنشأة",icon:Building2}] },
 ] as const;
 
 type BadgeKey = "newOrdersCount" | "pendingRegistrations" | "pendingPasswordRequests";

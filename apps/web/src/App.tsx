@@ -47,6 +47,7 @@ const AdminProductReport = lazy(() => import("./pages/admin/ProductReport"));
 const AdminInventoryReport = lazy(() => import("./pages/admin/InventoryReport"));
 const AdminReturnsReport = lazy(() => import("./pages/admin/ReturnsReport"));
 const AdminItemMovements = lazy(() => import("./pages/admin/ItemMovements"));
+const AdminAuditLog = lazy(() => import("./pages/admin/AuditLog"));
 const SupplierInventory = lazy(() => import("./pages/SupplierInventory"));
 
 function Boot({ children }: { children: ReactElement }) {
@@ -162,6 +163,7 @@ export default function App() {
                 <Route path="password-requests" element={<SuperAdminOnly><AdminPasswordRequests /></SuperAdminOnly>} />
                 <Route path="reports" element={<Navigate to="/admin/reports/sales" replace />} />
                 <Route path="accounts" element={<SuperAdminOnly><AdminAccounts /></SuperAdminOnly>} />
+                <Route path="audit" element={<SuperAdminOnly><AdminAuditLog /></SuperAdminOnly>} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
