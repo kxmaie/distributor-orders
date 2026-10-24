@@ -39,6 +39,12 @@ const AdminAccounts = lazy(() => import("./pages/admin/Accounts"));
 const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 const AdminPurchases = lazy(() => import("./pages/admin/Purchases"));
 const AdminCompanyProfile = lazy(() => import("./pages/admin/CompanyProfile"));
+const AdminReturns = lazy(() => import("./pages/admin/Returns"));
+const AdminAccounting = lazy(() => import("./pages/admin/Accounting"));
+const AdminPurchasesReport = lazy(() => import("./pages/admin/PurchasesReport"));
+const AdminAccountingReport = lazy(() => import("./pages/admin/AccountingReport"));
+const AdminOtherReports = lazy(() => import("./pages/admin/OtherReports"));
+const AdminItemMovements = lazy(() => import("./pages/admin/ItemMovements"));
 const SupplierInventory = lazy(() => import("./pages/SupplierInventory"));
 
 function Boot({ children }: { children: ReactElement }) {
@@ -58,104 +64,4 @@ function Boot({ children }: { children: ReactElement }) {
 function RequireAuth({ children }: { children: ReactElement }) {
   const status = useAuth((s) => s.status);
   const loc = useLocation();
-  if (status === "anon") return <Navigate to="/login" replace state={{ from: loc.pathname + loc.search }} />;
-  return children;
-}
-
-function RequireAdmin({ children }: { children: ReactElement }) {
-  const user = useAuth((s) => s.user);
-  const loc = useLocation();
-  if (!user) return <Navigate to="/login" replace state={{ from: loc.pathname }} />;
-  if (user.role !== "admin" && user.role !== "super_admin") return <Navigate to={user.role === "supplier" ? "/supplier/inventory" : "/"} replace />;
-  return children;
-}
-
-function RequireBuyer({ children }: { children: ReactElement }) {
-  const role = useAuth((s) => s.user?.role);
-  return role === "supplier" ? <Navigate to="/supplier/inventory" replace /> : children;
-}
-
-function RequireSupplier({ children }: { children: ReactElement }) {
-  const role = useAuth((s) => s.user?.role);
-  return role === "supplier" ? children : <Navigate to="/" replace />;
-}
-
-function RoleHome() {
-  const role = useAuth((s) => s.user?.role);
-  return role === "supplier" ? <Navigate to="/supplier/inventory" replace /> : <Home />;
-}
-
-function AdminIndex() {
-  const role = useAuth((s) => s.user?.role);
-  return role === "super_admin" ? <AdminDashboard /> : <Navigate to="/admin/orders" replace />;
-}
-
-function SuperAdminOnly({ children }: { children: ReactElement }) {
-  const role = useAuth((s) => s.user?.role);
-  return role === "super_admin" ? children : <Navigate to="/admin/orders" replace />;
-}
-
-function Fall() {
-  return <div className="grid min-h-[40vh] place-items-center text-primary"><Spinner /></div>;
-}
-
-export default function App() {
-  useEffect(() => {
-    refreshSession().then((ok) => { if (!ok) useAuth.getState().clear(); });
-  }, []);
-
-  return (
-    <MotionConfig reducedMotion="user">
-      <BrowserRouter>
-        <Boot>
-          <Suspense fallback={<Fall />}>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route element={<RequireAuth><Layout /></RequireAuth>}>
-                <Route index element={<RoleHome />} />
-                <Route path="supplier/inventory" element={<RequireSupplier><SupplierInventory /></RequireSupplier>} />
-                <Route path="profile" element={<Profile />} />
-                <Route element={<RequireBuyer><Outlet /></RequireBuyer>}>
-                  <Route path="catalog" element={<Catalog />} />
-                  <Route path="products/:id" element={<ProductDetails />} />
-                  <Route path="checkout" element={<Checkout />} />
-                  <Route path="orders" element={<Orders />} />
-                  <Route path="orders/:id" element={<OrderDetails />} />
-                  <Route path="account" element={<Account />} />
-                </Route>
-              </Route>
-              <Route path="/admin" element={<RequireAuth><RequireAdmin><AdminLayout /></RequireAdmin></RequireAuth>}>
-                <Route index element={<AdminIndex />} />
-                <Route path="orders" element={<AdminOrders />} />
-                <Route path="orders/:id" element={<AdminOrderDetails />} />
-                <Route path="sales" element={<AdminSales />} />
-                <Route path="sales/:id" element={<AdminOrderDetails />} />
-                <Route path="settings" element={<AdminSettings />} />
-                <Route path="company" element={<SuperAdminOnly><AdminCompanyProfile /></SuperAdminOnly>} />
-                <Route path="stock" element={<SuperAdminOnly><AdminStock /></SuperAdminOnly>} />
-                <Route path="purchases" element={<SuperAdminOnly><AdminPurchases /></SuperAdminOnly>} />
-                <Route path="products" element={<SuperAdminOnly><AdminProducts /></SuperAdminOnly>} />
-                <Route path="products/:id" element={<SuperAdminOnly><AdminProductEdit /></SuperAdminOnly>} />
-                <Route path="categories" element={<SuperAdminOnly><AdminCategories /></SuperAdminOnly>} />
-                <Route path="warehouses" element={<SuperAdminOnly><AdminWarehouses /></SuperAdminOnly>} />
-                <Route path="users" element={<SuperAdminOnly><AdminUsers /></SuperAdminOnly>} />
-                <Route path="discounts" element={<SuperAdminOnly><AdminDiscounts /></SuperAdminOnly>} />
-                <Route path="password-requests" element={<SuperAdminOnly><AdminPasswordRequests /></SuperAdminOnly>} />
-                <Route path="reports" element={<SuperAdminOnly><AdminReports /></SuperAdminOnly>} />
-                <Route path="accounts" element={<SuperAdminOnly><AdminAccounts /></SuperAdminOnly>} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </Boot>
-        {/* SSE connection — mounts for any authenticated user */}
-        <SSEProvider />
-        <AssistantWidget />
-        <Toasts />
-        <OfflineBanner />
-        <UpdatePrompt />
-      </BrowserRouter>
-    </MotionConfig>
-  );
-}
-
+  if (status === "anon") return <Navigate to="/login" replace state={{ from: lo

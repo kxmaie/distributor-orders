@@ -70,25 +70,4 @@ const MESSAGES: Record<string, string> = {
   USERNAME_TAKEN: "اسم المستخدم مستخدم بالفعل، يرجى اختيار اسم آخر",
   RATE_LIMITED: "محاولات كثيرة، انتظر قليلًا ثم أعد المحاولة",
   INSUFFICIENT_STOCK: "الكمية المطلوبة غير متوفرة حاليًا",
-  NO_SINGLE_WAREHOUSE: "لا يوجد مخزن واحد يغطي كل الأصناف، قسّم الطلب إلى طلبين",
-  ITEM_UNAVAILABLE: "أحد المنتجات لم يعد متاحًا",
-  CANCEL_NOT_ALLOWED: "لا يمكن إلغاء الطلب بعد تأكيده",
-  INVALID_TRANSITION: "لا يمكن تنفيذ هذا الإجراء على الطلب",
-  ORDER_NOT_FOUND: "الطلب غير موجود",
-  PRODUCT_NOT_FOUND: "المنتج غير موجود",
-  VALIDATION: "البيانات المدخلة غير صحيحة",
-  UNAUTHORIZED: "انتهت الجلسة، سجّل الدخول من جديد",
-  FORBIDDEN: "ليست لديك صلاحية لهذا الإجراء",
-  USER_NOT_FOUND: "المستخدم غير موجود",
-  CANNOT_MODIFY_SELF: "لا يمكنك تنفيذ هذا الإجراء على حسابك",
-  ALREADY_RESOLVED: "تم البت في هذا الطلب مسبقًا",
-  DISCOUNT_NOT_FOUND: "الخصم غير موجود",
-  VARIANT_NOT_FOUND: "المقاس غير موجود",
-  WAREHOUSE_NOT_FOUND: "المخزن غير موجود",
-  CONFLICT: "تعارض في البيانات، حدّث الصفحة وحاول مرة أخرى",
-  ORDER_ITEM_LIMIT: "الطلب تجاوز الحد الأقصى للأصناف المسموح به، قلل عدد الأصناف وحاول مرة أخرى",
-  ADMIN_ORDER_ACTION_FORBIDDEN: "الأدمن يقدر يعتمد الطلب أو يلغيه أو يجهزه للبيع فقط",
-  AI_PROVIDER_ERROR: "خدمة المساعد واجهت مشكلة. تأكد من إعداد AI Gateway في Vercel ثم حاول مرة أخرى.",
-};
-export const errorText = (e: unknown) =>
-  e instanceof ApiError ? MESSAGES[e.code] ?? (e.message || "حدث خطأ غير متوقع، حاول مرة أخرى") : "تعذّر الاتصال بالخادم، تأكد من الإنترنت";
+  NO_SINGLE_WA
