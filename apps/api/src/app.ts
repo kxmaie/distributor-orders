@@ -61,7 +61,7 @@ export async function buildApp() {
     });
     app.addHook("onError", (req, _reply, error, done) => {
       (req as typeof req & { tenantRelease?: () => void }).tenantRelease?.();
-      done(error);
+      done();
     });
   }
 
