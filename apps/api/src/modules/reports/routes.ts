@@ -43,6 +43,36 @@ const adminReportRoutes: FastifyPluginAsync = async (app) => {
     const gross = purchases.reduce((sum, row) => sum + Number(row.total), 0), returned = returns.reduce((sum, row) => sum + Number(row.total), 0);
     return { summary: { grossPurchases: gross.toFixed(2), purchaseReturns: returned.toFixed(2), netPurchases: (gross - returned).toFixed(2), purchaseCount: purchases.length, returnCount: returns.length }, invoices: purchases.map(row => ({ id: row.id.toString(), kind: "purchase", number: row.invoiceNo, supplier: row.supplier, date: row.createdAt.toISOString(), total: row.total.toString(), items: row.items.map(i => ({ product: i.variant.product.name, variant: i.variant.label, qty: i.qty, unitCost: i.unitCost.toString(), total: i.lineTotal.toString(), warehouse: i.warehouse.name })) })), returns: returns.map(row => ({ id: row.id.toString(), kind: "return", number: row.returnNo, supplier: row.supplier, invoiceNo: row.purchase.invoiceNo, date: row.createdAt.toISOString(), total: row.total.toString(), items: row.items.map(i => ({ product: i.variant.product.name, variant: i.variant.label, qty: i.qty, unitCost: i.unitCost.toString(), total: i.lineTotal.toString(), warehouse: i.warehouse.name })) })) };
   });
+  app.get("/reports/returns/sales", async (req) => {
+    const q = z.object({ from: z.string().date().optional(), to: z.string().date().optional() }).refine(v => !v.from || !v.to || v.from <= v.to, { message: "Invalid date range" }).parse(req.query);
+    const date: { gte?: Date; lte?: Date } = {};
+    if (q.from) date.gte = new Date(`${q.from}T00:00:00.000Z`);
+    if (q.to) date.lte = new Date(`${q.to}T23:59:59.999Z`);
+    const rows = await prisma.salesReturn.findMany({
+      where: Object.keys(date).length ? { createdAt: date } : {},
+      include: { order: { include: { user: { select: { fullName: true } } } }, items: { include: { variant: { include: { product: true } } } } },
+      orderBy: { createdAt: "desc" }, take: 2000,
+    });
+    return {
+      summary: { count: rows.length, quantity: rows.reduce((sum, row) => sum + row.items.reduce((n, item) => n + item.qty, 0), 0), total: rows.reduce((sum, row) => sum + Number(row.total), 0).toFixed(2) },
+      rows: rows.map(row => ({ id: row.id.toString(), number: row.returnNo, invoiceNo: row.order.orderNo, customer: row.order.user.fullName, date: row.createdAt.toISOString(), total: row.total.toString(), items: row.items.map(item => ({ product: item.variant.product.name, variant: item.variant.label, qty: item.qty, unitPrice: item.unitPrice.toString(), total: item.lineTotal.toString() })) })),
+    };
+  });
+  app.get("/reports/returns/purchases", async (req) => {
+    const q = z.object({ from: z.string().date().optional(), to: z.string().date().optional() }).refine(v => !v.from || !v.to || v.from <= v.to, { message: "Invalid date range" }).parse(req.query);
+    const date: { gte?: Date; lte?: Date } = {};
+    if (q.from) date.gte = new Date(`${q.from}T00:00:00.000Z`);
+    if (q.to) date.lte = new Date(`${q.to}T23:59:59.999Z`);
+    const rows = await prisma.purchaseReturn.findMany({
+      where: { ...(Object.keys(date).length ? { createdAt: date } : {}), purchase: { voidedAt: null } },
+      include: { purchase: { select: { invoiceNo: true } }, items: { include: { variant: { include: { product: true } } } } },
+      orderBy: { createdAt: "desc" }, take: 2000,
+    });
+    return {
+      summary: { count: rows.length, quantity: rows.reduce((sum, row) => sum + row.items.reduce((n, item) => n + item.qty, 0), 0), total: rows.reduce((sum, row) => sum + Number(row.total), 0).toFixed(2) },
+      rows: rows.map(row => ({ id: row.id.toString(), number: row.returnNo, invoiceNo: row.purchase.invoiceNo, supplier: row.supplier, date: row.createdAt.toISOString(), total: row.total.toString(), items: row.items.map(item => ({ product: item.variant.product.name, variant: item.variant.label, qty: item.qty, unitPrice: item.unitCost.toString(), total: item.lineTotal.toString() })) })),
+    };
+  });
   app.get("/reports/accounting/trial-balance", async (req) => {
     const q = z.object({ from: z.string().date().optional(), to: z.string().date().optional() }).refine(v => !v.from || !v.to || v.from <= v.to, { message: "Invalid date range" }).parse(req.query);
     const through: { lte?: Date } = {};
@@ -65,11 +95,13 @@ const adminReportRoutes: FastifyPluginAsync = async (app) => {
     if (q.to) date.lte = new Date(`${q.to}T23:59:59.999Z`);
     const deliveryWhere = Object.keys(date).length ? { delivery: { deliveredAt: date } } : {};
     const returnWhere = Object.keys(date).length ? { salesReturn: { createdAt: date } } : {};
-    const [deliveries, returns] = await Promise.all([
+    const [variants, deliveries, returns] = await Promise.all([
+      prisma.productVariant.findMany({ include: { product: true }, orderBy: { id: "asc" } }),
       prisma.deliveryItem.findMany({ where: deliveryWhere, include: { orderItem: { include: { variant: { include: { product: true } } } } } }),
       prisma.salesReturnItem.findMany({ where: returnWhere, include: { orderItem: { include: { variant: { include: { product: true } } } } } }),
     ]);
     const rows = new Map<string, { product: string; variant: string; sku: string; soldQty: number; returnedQty: number; gross: number; returned: number }>();
+    for (const v of variants) rows.set(v.id.toString(), { product: v.product.name, variant: v.label, sku: v.sku, soldQty: 0, returnedQty: 0, gross: 0, returned: 0 });
     for (const item of deliveries) { const v=item.orderItem.variant, id=v.id.toString(), row=rows.get(id)??{product:v.product.name,variant:v.label,sku:v.sku,soldQty:0,returnedQty:0,gross:0,returned:0};row.soldQty+=item.qty;row.gross+=Number(item.amount);rows.set(id,row); }
     for (const item of returns) { const v=item.orderItem.variant,id=v.id.toString(),row=rows.get(id)??{product:v.product.name,variant:v.label,sku:v.sku,soldQty:0,returnedQty:0,gross:0,returned:0};row.returnedQty+=item.qty;row.returned+=Number(item.lineTotal);rows.set(id,row); }
     return [...rows.entries()].map(([variantId,row])=>({variantId,...row,netQty:row.soldQty-row.returnedQty,netSales:(row.gross-row.returned).toFixed(2),grossSales:row.gross.toFixed(2),returns:row.returned.toFixed(2)})).filter(r=>!q.q||`${r.product} ${r.variant} ${r.sku}`.toLocaleLowerCase().includes(q.q.toLocaleLowerCase())).sort((a,b)=>Number(b.netSales)-Number(a.netSales));
