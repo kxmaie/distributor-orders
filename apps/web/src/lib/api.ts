@@ -90,4 +90,4 @@ const MESSAGES: Record<string, string> = {
   AI_PROVIDER_ERROR: "خدمة المساعد واجهت مشكلة. تأكد من إعداد AI Gateway في Vercel ثم حاول مرة أخرى.",
 };
 export const errorText = (e: unknown) =>
-  e instanceof ApiError ? MESSAGES[e.code] ?? "حدث خطأ غير متوقع، حاول مرة أخرى" : "تعذّر الاتصال بالخادم، تأكد من الإنترنت";
+  e instanceof ApiError ? MESSAGES[e.code] ?? (e.message || "حدث خطأ غير متوقع، حاول مرة أخرى") : "تعذّر الاتصال بالخادم، تأكد من الإنترنت";

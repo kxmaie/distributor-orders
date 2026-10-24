@@ -1,5 +1,5 @@
 import { z } from "zod";
-export declare const RoleSchema: z.ZodEnum<["distributor", "admin", "super_admin"]>;
+export declare const RoleSchema: z.ZodEnum<["distributor", "supplier", "admin", "super_admin"]>;
 export type Role = z.infer<typeof RoleSchema>;
 export declare const PASSWORD_MIN_LENGTH = 12;
 export declare const LoginBody: z.ZodObject<{
@@ -17,17 +17,20 @@ export declare const RegisterBody: z.ZodObject<{
     username: z.ZodString;
     password: z.ZodString;
     fullName: z.ZodString;
-    phone: z.ZodOptional<z.ZodString>;
+    phone: z.ZodString;
+    role: z.ZodEnum<["distributor", "supplier"]>;
 }, "strip", z.ZodTypeAny, {
     username: string;
     password: string;
     fullName: string;
-    phone?: string | undefined;
+    phone: string;
+    role: "distributor" | "supplier";
 }, {
     username: string;
     password: string;
     fullName: string;
-    phone?: string | undefined;
+    phone: string;
+    role: "distributor" | "supplier";
 }>;
 export type RegisterBody = z.infer<typeof RegisterBody>;
 export declare const PasswordRequestBody: z.ZodObject<{
@@ -47,21 +50,21 @@ export declare const PublicUser: z.ZodObject<{
     fullName: z.ZodString;
     phone: z.ZodNullable<z.ZodString>;
     whatsappOptInAt: z.ZodNullable<z.ZodString>;
-    role: z.ZodEnum<["distributor", "admin", "super_admin"]>;
+    role: z.ZodEnum<["distributor", "supplier", "admin", "super_admin"]>;
 }, "strip", z.ZodTypeAny, {
     username: string;
     fullName: string;
     phone: string | null;
+    role: "distributor" | "supplier" | "admin" | "super_admin";
     id: string;
     whatsappOptInAt: string | null;
-    role: "distributor" | "admin" | "super_admin";
 }, {
     username: string;
     fullName: string;
     phone: string | null;
+    role: "distributor" | "supplier" | "admin" | "super_admin";
     id: string;
     whatsappOptInAt: string | null;
-    role: "distributor" | "admin" | "super_admin";
 }>;
 export type PublicUser = z.infer<typeof PublicUser>;
 export declare const WhatsAppConsentBody: z.ZodObject<{

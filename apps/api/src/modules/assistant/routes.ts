@@ -8,7 +8,7 @@ import * as orderService from "../orders/service";
 const Message = z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(2000) });
 const ProductProposal = z.object({
   name: z.string().trim().min(1).max(160), categoryId: z.number().int().positive(),
-  basePrice: z.string().regex(/^\d{1,10}(\.\d{1,2})?$/), unit: z.enum(["piece", "meter", "sqm"]).default("piece"),
+  basePrice: z.string().regex(/^\d{1,10}(\.\d{1,2})?$/), unit: z.enum(["piece", "carton", "meter", "sqm"]).default("piece"),
   description: z.string().max(1000).optional(), sku: z.string().max(60).optional(),
   variantLabel: z.string().max(120).optional(), initialStock: z.number().int().min(0).max(1_000_000).optional(),
   imageUrl: z.string().max(500).optional(), imageRef: z.string().max(180).optional(),
@@ -31,7 +31,7 @@ function parsePlanText(text: string) {
 }
 
 const assistantRoutes: FastifyPluginAsync = async (app) => {
-  app.post("/assistant/plan", { preHandler: app.authenticate, config: { rateLimit: { max: 12, timeWindow: "1 minute" } } }, async (req) => {
+  app.post("/assistant/plan", { preHandler: app.requireRole("distributor", "admin", "super_admin"), config: { rateLimit: { max: 12, timeWindow: "1 minute" } } }, async (req) => {
     const input = z.object({
       prompt: z.string().trim().min(2).max(2000),
       history: z.array(Message).max(12).default([]),

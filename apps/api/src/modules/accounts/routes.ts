@@ -5,7 +5,7 @@ import { getStatement, listAccounts, recordPayment } from "./service";
 const accountRoutes: FastifyPluginAsync = async (app) => {
   app.addHook("preHandler", app.authenticate);
 
-  app.get("/account/statement", async (req) => getStatement(BigInt(req.user.sub), AccountQuery.parse(req.query)));
+  app.get("/account/statement", { preHandler: app.requireRole("distributor", "admin", "super_admin") }, async (req) => getStatement(BigInt(req.user.sub), AccountQuery.parse(req.query)));
 
   app.get("/admin/accounts", { preHandler: app.requireRole("super_admin") }, async () => listAccounts());
   app.get("/admin/accounts/:id/statement", { preHandler: app.requireRole("super_admin") }, async (req) => {

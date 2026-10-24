@@ -18,7 +18,7 @@ function SSEMount() {
 export default function SSEProvider() {
   const status = useAuth((s) => s.status);
   const user = useAuth((s) => s.user);
-  if (status !== "authed" || !user) return null;
+  if (status !== "authed" || !user || user.role === "supplier") return null;
   return <SSEMount />;
 }
 

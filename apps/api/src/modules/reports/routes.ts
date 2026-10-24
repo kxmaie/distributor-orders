@@ -15,7 +15,7 @@ const adminReportRoutes: FastifyPluginAsync = async (app) => {
 
   app.get("/reports/profit-loss", async () => {
     const [purchases, deliveries] = await Promise.all([
-      prisma.purchaseItem.groupBy({ by: ["variantId"], _sum: { qty: true, lineTotal: true } }),
+      prisma.purchaseItem.groupBy({ by: ["variantId"], where: { purchase: { voidedAt: null } }, _sum: { qty: true, lineTotal: true } }),
       prisma.deliveryItem.findMany({ include: { orderItem: { select: { variantId: true } } } }),
     ]);
     const costs = new Map(purchases.map((row) => [row.variantId.toString(), Number(row._sum.lineTotal ?? 0) / Math.max(1, row._sum.qty ?? 0)]));
@@ -27,7 +27,7 @@ const adminReportRoutes: FastifyPluginAsync = async (app) => {
       if (unitCost === undefined) uncostedQty += row.qty;
       else cost += unitCost * row.qty;
     }
-    const purchased = await prisma.purchase.aggregate({ _sum: { total: true } });
+    const purchased = await prisma.purchase.aggregate({ where: { voidedAt: null }, _sum: { total: true } });
     return { revenue: revenue.toFixed(2), costOfGoodsSold: cost.toFixed(2), grossProfit: (revenue - cost).toFixed(2), purchasesTotal: Number(purchased._sum.total ?? 0).toFixed(2), uncostedQty, costingMethod: "weighted_average" };
   });
   app.get("/reports/sales", async (req) => {

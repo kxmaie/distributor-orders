@@ -73,3 +73,12 @@ h1, h2, h3, .font-display { font-family: Montserrat, Cairo, "IBM Plex Sans Arabi
   body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .card { box-shadow: none; }
 }
+
+@media print {
+  @page { margin: 12mm; }
+  body.print-order-invoice * { visibility: hidden !important; }
+  body.print-order-invoice .order-invoice,
+  body.print-order-invoice .order-invoice * { visibility: visible !important; }
+  body.print-order-invoice .order-invoice { position: relative; width: 100%; margin: 0; padding: 0; color: #182946; background: #fff; }
+  body.print-order-invoice .order-invoice .card { color: #182946; background: #fff; border-color: #cbd5e1; }
+}

@@ -1,6 +1,6 @@
 import { MotionConfig } from "framer-motion";
 import { lazy, Suspense, useEffect, type ReactElement } from "react";
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
 import Layout from "./components/Layout";
 import AssistantWidget from "./components/AssistantWidget";
 import Logo from "./components/Logo";
@@ -37,6 +37,8 @@ const AdminReports = lazy(() => import("./pages/admin/Reports"));
 const AdminAccounts = lazy(() => import("./pages/admin/Accounts"));
 const AdminSettings = lazy(() => import("./pages/admin/Settings"));
 const AdminPurchases = lazy(() => import("./pages/admin/Purchases"));
+const AdminCompanyProfile = lazy(() => import("./pages/admin/CompanyProfile"));
+const SupplierInventory = lazy(() => import("./pages/SupplierInventory"));
 
 function Boot({ children }: { children: ReactElement }) {
   const status = useAuth((s) => s.status);
@@ -63,8 +65,23 @@ function RequireAdmin({ children }: { children: ReactElement }) {
   const user = useAuth((s) => s.user);
   const loc = useLocation();
   if (!user) return <Navigate to="/login" replace state={{ from: loc.pathname }} />;
-  if (user.role === "distributor") return <Navigate to="/" replace />;
+  if (user.role !== "admin" && user.role !== "super_admin") return <Navigate to={user.role === "supplier" ? "/supplier/inventory" : "/"} replace />;
   return children;
+}
+
+function RequireBuyer({ children }: { children: ReactElement }) {
+  const role = useAuth((s) => s.user?.role);
+  return role === "supplier" ? <Navigate to="/supplier/inventory" replace /> : children;
+}
+
+function RequireSupplier({ children }: { children: ReactElement }) {
+  const role = useAuth((s) => s.user?.role);
+  return role === "supplier" ? children : <Navigate to="/" replace />;
+}
+
+function RoleHome() {
+  const role = useAuth((s) => s.user?.role);
+  return role === "supplier" ? <Navigate to="/supplier/inventory" replace /> : <Home />;
 }
 
 function AdminIndex() {
@@ -94,20 +111,24 @@ export default function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route element={<RequireAuth><Layout /></RequireAuth>}>
-                <Route index element={<Home />} />
-                <Route path="catalog" element={<Catalog />} />
-                <Route path="products/:id" element={<ProductDetails />} />
-                <Route path="checkout" element={<Checkout />} />
-                <Route path="orders" element={<Orders />} />
-                <Route path="orders/:id" element={<OrderDetails />} />
+                <Route index element={<RoleHome />} />
+                <Route path="supplier/inventory" element={<RequireSupplier><SupplierInventory /></RequireSupplier>} />
                 <Route path="profile" element={<Profile />} />
-                <Route path="account" element={<Account />} />
+                <Route element={<RequireBuyer><Outlet /></RequireBuyer>}>
+                  <Route path="catalog" element={<Catalog />} />
+                  <Route path="products/:id" element={<ProductDetails />} />
+                  <Route path="checkout" element={<Checkout />} />
+                  <Route path="orders" element={<Orders />} />
+                  <Route path="orders/:id" element={<OrderDetails />} />
+                  <Route path="account" element={<Account />} />
+                </Route>
               </Route>
               <Route path="/admin" element={<RequireAuth><RequireAdmin><AdminLayout /></RequireAdmin></RequireAuth>}>
                 <Route index element={<AdminIndex />} />
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="orders/:id" element={<AdminOrderDetails />} />
                 <Route path="settings" element={<AdminSettings />} />
+                <Route path="company" element={<SuperAdminOnly><AdminCompanyProfile /></SuperAdminOnly>} />
                 <Route path="stock" element={<SuperAdminOnly><AdminStock /></SuperAdminOnly>} />
                 <Route path="purchases" element={<SuperAdminOnly><AdminPurchases /></SuperAdminOnly>} />
                 <Route path="products" element={<SuperAdminOnly><AdminProducts /></SuperAdminOnly>} />

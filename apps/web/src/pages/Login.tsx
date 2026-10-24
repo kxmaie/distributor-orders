@@ -26,10 +26,11 @@ export default function Login() {
   // Register-only fields
   const [regFullName, setRegFullName] = useState("");
   const [regPhone, setRegPhone] = useState("");
+  const [regRole, setRegRole] = useState<"distributor" | "supplier">("distributor");
   const [regConfirmPassword, setRegConfirmPassword] = useState("");
 
   const user = useAuth((s) => s.user);
-  const homeFor = (role: User["role"]) => (role === "distributor" ? "/" : "/admin");
+  const homeFor = (role: User["role"]) => (role === "distributor" ? "/" : role === "supplier" ? "/supplier/inventory" : "/admin");
   if (status === "authed" && user) return <Navigate to={loc.state?.from ?? homeFor(user.role)} replace />;
 
   function switchTab(t: Tab) {
@@ -59,7 +60,8 @@ export default function Login() {
           username: username.trim(),
           password,
           fullName: regFullName.trim(),
-          phone: regPhone.trim() || undefined,
+          phone: regPhone.trim(),
+          role: regRole,
         });
         setSent(true);
       } else {
@@ -194,7 +196,7 @@ export default function Login() {
               />
             </label>
             <label className="block space-y-1 text-sm">
-              <span className="text-muted">رقم الهاتف (اختياري)</span>
+              <span className="text-muted">رقم الهاتف <span className="text-danger">(إجباري)</span></span>
               <input
                 className="input"
                 dir="ltr"
@@ -202,7 +204,16 @@ export default function Login() {
                 value={regPhone}
                 onChange={(e) => setRegPhone(e.target.value)}
                 placeholder="مثال: 01012345678"
+                required
+                minLength={5}
               />
+            </label>
+            <label className="block space-y-1 text-sm">
+              <span className="text-muted">نوع الحساب</span>
+              <select className="input" value={regRole} onChange={(e) => setRegRole(e.target.value as "distributor" | "supplier")} required>
+                <option value="distributor">موزع</option>
+                <option value="supplier">مورد — عرض المخزون فقط</option>
+              </select>
             </label>
           </>
         )}

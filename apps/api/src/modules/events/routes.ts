@@ -6,14 +6,17 @@
  *   - ?token=<token>                  (query param, needed when EventSource
  *                                      doesn't support custom headers)
  *
- * The connection stays open indefinitely.  A ping is sent every 30 s to
- * keep proxies/load-balancers from closing the socket.
+ * The connection is rotated periodically so serverless platforms do not
+ * terminate it at their function-duration limit. A ping is sent every 30 s.
  */
 
 import type { FastifyInstance } from "fastify";
 import { addClient, removeClient } from "../../lib/sse";
 
 const PING_INTERVAL = 30_000;
+// Vercel can terminate a function at 300 seconds. Close cleanly before that;
+// the browser client reconnects and triggers its normal resync behavior.
+const MAX_CONNECTION_DURATION = 240_000;
 
 export default async function eventsRoutes(app: FastifyInstance) {
   app.get(
@@ -65,9 +68,14 @@ export default async function eventsRoutes(app: FastifyInstance) {
         }
       }, PING_INTERVAL);
 
+      const rotate = setTimeout(() => {
+        reply.raw.end();
+      }, MAX_CONNECTION_DURATION);
+
       // Clean up on disconnect
       req.raw.on("close", () => {
         clearInterval(ping);
+        clearTimeout(rotate);
         removeClient(userId, clientId);
       });
 

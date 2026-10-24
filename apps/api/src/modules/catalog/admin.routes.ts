@@ -23,7 +23,7 @@ const adminCatalogRoutes: FastifyPluginAsync = async (app) => {
         body: req.body as HandleUploadBody,
         request: req.raw,
         onBeforeGenerateToken: async (pathname) => {
-          if (!/^products\/[^/]+$/.test(pathname)) {
+          if (!/^(products|company)\/[^/]+$/.test(pathname)) {
             throw new HttpError(400, "INVALID_UPLOAD_PATH");
           }
           return {
@@ -69,36 +69,13 @@ const adminCatalogRoutes: FastifyPluginAsync = async (app) => {
       include: { products: { select: { id: true, name: true } } },
     });
     if (!existing) throw new HttpError(404, "CATEGORY_NOT_FOUND", "التصنيف غير موجود");
+    if (existing.products.length > 0) {
+      throw new HttpError(409, "CATEGORY_NOT_EMPTY", "احذف المنتجات من التصنيف كل منتج على حدة أولًا؛ لن تُحذف سجلات مبيعات أو مشتريات المنتجات مع التصنيف.");
+    }
 
     await prisma.$transaction(async (tx) => {
-      const productIds = existing.products.map((p) => p.id);
-      if (productIds.length > 0) {
-        const variants = await tx.productVariant.findMany({
-          where: { productId: { in: productIds } },
-          select: { id: true },
-        });
-        const variantIds = variants.map((v) => v.id);
-        if (variantIds.length > 0) {
-          await tx.orderItem.deleteMany({ where: { variantId: { in: variantIds } } });
-          await tx.reservation.deleteMany({ where: { variantId: { in: variantIds } } });
-          await tx.stockMovement.deleteMany({ where: { variantId: { in: variantIds } } });
-          await tx.stockLevel.deleteMany({ where: { variantId: { in: variantIds } } });
-          await tx.productVariant.deleteMany({ where: { id: { in: variantIds } } });
-        }
-        await tx.discount.deleteMany({ where: { productId: { in: productIds } } });
-        await tx.product.deleteMany({ where: { id: { in: productIds } } });
-      }
-
       await tx.discount.deleteMany({ where: { categoryId: id } });
       await tx.category.delete({ where: { id } });
-
-      const emptyOrders = await tx.order.findMany({ where: { items: { none: {} } }, select: { id: true } });
-      if (emptyOrders.length > 0) {
-        const emptyOrderIds = emptyOrders.map((o) => o.id);
-        await tx.orderStatusHistory.deleteMany({ where: { orderId: { in: emptyOrderIds } } });
-        await tx.reservation.deleteMany({ where: { orderId: { in: emptyOrderIds } } });
-        await tx.order.deleteMany({ where: { id: { in: emptyOrderIds } } });
-      }
     });
 
     await audit(actorId, "category.force_delete", "category", id, { name: existing.name }, ip);
@@ -187,7 +164,7 @@ const adminCatalogRoutes: FastifyPluginAsync = async (app) => {
           imageUrl: b.imageUrl?.trim() ?? null,
           basePrice: b.basePrice,
           unit: b.unit,
-          piecesPerUnit: b.piecesPerUnit,
+          piecesPerUnit: b.unit === "carton" ? b.piecesPerUnit : 1,
         },
       });
 
@@ -277,11 +254,13 @@ const adminCatalogRoutes: FastifyPluginAsync = async (app) => {
     const data = ProductUpdate.parse(req.body);
     if (data.unit && !await prisma.productUnit.findFirst({ where: { name: data.unit, isActive: true } })) throw new HttpError(400, "INVALID_UNIT", "وحدة المنتج غير معرفة أو متوقفة");
     const actorId = actor(req);
-    const before = await prisma.product.findUnique({ where: { id }, select: { basePrice: true } });
+    const before = await prisma.product.findUnique({ where: { id }, select: { basePrice: true, unit: true } });
     if (!before) throw new HttpError(404, "PRODUCT_NOT_FOUND");
 
     // Extract stock-related fields before updating the product
     const { warehouseId: stockWhId, stockAdjust, ...productData } = data;
+    const finalUnit = productData.unit ?? before.unit;
+    if (finalUnit !== "carton") productData.piecesPerUnit = 1;
 
     const row = await prisma.product.update({ where: { id }, data: productData });
     const meta: Record<string, unknown> = { ...productData };
@@ -335,7 +314,14 @@ const adminCatalogRoutes: FastifyPluginAsync = async (app) => {
     await prisma.$transaction(async (tx) => {
       const variantIds = existing.variants.map((v) => v.id);
       if (variantIds.length > 0) {
-        await tx.orderItem.deleteMany({ where: { variantId: { in: variantIds } } });
+        const [sales, purchases, activeReservations] = await Promise.all([
+          tx.orderItem.count({ where: { variantId: { in: variantIds } } }),
+          tx.purchaseItem.count({ where: { variantId: { in: variantIds } } }),
+          tx.reservation.count({ where: { variantId: { in: variantIds }, status: "active" } }),
+        ]);
+        if (sales || purchases || activeReservations) {
+          throw new HttpError(409, "PRODUCT_HAS_HISTORY", "لا يمكن حذف هذا المنتج نهائيًا لارتباطه بطلبات أو فواتير شراء أو حجوزات مخزون. أوقفه ليختفي من الموقع مع الاحتفاظ بالسجلات.");
+        }
         await tx.reservation.deleteMany({ where: { variantId: { in: variantIds } } });
         await tx.stockMovement.deleteMany({ where: { variantId: { in: variantIds } } });
         await tx.stockLevel.deleteMany({ where: { variantId: { in: variantIds } } });
@@ -343,14 +329,6 @@ const adminCatalogRoutes: FastifyPluginAsync = async (app) => {
       }
       await tx.discount.deleteMany({ where: { productId: id } });
       await tx.product.delete({ where: { id } });
-
-      const emptyOrders = await tx.order.findMany({ where: { items: { none: {} } }, select: { id: true } });
-      if (emptyOrders.length > 0) {
-        const emptyOrderIds = emptyOrders.map((o) => o.id);
-        await tx.orderStatusHistory.deleteMany({ where: { orderId: { in: emptyOrderIds } } });
-        await tx.reservation.deleteMany({ where: { orderId: { in: emptyOrderIds } } });
-        await tx.order.deleteMany({ where: { id: { in: emptyOrderIds } } });
-      }
     });
 
     await audit(actorId, "product.force_delete", "product", id, { name: existing.name }, ip);

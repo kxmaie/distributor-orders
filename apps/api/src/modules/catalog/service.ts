@@ -106,3 +106,9 @@ export async function getProduct(id: bigint, discountPct: Prisma.Decimal) {
   const avail = await availability(p.variants.map((v) => v.id));
   return shape(p, discountPct, avail);
 }
+
+
+export async function listInventory(q: { category?: string; q?: string; page: number; pageSize: number }) {
+  const page = await listProducts(q, new Prisma.Decimal(0));
+  return { ...page, items: page.items.map((p) => ({ id: p.id, name: p.name, imageUrl: p.imageUrl, unit: p.unit, unitLabel: p.unitLabel, category: p.category, variants: p.variants.map((v) => ({ id: v.id, label: v.label, available: v.available, inStock: v.inStock })) })) };
+}

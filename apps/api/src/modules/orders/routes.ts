@@ -3,7 +3,7 @@ import { CartPriceBody, CreateOrderBody, IdParam, OrderListQuery } from "@do/sha
 import * as svc from "./service";
 
 const orderRoutes: FastifyPluginAsync = async (app) => {
-  app.addHook("preHandler", app.authenticate);
+  app.addHook("preHandler", app.requireRole("distributor"));
   const uid = (req: { user: { sub: string } }) => BigInt(req.user.sub);
 
   app.post("/cart/price", async (req) => svc.priceCart(uid(req), CartPriceBody.parse(req.body)));

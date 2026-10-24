@@ -30,6 +30,7 @@ export default function AdminProducts() {
   const [q, setQ] = useState("");
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
+  const [newUnit, setNewUnit] = useState("piece");
   const [deleteConfirm, setDeleteConfirm] = useState<AdminProduct | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [importRows, setImportRows] = useState<ImportRow[]>([]);
@@ -54,6 +55,7 @@ export default function AdminProducts() {
       push("تم إضافة المنتج وإنشاء رصيد المخزون بنجاح", "ok");
       setOpen(false);
       setNewImageUrl("");
+      setNewUnit("piece");
       qc.invalidateQueries({ queryKey: ["admin-products"] });
       qc.invalidateQueries({ queryKey: ["admin", "stock"] });
       qc.invalidateQueries({ queryKey: ["admin", "movements"] });
@@ -88,14 +90,15 @@ export default function AdminProducts() {
     const f = new FormData(e.currentTarget);
     const whVal = f.get("warehouseId");
     const initStockVal = f.get("initialStock");
+    const selectedUnit = String(f.get("unit"));
     create.mutate({
       categoryId: Number(f.get("categoryId")),
       name: String(f.get("name")),
       description: String(f.get("description") || "") || null,
       imageUrl: String(f.get("imageUrl") || "") || null,
       basePrice: String(f.get("basePrice")),
-      unit: String(f.get("unit")),
-      piecesPerUnit: Number(f.get("piecesPerUnit") || 1),
+      unit: selectedUnit,
+      piecesPerUnit: selectedUnit === "carton" ? Number(f.get("piecesPerUnit") || 1) : 1,
       warehouseId: whVal ? Number(whVal) : undefined,
       initialStock: initStockVal ? Number(initStockVal) : 0,
       sku: String(f.get("sku") || "").trim() || undefined,
@@ -321,7 +324,7 @@ export default function AdminProducts() {
             </label>
             <label className="label">
               الوحدة
-              <select name="unit" className="input text-xs">
+              <select name="unit" className="input text-xs" value={newUnit} onChange={(e) => setNewUnit(e.target.value)}>
                 {(units.data ?? []).map((u) => (
                   <option key={u.name} value={u.name}>
                     {u.label}
@@ -339,12 +342,9 @@ export default function AdminProducts() {
           <div className="grid grid-cols-2 gap-3">
             <label className="label">
               سعر القطعة
-              <input name="basePrice" className="input font-mono" dir="ltr" required placeholder="0.00" /><span className="text-xs text-muted">سعر القطعة، والإجمالي للوحدة يساوي السعر × عدد القطع</span>
+              <input name="basePrice" className="input font-mono" dir="ltr" required placeholder="0.00" /><span className="text-xs text-muted">سعر القطعة، وسعر الكرتونة = سعر القطعة × عدد القطع فيها</span>
             </label>
-            <label className="label">
-              عدد القطع في الوحدة أو الكرتونة
-              <input name="piecesPerUnit" className="input" type="number" min="1" max="100000" defaultValue="1" required />
-            </label>
+            {newUnit === "carton" && <label className="label">عدد القطع في الكرتونة<input name="piecesPerUnit" className="input" type="number" min="1" max="100000" defaultValue="100" required /></label>}
             <label className="label">
               صورة المنتج (اختياري)
               <ImageUploadField value={newImageUrl} onChange={setNewImageUrl} />
