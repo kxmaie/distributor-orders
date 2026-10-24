@@ -13,22 +13,31 @@ Multi-tenant API mode is opt-in and requires:
 - `TENANT_ENCRYPTION_KEY`: 32 random bytes encoded as 64 hex characters; keep it as a Vercel secret and back it up securely
 - `X-Tenant-Slug` on every API request; the frontend can set `VITE_TENANT_SLUG` for a customer-specific deployment
 
-Apply `apps/api/prisma/control/001_platform_tenants.sql` to the control database. This registry contains only tenant routing metadata and an AES-256-GCM encrypted database URL. Application modules continue importing the shared Prisma proxy, which routes through request-scoped async context. A signed access token is bound to the resolved tenant ID, so changing the tenant header cannot reuse another tenant's session. The API caps idle tenant clients at 12 per instance and returns a retryable capacity error instead of opening unlimited pools. The background worker stays disabled in multi mode until it is made tenant-aware.
+Apply `apps/api/prisma/control/001_platform_tenants.sql` to the control database. This registry contains only tenant routing metadata and an AES-256-GCM encrypted database URL. Application modules continue importing the shared Prisma proxy, which routes through request-scoped async context. A signed access token is bound to the resolved tenant ID, so changing the tenant header cannot reuse another tenant's session. The API caps idle tenant clients at 12 per instance and returns a retryable capacity error instead of opening unlimited pools. In multi mode, WhatsApp queue messages include the tenant slug and use tenant-scoped idempotency keys. Queue consumers resolve and hold the same tenant database before processing. On Vercel, in-app outbox delivery is best-effort within the originating request; it does not add a paid queue topic or guarantee delivery if the function is terminated.
 
-To register a customer database after the provider has created it and the app migrations have been applied:
+## Owner console and customer database setup
 
-1. Set `CONTROL_DATABASE_URL`, `TENANT_ENCRYPTION_KEY`, `TENANT_SLUG`, `TENANT_NAME`, `TENANT_DATABASE_URL`, and a valid `DATABASE_URL` in a trusted local environment file. Never paste database URLs or keys into chat or commit them.
-2. Run `npm run migrate:deploy -w @do/api` with `DATABASE_URL` temporarily set to `TENANT_DATABASE_URL`, then seed the tenant database with a unique initial super-admin account.
-3. Run `npx tsx apps/api/scripts/register-tenant.ts` from the repository root. Registration refuses to overwrite an existing slug and does not create or delete database resources.
-4. Configure the API's `CONTROL_DATABASE_URL`, `TENANT_ENCRYPTION_KEY`, `TENANCY_MODE=multi`, then deploy the API and set the matching frontend `VITE_TENANT_SLUG`.
+The isolated owner console is available at `/platform`. It uses its own account, Argon2id password hash, signed HTTP-only session, and is independent from customer logins. Configure these API secrets before enabling it:
 
-`DATABASE_URL` remains required by Prisma's generated client even in multi mode, but the request hook fails closed if a request has no registered tenant. Keep it pointed to a non-customer control database in multi mode. Health checks and CORS preflight requests are exempt from tenant resolution.
+- `PLATFORM_ADMIN_USERNAME`
+- `PLATFORM_ADMIN_PASSWORD_HASH` (generate locally with `npm run api:tenant:hash-platform-password`)
+- `PLATFORM_SESSION_SECRET` (random, at least 32 characters)
+- `CONTROL_DATABASE_URL`, `TENANT_ENCRYPTION_KEY`, and `TENANCY_MODE=multi`
 
-## Provider limits and production cutover
+Apply `apps/api/prisma/control/001_platform_tenants.sql` to a dedicated control database first. The console can register an already provisioned and migrated tenant database, show status and backup metadata, and suspend/reactivate a tenant. It never returns saved connection strings and does not delete tenants or create hosted databases. Use the provision script for a new, empty database; it checks for public tables, applies Prisma migrations, and creates that tenant's initial super-admin:
 
-The connected Prisma Postgres installation is on the **Free** plan: up to 50 databases, 2 GB total storage, and 100,000 monthly database operations. Current spend shown is 0. These are shared installation limits, not per-customer allowances. The separate `distributor-demo-db` resource is on `free` and is connected only to the API project Preview environment with the `DEMO_` prefix. Preview builds with `DEMO_MODE=true` migrate and seed that database; production builds continue using the existing production `DATABASE_URL`. If provisioning needs a paid plan or exceeds included quota, stop and get the owner's approval before upgrading.
+1. Set `TENANT_DATABASE_URL`, `TENANT_ADMIN_USERNAME`, `TENANT_ADMIN_PASSWORD` (12+ characters), and optionally `TENANT_ADMIN_FULLNAME` in a trusted local shell/environment file.
+2. Run `npm run api:tenant:provision` from the repository root. It will refuse a database that already has public tables.
+3. Sign into `/platform` and register the tenant's slug, display name, and connection URL. The URL is encrypted with `TENANT_ENCRYPTION_KEY` before it is stored in the control DB.
 
-This branch is a routing foundation, not a complete SaaS console: tenant provisioning, owner-facing customer controls, subscription management, backups/restores, and automated per-tenant migration orchestration are still outstanding. Do not switch the production API to multi mode until the separate control DB exists, the current production database is safely migrated as a tenant, every database is backed up and migrated, tenant registration and login have been exercised in preview, and a rollback is prepared. No production database or Vercel environment variable was changed by this foundation.
+The current storefront sends `VITE_TENANT_SLUG`, so a tenant needs a frontend deployment built with its slug (or a future hostname-to-tenant resolver). This is a database-per-customer foundation and owner console, not yet a self-service signup, domain manager, billing/subscription system, or one-build multi-domain SaaS product.
 
+## Encrypted backups and restore
+
+Backups use the installed PostgreSQL client tools (`pg_dump` and `pg_restore`) and local disk; there is no paid storage integration or automatic schedule. Configure `CONTROL_DATABASE_URL`, `TENANT_ENCRYPTION_KEY`, `TENANCY_MODE=multi`, and `BACKUP_ENCRYPTION_KEY` only in the trusted machine running the backup command. `BACKUP_ENCRYPTION_KEY` must be 32 random bytes encoded as 64 hex characters and must be stored separately from backup files. Keep it permanently: losing it makes backups unrecoverable. Set `BACKUP_DIRECTORY` to an owner-controlled path, then run `npm run api:tenant:backup`. Each custom-format dump is encrypted with AES-256-GCM, and a manifest records the authenticated-encryption metadata and checksum; the control DB records the filename, checksum, size, and date, but the backup bytes stay on local disk. Copy the encrypted files and manifests to a separately protected/offsite location as an operational step.
+
+Restore requires `BACKUP_FILE`, `RESTORE_TARGET_DATABASE_URL`, `RESTORE_TARGET_EMPTY=YES`, and `CONFIRM_RESTORE_TENANT=<slug>` plus the same backup key and control-plane keys. The script verifies checksum and GCM authentication, refuses all registered tenant DB URLs and all non-empty public schemas, then restores into a new, unregistered database without `--clean`. Verify that database before registering it as the tenant's new connection. No live database is overwritten by these scripts.
+
+The connected PostgreSQL installation is on the **Free** plan: up to 50 databases, 2 GB total storage, and 100,000 monthly database operations. These are shared installation limits, not per-customer allowances. Current spend shown is 0. If the available free quota is insufficient, stop and get the owner's approval before upgrading or adding paid storage/queues. The existing WhatsApp Queue is reused for WhatsApp only; no additional topic is introduced here.
 
 The isolated Preview demo seeds a demo-admin account from DEMO_SEED_ADMIN_* variables. Keep its password in the Preview secret variable; do not include it in source control.

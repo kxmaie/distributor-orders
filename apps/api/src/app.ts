@@ -29,6 +29,7 @@ import companyRoutes from "./modules/settings/company.routes";
 import { startWorker } from "./lib/worker";
 import { runWithTenant } from "./lib/tenant-context";
 import { resolveTenant } from "./lib/tenant-registry";
+import platformRoutes from "./modules/platform/routes";
 
 export async function buildApp() {
   const app = Fastify({ logger: config.NODE_ENV !== "test", trustProxy: true });
@@ -46,7 +47,7 @@ export async function buildApp() {
 
   if (config.TENANCY_MODE === "multi") {
     app.addHook("onRequest", (req, _reply, done) => {
-      if (req.method === "OPTIONS" || req.url.split("?")[0] === "/health") return done();
+      if (req.method === "OPTIONS" || req.url.split("?")[0] === "/health" || req.url.split("?")[0].startsWith("/api/v1/platform/")) return done();
       const tenantSlug = req.headers["x-tenant-slug"];
       if (typeof tenantSlug !== "string") return done(new HttpError(400, "TENANT_REQUIRED", "حدد مساحة العمل أولاً"));
       resolveTenant(tenantSlug).then((tenant) => {
@@ -103,6 +104,7 @@ export async function buildApp() {
 
   app.get("/health", async () => ({ ok: true }));
   await app.register(authRoutes, { prefix: "/api/v1/auth" });
+  await app.register(platformRoutes, { prefix: "/api/v1/platform" });
   await app.register(catalogRoutes, { prefix: "/api/v1" });
   await app.register(adminCatalogRoutes, { prefix: "/api/v1/admin" });
   await app.register(stockRoutes, { prefix: "/api/v1/admin/stock" });

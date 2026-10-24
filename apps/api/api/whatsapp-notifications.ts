@@ -1,8 +1,8 @@
 import { QueueClient, type MessageMetadata } from "@vercel/queue";
-import { processWhatsAppNotification } from "../src/lib/worker";
+import { processWhatsAppNotificationForTenant } from "../src/lib/worker";
 import { PermanentError } from "../src/lib/whatsapp";
 
-type QueueMessage = { notificationId?: unknown };
+type QueueMessage = { notificationId?: unknown; tenantSlug?: unknown };
 const queue = new QueueClient();
 
 export default queue.handleNodeCallback<QueueMessage>(async (message) => {
@@ -11,7 +11,7 @@ export default queue.handleNodeCallback<QueueMessage>(async (message) => {
     return;
   }
   try {
-    await processWhatsAppNotification(message.notificationId);
+    await processWhatsAppNotificationForTenant(message.notificationId, typeof message.tenantSlug === "string" ? message.tenantSlug : undefined);
   } catch (error) {
     if (error instanceof PermanentError) {
       console.error("[worker] dropping invalid WhatsApp queue message:", error.message);

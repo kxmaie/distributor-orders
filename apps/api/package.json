@@ -16,7 +16,11 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate",
-    "build:vercel": "esbuild src/vercel.ts --bundle --platform=node --target=node24 --format=cjs --outfile=api/index.js --external:@prisma/client --external:.prisma/client"
+    "build:vercel": "esbuild src/vercel.ts --bundle --platform=node --target=node24 --format=cjs --outfile=api/index.js --external:@prisma/client --external:.prisma/client",
+    "tenant:provision": "tsx scripts/provision-tenant.ts",
+    "tenant:hash-platform-password": "tsx scripts/hash-platform-password.ts",
+    "tenant:backup": "tsx scripts/backup-tenants.ts",
+    "tenant:restore": "tsx scripts/restore-tenant-backup.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

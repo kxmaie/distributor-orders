@@ -1,6 +1,6 @@
 import { useAuth } from "../store/auth";
 
-const BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") || "/api/v1";
+const BASE = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL)?.replace(/\/$/, "") || "/api/v1";
 const TENANT_SLUG = import.meta.env.VITE_TENANT_SLUG?.trim().toLowerCase();
 
 export class ApiError extends Error {

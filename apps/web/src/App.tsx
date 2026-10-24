@@ -48,6 +48,7 @@ const AdminInventoryReport = lazy(() => import("./pages/admin/InventoryReport"))
 const AdminReturnsReport = lazy(() => import("./pages/admin/ReturnsReport"));
 const AdminItemMovements = lazy(() => import("./pages/admin/ItemMovements"));
 const AdminAuditLog = lazy(() => import("./pages/admin/AuditLog"));
+const PlatformConsole = lazy(() => import("./pages/platform/Console"));
 const SupplierInventory = lazy(() => import("./pages/SupplierInventory"));
 
 function Boot({ children }: { children: ReactElement }) {
@@ -109,9 +110,24 @@ function Fall() {
 }
 
 export default function App() {
+  const platformPage = window.location.pathname.startsWith("/platform");
   useEffect(() => {
+    if (platformPage) return;
     refreshSession().then((ok) => { if (!ok) useAuth.getState().clear(); });
-  }, []);
+  }, [platformPage]);
+
+  if (platformPage) return (
+    <MotionConfig reducedMotion="user">
+      <BrowserRouter>
+        <Suspense fallback={<Fall />}>
+          <Routes>
+            <Route path="/platform/*" element={<PlatformConsole />} />
+            <Route path="*" element={<Navigate to="/platform" replace />} />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </MotionConfig>
+  );
 
   return (
     <MotionConfig reducedMotion="user">
