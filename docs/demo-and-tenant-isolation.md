@@ -30,3 +30,5 @@ The connected Prisma Postgres installation is on the **Free** plan: up to 50 dat
 
 This branch is a routing foundation, not a complete SaaS console: tenant provisioning, owner-facing customer controls, subscription management, backups/restores, and automated per-tenant migration orchestration are still outstanding. Do not switch the production API to multi mode until the separate control DB exists, the current production database is safely migrated as a tenant, every database is backed up and migrated, tenant registration and login have been exercised in preview, and a rollback is prepared. No production database or Vercel environment variable was changed by this foundation.
 
+
+The isolated Preview demo seeds a demo-admin account from DEMO_SEED_ADMIN_* variables. Keep its password in the Preview secret variable; do not include it in source control.
