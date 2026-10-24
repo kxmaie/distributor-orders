@@ -24,6 +24,7 @@ import { useAuth } from "./store/auth";
 
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminOrders = lazy(() => import("./pages/admin/Orders"));
+const AdminSales = lazy(() => import("./pages/admin/Sales"));
 const AdminOrderDetails = lazy(() => import("./pages/admin/OrderDetails"));
 const AdminStock = lazy(() => import("./pages/admin/Stock"));
 const AdminProducts = lazy(() => import("./pages/admin/Products"));
@@ -127,6 +128,8 @@ export default function App() {
                 <Route index element={<AdminIndex />} />
                 <Route path="orders" element={<AdminOrders />} />
                 <Route path="orders/:id" element={<AdminOrderDetails />} />
+                <Route path="sales" element={<AdminSales />} />
+                <Route path="sales/:id" element={<AdminOrderDetails />} />
                 <Route path="settings" element={<AdminSettings />} />
                 <Route path="company" element={<SuperAdminOnly><AdminCompanyProfile /></SuperAdminOnly>} />
                 <Route path="stock" element={<SuperAdminOnly><AdminStock /></SuperAdminOnly>} />
@@ -155,3 +158,4 @@ export default function App() {
     </MotionConfig>
   );
 }
+

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, Pencil, Plus, Printer, Save, Trash2, Truck, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { ORDER_TRANSITIONS, type OrderStatus } from "@do/shared";
 import OrderTimeline from "../../components/OrderTimeline";
 import { ErrorBox, Skeleton, Spinner, StatusBadge } from "../../components/ui";
@@ -13,15 +13,16 @@ import type { AdminProduct, OrderDetail, Page } from "../../lib/types";
 import PrintHeader from "../../components/PrintHeader";
 
 type EditLine = { variantId: string; qty: number };
-function printInvoice(orderNo: string) {
+function printInvoice(orderNo: string, isSalesInvoice: boolean) {
   const previousTitle = document.title;
-  document.title = `فاتورة-${orderNo}`;
+  document.title = `${isSalesInvoice ? "فاتورة-مبيعات" : "طلب"}-${orderNo}`;
   document.body.classList.add("print-order-invoice");
   window.addEventListener("afterprint", () => { document.body.classList.remove("print-order-invoice"); document.title = previousTitle; }, { once: true });
   window.print();
 }
 export default function AdminOrderDetails() {
   const { id = "" } = useParams();
+  const isSalesRoute = useLocation().pathname.startsWith("/admin/sales/");
   const [note, setNote] = useState(""); const [trackingNumber, setTrackingNumber] = useState(""); const [deliveryNote, setDeliveryNote] = useState("");
   const [deliverQty, setDeliverQty] = useState<Record<string, number>>({}); const [editing, setEditing] = useState(false);
   const [editLines, setEditLines] = useState<EditLine[]>([]); const [adminDiscount, setAdminDiscount] = useState("0.00");
@@ -51,17 +52,17 @@ export default function AdminOrderDetails() {
   });
   if (q.isLoading) return <div className="space-y-4"><Skeleton className="h-24" /><Skeleton className="h-64" /></div>;
   if (q.isError || !q.data) return <ErrorBox text={errorText(q.error)} onRetry={() => q.refetch()} />;
-  const o = q.data; const next = ORDER_TRANSITIONS[o.status].filter((status) => status !== "delivered");
+  const o = q.data; const isSalesInvoice = isSalesRoute && o.status === "delivered"; const next = ORDER_TRANSITIONS[o.status].filter((status) => status !== "delivered");
   const shipped = new Map<string, number>(); for (const delivery of o.deliveries) for (const item of delivery.items) shipped.set(item.orderItemId, (shipped.get(item.orderItemId) ?? 0) + item.qty);
   const variants = products.data?.items.flatMap((product) => product.variants.filter((variant) => variant.isActive).map((variant) => ({ id: variant.id, title: `${product.name} · ${variant.label}`, price: variant.priceDelta }))) ?? [];
   const editValid = editLines.length > 0 && editLines.every((line) => line.variantId && Number.isInteger(line.qty) && line.qty > 0) && new Set(editLines.map((line) => line.variantId)).size === editLines.length && Number(adminDiscount) >= 0 && Number(adminDiscount) <= Number(o.subtotal);
   const startEditing = () => { setEditLines(o.items.map((item) => ({ variantId: item.variantId, qty: item.qty }))); setAdminDiscount(o.adminDiscount || "0.00"); setEditing(true); };
   return (
     <div className="space-y-6 print:space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 print:hidden"><Link to="/admin/orders" className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><ArrowRight className="h-4 w-4" /> الطلبات</Link><button className="btn-primary" onClick={() => printInvoice(o.orderNo)}><Printer className="h-4 w-4" /> طباعة الفاتورة / حفظ PDF</button></div>
+      <div className="flex flex-wrap items-center justify-between gap-3 print:hidden"><Link to={isSalesInvoice ? "/admin/sales" : "/admin/orders"} className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"><ArrowRight className="h-4 w-4" /> {isSalesInvoice ? "المبيعات" : "الطلبات"}</Link><button className="btn-primary" onClick={() => printInvoice(o.orderNo, isSalesInvoice)}><Printer className="h-4 w-4" /> {isSalesInvoice ? "طباعة فاتورة المبيعات / حفظ PDF" : "طباعة الطلب / حفظ PDF"}</button></div>
       <article className="order-invoice space-y-4">
-        <PrintHeader title={`فاتورة طلب ${o.orderNo}`} />
-        <header className="flex flex-wrap items-start justify-between gap-3"><div><h1 className="font-display text-2xl font-extrabold" dir="ltr">{o.orderNo}</h1><p className="text-sm text-muted">{dateTime(o.createdAt)} · {o.warehouse.name}</p>{o.user && <p className="text-sm">العميل: {o.user.fullName} <span dir="ltr" className="text-muted">({o.user.username}{o.user.phone ? ` · ${o.user.phone}` : ""})</span></p>}</div><StatusBadge status={o.status} /></header>
+        <PrintHeader title={isSalesInvoice ? `فاتورة مبيعات INV-${o.orderNo}` : `طلب ${o.orderNo}`} />
+        <header className="flex flex-wrap items-start justify-between gap-3"><div><h1 className="font-display text-2xl font-extrabold" dir="ltr">{isSalesInvoice ? `INV-${o.orderNo}` : o.orderNo}</h1><p className="text-sm text-muted">{dateTime(isSalesInvoice ? (o.deliveries[o.deliveries.length - 1]?.deliveredAt ?? o.updatedAt) : o.createdAt)} · {o.warehouse.name}</p>{o.user && <p className="text-sm">العميل: {o.user.fullName} <span dir="ltr" className="text-muted">({o.user.username}{o.user.phone ? ` · ${o.user.phone}` : ""})</span></p>}</div><StatusBadge status={o.status} /></header>
         <section className="space-y-3"><table className="sales-invoice-table"><thead><tr><th>الصنف</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr></thead><tbody>{o.items.map((item) => <tr key={item.id}><td><b>{item.productName}</b><small>{item.variantLabel}{Number(item.discountPct) > 0 && ` · خصم ${Number(item.discountPct)}%`}</small></td><td>{item.qty}</td><td>{money(item.unitPrice)}</td><td>{money(item.lineTotal)}</td></tr>)}</tbody></table>
           <dl className="card space-y-2 p-4 text-sm print:rounded-none print:p-3"><div className="flex justify-between text-muted"><dt>قبل الخصم</dt><dd>{money(o.subtotal)}</dd></div>{Number(o.discountTotal) > 0 && <div className="flex justify-between text-success"><dt>إجمالي الخصم</dt><dd>- {money(o.discountTotal)}</dd></div>}{Number(o.adminDiscount) > 0 && <div className="flex justify-between text-success"><dt>خصم إضافي من الإدارة</dt><dd>- {money(o.adminDiscount)}</dd></div>}<div className="flex justify-between font-display text-xl font-bold"><dt>الإجمالي النهائي</dt><dd className="text-primary">{money(o.total)}</dd></div></dl>{o.notes && <p className="card p-4 text-sm text-muted">ملاحظات الطلب: {o.notes}</p>}</section>
       </article>
@@ -80,3 +81,4 @@ export default function AdminOrderDetails() {
     </div>
   );
 }
+
