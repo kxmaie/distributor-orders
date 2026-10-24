@@ -161,8 +161,8 @@ export default function AdminUsers() {
         push("تم إنشاء المستخدم بنجاح", "success");
       }
       setUserModalOpen(false);
-    } catch {
-      push("فشل حفظ المستخدم، تأكد من صحة البيانات وعدم تكرار اسم المستخدم", "danger");
+    } catch (error) {
+      push(`فشل حفظ المستخدم: ${errorText(error)}`, "danger");
     }
   };
 
@@ -298,6 +298,7 @@ export default function AdminUsers() {
               >
                 <option value="all">جميع الأدوار...</option>
                 <option value="distributor">موزع (distributor)</option>
+                    <option value="supplier">مورد — عرض المخزون فقط (supplier)</option>
                 <option value="admin">مسؤول (admin)</option>
                 <option value="super_admin">سوبر أدمن (super_admin)</option>
               </select>
@@ -681,6 +682,7 @@ export default function AdminUsers() {
                     className="input text-xs"
                   >
                     <option value="distributor">موزع (distributor)</option>
+                    <option value="supplier">مورد — عرض المخزون فقط (supplier)</option>
                     <option value="admin">مسؤول (admin)</option>
                     <option value="super_admin">سوبر أدمن (super_admin)</option>
                   </select>
