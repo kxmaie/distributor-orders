@@ -63,7 +63,8 @@ export const api = {
 };
 
 const MESSAGES: Record<string, string> = {
-  INVALID_CREDENTIALS: "اسم المستخدم أو كلمة المرور غير صحيحة",
+  USER_NOT_REGISTERED: "اسم المستخدم غير مسجل، تأكد من الاسم أو أنشئ حسابًا جديدًا",
+  WRONG_PASSWORD: "كلمة المرور غير صحيحة، حاول مرة أخرى",
   ACCOUNT_LOCKED: "الحساب مقفول مؤقتًا بسبب محاولات كثيرة، حاول بعد 15 دقيقة",
   ACCOUNT_PENDING: "حسابك قيد المراجعة من قبل الإدارة، سيتم تفعيله قريباً",
   USERNAME_TAKEN: "اسم المستخدم مستخدم بالفعل، يرجى اختيار اسم آخر",

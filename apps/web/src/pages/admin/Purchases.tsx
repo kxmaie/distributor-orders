@@ -1,13 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Save, Trash2, X } from "lucide-react";
+import { Pencil, Printer, Save, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { api, errorText } from "../../lib/api";
 import { money } from "../../lib/format";
 import { useUI } from "../../store/ui";
 import type { AdminProduct, Page, Warehouse } from "../../lib/types";
+import PrintHeader from "../../components/PrintHeader";
 
 type Purchase = { id: string; invoiceNo: string; supplier: string; note: string | null; total: string; createdAt: string; items: { id: string; variantId: string; warehouseId: number; qty: number; unitCost: string; lineTotal: string; warehouse: { name: string }; variant: { id: string; product: { name: string }; label: string } }[] };
 type PurchaseLine = { variantId: string; qty: number; unitCost: string };
+function printPurchase(id: string) {
+  const selected = document.getElementById(`purchase-${id}`);
+  if (!selected) return;
+  const previousTitle = document.title;
+  document.title = `فاتورة-مشتريات-${id}`;
+  selected.classList.add("print-selected");
+  document.body.classList.add("print-purchase-invoice");
+  window.addEventListener("afterprint", () => { selected.classList.remove("print-selected"); document.body.classList.remove("print-purchase-invoice"); document.title = previousTitle; }, { once: true });
+  window.print();
+}
 const blankLine = (): PurchaseLine => ({ variantId: "", qty: 1, unitCost: "" });
 export default function Purchases() {
   const push = useUI((state) => state.push); const qc = useQueryClient();
@@ -38,6 +49,6 @@ export default function Purchases() {
       <div className="flex flex-wrap items-center justify-between gap-3"><button type="button" className="btn-ghost" onClick={() => setLines((current) => [...current, blankLine()])}>إضافة صنف للفاتورة</button><strong>الإجمالي: {money(total)}</strong></div>
       <button className="btn-primary" disabled={create.isPending || edit.isPending || !supplier.trim() || (Boolean(editingId) && !invoiceNo.trim()) || !warehouseId || !valid}><Save className="h-4 w-4" />{editingId ? "حفظ تعديل الفاتورة" : "حفظ الفاتورة وترحيلها للمخزون"}</button>
     </form>
-    <section className="card overflow-hidden"><h2 className="p-5 font-display text-lg font-bold">الفواتير النشطة</h2>{purchases.data?.map((purchase) => <article key={purchase.id} className="flex flex-wrap items-center justify-between gap-3 border-t border-line/10 p-4"><div className="min-w-0 flex-1"><b>{purchase.invoiceNo} · {purchase.supplier}</b><p className="mt-1 text-xs text-muted">{purchase.items.map((item) => `${item.variant.product.name} (${item.variant.label}) × ${item.qty}`).join("، ")}</p><p className="mt-1 text-xs text-muted">{purchase.items[0]?.warehouse.name} · {new Date(purchase.createdAt).toLocaleDateString("ar-EG")}</p></div><strong className="text-primary">{money(purchase.total)}</strong><div className="flex gap-2"><button type="button" className="btn-ghost" onClick={() => beginEdit(purchase)}><Pencil className="h-4 w-4" />تعديل</button><button type="button" className="btn-ghost text-danger" disabled={remove.isPending} onClick={() => { if (window.confirm(`حذف فاتورة ${purchase.invoiceNo}؟ سيتم عكس كمياتها من المخزون. إذا كان المخزون مستخدمًا أو محجوزًا سيرفض النظام الحذف.`)) remove.mutate(purchase.id); }}><Trash2 className="h-4 w-4" />حذف</button></div></article>)}{purchases.data?.length === 0 && <p className="p-5 text-sm text-muted">لا توجد فواتير مشتريات نشطة.</p>}{purchases.isError && <p className="p-4 text-sm text-danger">{errorText(purchases.error)}</p>}</section>
+    <section className="card overflow-hidden"><h2 className="p-5 font-display text-lg font-bold">الفواتير النشطة</h2>{purchases.data?.map((purchase) => <article key={purchase.id} id={`purchase-${purchase.id}`} className="purchase-invoice flex flex-wrap items-center justify-between gap-3 border-t border-line/10 p-4"><div className="min-w-0 flex-1"><b>{purchase.invoiceNo} · {purchase.supplier}</b><p className="mt-1 text-xs text-muted">{purchase.items.map((item) => `${item.variant.product.name} (${item.variant.label}) × ${item.qty}`).join("، ")}</p><p className="mt-1 text-xs text-muted">{purchase.items[0]?.warehouse.name} · {new Date(purchase.createdAt).toLocaleDateString("ar-EG")}</p></div><strong className="text-primary">{money(purchase.total)}</strong><div className="flex gap-2"><button type="button" className="btn-ghost" onClick={() => printPurchase(purchase.id)}><Printer className="h-4 w-4" />طباعة الفاتورة / PDF</button><button type="button" className="btn-ghost" onClick={() => beginEdit(purchase)}><Pencil className="h-4 w-4" />تعديل</button><button type="button" className="btn-ghost text-danger" disabled={remove.isPending} onClick={() => { if (window.confirm(`حذف فاتورة ${purchase.invoiceNo}؟ سيتم عكس كمياتها من المخزون. إذا كان المخزون مستخدمًا أو محجوزًا سيرفض النظام الحذف.`)) remove.mutate(purchase.id); }}><Trash2 className="h-4 w-4" />حذف</button></div><div className="purchase-invoice-paper"><PrintHeader title={`فاتورة مشتريات ${purchase.invoiceNo}`} /><h1 className="mb-4 text-2xl font-bold">فاتورة مشتريات</h1><div className="purchase-invoice-meta"><p><b>رقم الفاتورة:</b> {purchase.invoiceNo}</p><p><b>المورد:</b> {purchase.supplier}</p><p><b>التاريخ:</b> {new Date(purchase.createdAt).toLocaleDateString("ar-EG")}</p><p><b>المخزن:</b> {purchase.items[0]?.warehouse.name ?? "—"}</p></div><table className="purchase-invoice-table"><thead><tr><th>الصنف</th><th>الوصف</th><th>الكمية</th><th>تكلفة الوحدة</th><th>الإجمالي</th></tr></thead><tbody>{purchase.items.map((item) => <tr key={item.id}><td>{item.variant.product.name}</td><td>{item.variant.label}</td><td>{item.qty}</td><td>{money(item.unitCost)}</td><td>{money(item.lineTotal)}</td></tr>)}</tbody><tfoot><tr><th colSpan={4}>إجمالي الفاتورة</th><th>{money(purchase.total)}</th></tr></tfoot></table>{purchase.note && <p className="mt-5"><b>ملاحظات:</b> {purchase.note}</p>}</div></article>)}{purchases.data?.length === 0 && <p className="p-5 text-sm text-muted">لا توجد فواتير مشتريات نشطة.</p>}{purchases.isError && <p className="p-4 text-sm text-danger">{errorText(purchases.error)}</p>}</section>
   </div>;
 }
